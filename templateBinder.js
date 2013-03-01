@@ -28,7 +28,7 @@ function templateBinder(root, symbolTable) {
 				if (root.addEventListener) {
 					root.addEventListener(eventType, notifyEvent, false); 
 				} else if (el.attachEvent) {
-					root.addEventListener(eventType, notifyEvent);
+					root.attachEvent(eventType, notifyEvent);
 				}
 				console.log('registered:', eventType)
 				eventTable[eventType] = true;
