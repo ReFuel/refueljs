@@ -2,23 +2,36 @@
  * associando gli elementi method ai metodi del modulo "owner" del template 
  * prende la symbolTable 
  * agganciare listener al dom
- * al fire dell'evento richiamare callback
+ * al fire dell'evento notificare all'esterno tale evento
 */
 
+function hasDataMethod(element, type) {
+	for (var i in element.dataset) {
+		var res = (i.replace(/^rfMethod/, '').toLowerCase()) === type; 
+		return res || i.replace(/^rfMethod/, '') === '';
+	}
+}
+
 function notifyEvent(e) {
-	e.preventDefault(); //occorre????
-	notify('templateEvent', e); //Nome dell'evento????'
+	if (eventTable[e.type] && hasDataMethod(e.target, e.type)) {
+		notify(e.type, e)
+	}
+	e.preventDefault();
 }
 
 function templateBinder(root, symbolTable) {
 	/*var*/eventTable = {};
 	for(var i = 0, symbol;  symbol = symbolTable[i]; i++) {
 		if (symbol.action === 'method') {
-			var event = symbol.attributeName === 'data-rf-method' ? 'click' : symbol.attributeName.split('-rf-method-')[1]; //prestazioni!!!
-			if (!eventTable[event]) {
-				root.addEventListener(event, notifyEvent, true);
-				console.log('registered:', event, symbol.domElement)
-				eventTable[event] = true;
+			var eventType = symbol.attributeName === 'data-rf-method' ? 'click' : symbol.attributeName.split('-rf-method-')[1]; //prestazioni!!!
+			if (!eventTable[eventType]) {
+				if (root.addEventListener) {
+					root.addEventListener(eventType, notifyEvent, false); 
+				} else if (el.attachEvent) {
+					root.addEventListener(eventType, notifyEvent);
+				}
+				console.log('registered:', eventType)
+				eventTable[eventType] = true;
 			}
 		}
 	}
