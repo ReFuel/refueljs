@@ -1,67 +1,30 @@
 <html>
-	<head>
-    <script src="http://requirejs.org/docs/release/2.1.4/minified/require.js"></script>
-		<script src="zest.js"></script>
+<head>
+  <script src="http://requirejs.org/docs/release/2.1.4/minified/require.js"></script>
+  <script src="templateParser.js"></script>
 
-	</head>
-	<body>
-		<div id="alpha-section-root" data-rf-widget="alphaWidget">
-			<div data-rf-visible="visible">Il nome del figlio alpha è: {{alphaName}} e anche {{antani}}</div>
-			<div data-rf-if="!alpha">Spiacenti, il figlio di alpha non è disponibile</div>
-			<div>{{prova}}</div>
-			<ul data-rf-method-dblclick="insert">
-					<li data-rf-id="1">sf <a href="" data-rf-method="edit" data-rf-method-swipe="delete" data-rf-method-longtap="makeapiroetta" data-rf-value="1">Install</a></li>
-			</ul>
-			<input id="alpha" type="checkbox" data-rf-method="alphaChange" />
-		</div>
-	</body>
+</head>
+<body>
+  <div id="alpha-section-root" data-rf-widget="alphaWidget">
+   <div data-rf-id="myElement" data-rf-visible="visible">Il nome del figlio alpha è: {{alphaName}} e anche {{antani}}</div>
+   <div data-rf-if="!alpha">Spiacenti, il figlio di alpha non è disponibile {{alphaName}} </div>
+   <div id="{{prova}}" ></div>
+   <ul data-rf-method-dblclick="insert">
+     <li data-rf-id="1">sf <a href="" data-rf-method="edit" data-rf-method-swipe="delete" data-rf-method-longtap="makeapiroetta" data-rf-value="1">Install</a></li>
+   </ul>
+   <input id="alpha" type="checkbox" data-rf-method="alphaChange" />
+ </div>
+</body>
 
-	<script type="text/javascript">
+<script type="text/javascript">
 		// if there was a parameter,
 		// it gets closured as `param`
-		zest.selectors[':data-starts-with'] = function(param) {
-			return function(el, ds, dsElm) {
-				ds = el.dataset;
-				for (dsElm in ds){
-					if (dsElm.indexOf(param)===0) return true;
-				}
-			};
-		};
+    DOMParser(document.querySelector("#alpha-section-root"));
+    var dom = getSymbolTable();
 
-		
-		function templateParser(selector) {
-			var root = document.querySelector(selector);
-			if (!root) {
-				return false;
-			}
-			var symbolTable = {};
-			var braceRegExpr = new RegExp('\\{\\{([^*}]+)(\\*([^*}]+))?\\}\\}');// Matches {{varname*filter1(3)|...}}
-			var rfEls = zest('*:data-starts-with("rf"), *:contains("{{")', root);
-			
-			for(var i=0, element, elmDataset, dsElm, elmText; element = rfEls[i]; i++) {
-				if (!element.id){
-					element.id = "rf_" + i;
-				}
-				symbolTable[element.id] =  {
-					domEl: element,
-					actions: {}
-				};
-				
-				elmDataset = element.dataset;
-				for (dsElm in elmDataset){
-					if (dsElm.indexOf("rf")===0){
-						symbolTable[element.id].actions[dsElm] = elmDataset[dsElm];
-					}
-				}
-				elmText = element.innerText || element.textContent;
-				var r = elmText.match(braceRegExpr);
-				if (elmText.indexOf("{{")>-1){
-					
-				}
-			}
-			console.log(symbolTable);
-		}
+    
 
 
-	</script>
-</html>
+
+   </script>
+   </html>
