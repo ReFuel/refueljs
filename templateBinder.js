@@ -4,6 +4,7 @@
  * agganciare listener al dom
  * al fire dell'evento notificare all'esterno tale evento
 */
+var eventTable = {};
 
 function hasDataMethod(element, type) {
 	for (var i in element.dataset) {
@@ -20,7 +21,7 @@ function notifyEvent(e) {
 }
 
 function templateBinder(root, symbolTable) {
-	/*var*/eventTable = {};
+
 	for(var i = 0, symbol;  symbol = symbolTable[i]; i++) {
 		if (symbol.action === 'method') {
 			var eventType = symbol.attributeName === 'data-rf-method' ? 'click' : symbol.attributeName.split('-rf-method-')[1]; //prestazioni!!!
