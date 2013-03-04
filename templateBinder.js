@@ -13,8 +13,8 @@ datasetRegExp.compile();
 
 function hasDataMethod(element, type) {
 	for (var i in element.dataset) {
-		var method = (i.replace(datasetRegExp, '');
-		return ((method.toLowerCase()) === type) || method === ''); 
+		var method = i.replace(datasetRegExp, '');
+		return method.toLowerCase() === type || method === ''; 
 	}
 }
 
