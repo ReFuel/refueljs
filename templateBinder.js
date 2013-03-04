@@ -5,11 +5,8 @@
  * al fire dell'evento notificare all'esterno tale evento
 */
 var eventTable = {},
-	attributeRegExp = /data-rf-method-/,
-	datasetRegExp = /rfMethod/;
-	
-attributeRegExp.compile();
-datasetRegExp.compile();
+	attributeRegExp = new RegExp("data-rf-method-",'i'),
+	datasetRegExp = new RegExp("rfMethod", 'i');
 
 function hasDataMethod(element, type) {
 	for (var i in element.dataset) {
