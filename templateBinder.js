@@ -15,8 +15,8 @@ function hasDataMethod(element, type) {
 
 function notifyEvent(e) {
 	if (eventTable[e.type] && hasDataMethod(e.target, e.type)) {
-		var method = e.type==="click"? e.target.dataset["rfMethod"] || e.target.dataset["rfMethodClick"] : e.target.dataset[rfMethod]
-		notify()
+		e.method = (e.type==="click"? e.target.dataset["rfMethod"] || e.target.dataset["rfMethodClick"] : e.target.getAttribute("dat-rf-method-" + e.type));
+		notify(e.type, e)
 	}
 	e.preventDefault();
 }

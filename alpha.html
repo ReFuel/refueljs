@@ -20,8 +20,8 @@
 
 	<script type="text/javascript">
 
-		function clickEventHandler(e) {
-			alert(e.type + ' on ' + e.target);
+		function clickEventHandler(data) {
+			alert("call: " + data.method);
 		}
 		
 // 		subscribe('click', clickEventHandler);
