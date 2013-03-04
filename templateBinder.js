@@ -21,7 +21,8 @@ function notifyEvent(e) {
 						e.target.dataset["rfMethod"] || e.target.dataset["rfMethodClick"] : 
 						e.target.getAttribute("data-rf-method-" + e.type)
 				   );
-		notify(e.type, e)
+		//notify(e.type, e);
+		notify('genericBinderEvent', e);
 	}
 	event.preventDefault ? event.preventDefault() : event.returnValue = false;
 }
