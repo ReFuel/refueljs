@@ -20,7 +20,7 @@ function notifyEvent(e) {
 				   );
 		notify(e.type, e)
 	}
-	e.preventDefault();
+	event.preventDefault ? event.preventDefault() : event.returnValue = false;
 }
 // Per un bug degli eventi del dom, non è possibile associare ad un elemento l'evento doppio click e il click. 
 // Diventa allora difficile agganciare tutti gli eventi alla root del template (to do: add a workaround)
@@ -30,7 +30,7 @@ function templateBinder(root, symbolTable) {
 			var eventType = (/data-rf-method$/.test(symbol.attributeName)? 
 								'click' : 
 								symbol.attributeName.replace(/data-rf-method-/, '')
-							); //prestazioni!!!
+							); 
 			if (!eventTable[eventType]) {
 				if (root.addEventListener) {
 					root.addEventListener(eventType, notifyEvent, false); 
