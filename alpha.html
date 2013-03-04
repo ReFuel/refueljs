@@ -10,11 +10,11 @@
 		<div id="alpha-section-root" data-rf-widget="alphaWidget">
 			<div data-rf-id="myElement" data-rf-visible="visible">Il nome del figlio alpha è: {{alphaName}} e anche {{antani}}</div>
 			<div data-rf-if="!alpha">Spiacenti, il figlio di alpha non è disponibile {{alphaName}} </div>
-			<div id="{{prova}}" data-rf-method="faiquesto">prova a cliccare qui</div>
-			<ul data-rf-method-dblclick="insert">
-				<li data-rf-id="1">sf <a href="" data-rf-method="edit" data-rf-method-swipe="delete" data-rf-method-longtap="makeapiroetta" data-rf-value="1">Install</a></li>
+			<div id="{{prova}}" data-rf-method = "alert">prova a cliccare qui</div>
+			<ul >
+				<li data-rf-id="1">sf <a href="" data-rf-method-dblclick="insert" data-rf-method-swipe="delete" data-rf-method-longtap="makeapiroetta" data-rf-value="1">Install</a></li>
 			</ul>
-			<input id="alpha" type="checkbox" data-rf-method="alphaChange" />
+			<input id="alpha" type="checkbox" />
 		</div>
 	</body>
 
@@ -24,6 +24,7 @@
 			alert(e.type + ' on ' + e.target);
 		}
 		
+// 		subscribe('click', clickEventHandler);
 		subscribe('click', clickEventHandler);
 		
 		var root = document.querySelector("#alpha-section-root"); 
