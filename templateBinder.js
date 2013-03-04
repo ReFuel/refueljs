@@ -4,11 +4,17 @@
  * agganciare listener al dom
  * al fire dell'evento notificare all'esterno tale evento
 */
-var eventTable = {};
+var eventTable = {},
+	attributeRegExp = /data-rf-method-/,
+	datasetRegExp = /rfMethod/;
+	
+attributeRegExp.compile();
+datasetRegExp.compile();
 
 function hasDataMethod(element, type) {
 	for (var i in element.dataset) {
-		return ((i.replace(/rfMethod/, '').toLowerCase()) === type) || (i.replace(/rfMethod/, '') === ''); 
+		var method = (i.replace(datasetRegExp, '');
+		return ((method.toLowerCase()) === type) || method === ''); 
 	}
 }
 
@@ -27,10 +33,7 @@ function notifyEvent(e) {
 function templateBinder(root, symbolTable) {
 	for(var i = 0, symbol;  symbol = symbolTable[i]; i++) {
 		if (symbol.action === 'method') {
-			var eventType = (/data-rf-method$/.test(symbol.attributeName)? 
-								'click' : 
-								symbol.attributeName.replace(/data-rf-method-/, '')
-							); 
+			var eventType = (symbol.attributeName === 'data-rf-method' ? 'click' : symbol.attributeName.replace(attributeRegExp, '')); 
 			if (!eventTable[eventType]) {
 				if (root.addEventListener) {
 					root.addEventListener(eventType, notifyEvent, false); 
