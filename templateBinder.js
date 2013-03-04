@@ -8,24 +8,29 @@ var eventTable = {};
 
 function hasDataMethod(element, type) {
 	for (var i in element.dataset) {
-		var res = (i.replace('rfMethod', '').toLowerCase()) === type; 
-		return res || i.replace('rfMethod', '') === '';
+		return ((i.replace(/rfMethod/, '').toLowerCase()) === type) || (i.replace(/rfMethod/, '') === ''); 
 	}
 }
 
 function notifyEvent(e) {
 	if (eventTable[e.type] && hasDataMethod(e.target, e.type)) {
-		e.method = (e.type==="click"? e.target.dataset["rfMethod"] || e.target.dataset["rfMethodClick"] : e.target.getAttribute("data-rf-method-" + e.type));
+		e.method = (e.type === "click"? 
+						e.target.dataset["rfMethod"] || e.target.dataset["rfMethodClick"] : 
+						e.target.getAttribute("data-rf-method-" + e.type)
+				   );
 		notify(e.type, e)
 	}
 	e.preventDefault();
 }
 // Per un bug degli eventi del dom, non è possibile associare ad un elemento l'evento doppio click e il click. 
-// Diventa allora difficile agganciare tutti gli eventi alla root del template
+// Diventa allora difficile agganciare tutti gli eventi alla root del template (to do: add a workaround)
 function templateBinder(root, symbolTable) {
 	for(var i = 0, symbol;  symbol = symbolTable[i]; i++) {
 		if (symbol.action === 'method') {
-			var eventType = symbol.attributeName === 'data-rf-method' ? 'click' : symbol.attributeName.replace('data-rf-method-', ''); //prestazioni!!!
+			var eventType = (/data-rf-method$/.test(symbol.attributeName)? 
+								'click' : 
+								symbol.attributeName.replace(/data-rf-method-/, '')
+							); //prestazioni!!!
 			if (!eventTable[eventType]) {
 				if (root.addEventListener) {
 					root.addEventListener(eventType, notifyEvent, false); 
