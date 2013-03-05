@@ -3,39 +3,58 @@ requirejs.config({
     enforceDefine: true
 });
 
-function defineModule(cName, cParent, cBody) {
-    define(cName, [cParent], function(cParentBody) {
-        if (cParentBody) {
-            cParentBody.apply(cBody); //arguments
-            cBody.prototype = new cParentBody;
+/**
+*   cWhore structure is { inherits: (string), requires: [(string)] }
+*   cInheritBody always is the class define by inherits property
+*   
+**/
+function defineModule(cName, cWhore, cBody) {
+
+    requireList = cWhore;
+    if (!isArray(cWhore)) {
+        requireList = [].concat(cWhore.inherits, cWhore.requires);
+    }
+    console.log('defineModule.requireList',cName, requireList);
+
+    //var requires = [];
+    /*
+    if (typeof(cWhore) === 'object' && )*/
+  /*  else if (typeof(cWhore) === 'array')
+*/
+
+    define(cName, requireList, function(cInheritBody) {
+        //debugger;
+        console.log('defineModule.deps shiftato',cName, arguments);
+        var deps = argumentsToArray(arguments);
+        deps.shift();
+        cBody = cBody.apply(this, deps);
+        if (cInheritBody) {
+            cInheritBody.apply(cBody); //arguments
+            cBody.prototype = new cInheritBody;
             cBody.prototype.constructor = cBody;
-            
         }
-        cBody = cBody();
-        moduleMap[cName] = {superClass: cParent, body: cBody};
-        console.log('moduleMap', moduleMap[cName]);
+        moduleMap[cName] = {superClass: cWhore, body: cBody};
         return cBody;
     });       
 };
 
-function newModule(cName) {
-    require([cName], function(cBody) {
-        return new cBody();
-    });
+function newModule(module) {
+
+
+    if (typeof(module) === 'string' && moduleMap[module]){
+        return new moduleMap[module].body(); 
+    } else if (typeof(module) === 'function') {
+        return new module();
+    } else {
+        console.error('ReFuel::Module '+module+' must be defined');
+    }
+    //require([cName], function(cBody) {
+    //});
 }
 
-defineModule('BasicModule', 'AbstractModule', function() {
-     return function BasicModule(){
-        var name = "BasicModule";
-        this.publicName = "Basic-Module";
-        var length = 0;
-        this.setLength = function(n) {
-            length = n;
-        }
-        this.getLength = function(){
-            return length;
-        }
-    }
-});
-
-//var mod1 = newModule('BasicModule');
+function isArray(target) {
+    return toString.call(target) === '[object Array]';
+}
+function argumentsToArray(args){
+    return Array.prototype.slice.call(args);
+}
