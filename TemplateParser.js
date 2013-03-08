@@ -39,7 +39,8 @@ define(function() {
 			}
 		}
 	}
-	this.DOMParser = function(node,
+
+	function DOMParser(node,
 					   /* privates */ nodeValue, matchedElms) {
 		nodeValue = node.nodeValue;
 		switch (node.nodeType){
@@ -63,9 +64,14 @@ define(function() {
 		}
 	}
 
-	this.getSymbolTable = function() {
+	function getSymbolTable() {
 		return symbolTable;
 	}
+
+	return {
+		getSymbolTable: getSymbolTable,
+		DOMParser: DOMParser
+	};
 
 	// Usage: DOMParser(DOMElement);
 	// Array: Contains elements to be replaced by template renderer
