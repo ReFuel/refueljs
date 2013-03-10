@@ -1,12 +1,14 @@
-define(function() {
-	return function Template () {
-
+define('Template', ['Core','Events'], function(Core,Events) {
+	return function Template (tRoot) {
+		var self = this;
+		var root = tRoot;
+		Core.implement(Events, this);
+		this.autoBindActive = true;
 		//	PARSER
 		var regExpToMatchName = new RegExp("data-rf-(\\w*)");
 		var regExpToMatchValue = new RegExp("\\{\\{(.*)\\}\\}");
 		var symbolTable = [];
 		var referenceCounter = 0;
-		
 		//TODO Clonare la root dentro un fragment
 		//TODO Trasformare in hash con un ID = chiave primaria (generare id seq. se non definito nel dom)
 		function _parseAttributes(symbolTable, node, regExpToMatchName, regExpToMatchValue, refId,
@@ -40,16 +42,17 @@ define(function() {
 			}
 		}
 
-		function DOMParser(node,
+		this.parser = function(node,
 						   /* privates */ nodeValue, matchedElms) {
+			var node = node || root;
 			nodeValue = node.nodeValue;
 			switch (node.nodeType){
 				case 1:
 					_parseAttributes(symbolTable, node, regExpToMatchName, regExpToMatchValue);
 					for (var i=0, childElm; childElm = node.childNodes[i++];) {
-						DOMParser(childElm);
+						this.parser(childElm);
 					}
-					this.events.notify('myEvent', {'symbolTable': symbolTable});
+					self.notify('myEvent', {'symbolTable': symbolTable});
 					break;
 				case 3:
 					//if (regExpToMatchValue.test(nodeValue)) {
@@ -63,12 +66,15 @@ define(function() {
 					}
 					break;
 			}
+			autoBind();
 		}
 
-		function getSymbolTable() {
+		this.getSymbolTable = function() {
 			return symbolTable;
 		}
-
+		this.setRoot = function(r) {
+			root = r;
+		}
 
 		//	BINDER
 		var eventTable = {};
@@ -83,27 +89,27 @@ define(function() {
 		}
 
 		function notifyEvent(e) {
-			debugger;
 			if (eventTable[e.type] && hasDataMethod(e.target, e.type)) {
 				e.method = (e.type === "click"? 
 					e.target.dataset["rfMethod"] || e.target.dataset["rfMethodClick"] : 
 					e.target.getAttribute("data-rf-method-" + e.type)
 			    );
-				notify('genericBinderEvent', e);
+			    console.log('Template.events.notify',e);
+				self.notify('genericBinderEvent', e);
 			}
 			event.preventDefault ? event.preventDefault() : event.returnValue = false;
 		}
 		// Per un bug degli eventi del dom, non è possibile associare ad un elemento l'evento doppio click e il click. 
-		// Diventa allora difficile agganciare tutti gli eventi alla root del template (to do: add a workaround)
-		function templateBinder (root, symbolTable) {
+		// Diventa allora difficile agganciare tutti gli eventi alla root del template (TODO add a workaround)
+		function templateBinder (rootEl, symbolTable) {
 			for(var i = 0, symbol;  symbol = symbolTable[i]; i++) {
 				if (symbol.action === 'method') {
 					var eventType = (symbol.attributeName === 'data-rf-method' ? 'click' : symbol.attributeName.replace(attributeRegExp, '')); 
 					if (!eventTable[eventType]) {
-						if (root.addEventListener) {
-							root.addEventListener(eventType, notifyEvent, false); 
+						if (rootEl.addEventListener) {
+							rootEl.addEventListener(eventType, notifyEvent, false); 
 						} else if (el.attachEvent) {
-							root.attachEvent("on"+eventType, notifyEvent);
+							rootEl.attachEvent("on"+eventType, notifyEvent);
 						}
 						console.log('registered:', eventType);
 						eventTable[eventType] = true;
@@ -111,19 +117,12 @@ define(function() {
 				}
 			}
 		}
-
+		function autoBind() {
+			if (self.autoBindActive) {
+				templateBinder(root, symbolTable);
+			}
+		}
 		//RENDERER
 
-
-
-
-
-		return {
-	    	getSymbolTable: getSymbolTable,
-			DOMParser: DOMParser,
-			hasDataMethod: hasDataMethod,
-			notifyEvent: notifyEvent,
-			templateBinder: templateBinder
-	    };
 	};
 });

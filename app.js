@@ -3,9 +3,7 @@ requirejs.config({
 });
 
 
-	var list;// = newModule('ListModule');
-define(['ListModule'], function() {
-	list = newModule('ListModule', {
-		root: '#todoapp'
-	});
+	var list;
+define(['ListModule'], function(ListModule) {
+	list = new ListModule({root: '#todoapp'});
 });

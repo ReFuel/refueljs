@@ -1,37 +1,38 @@
-function Events() {
-	var onGoingNotification = {};
+define('Events',[] , function() {
+	return function Events(options) {
 
-	function notify(name, data){
-		if (!name || typeof(name)!=='string'){
-			throw new TypeError("Invalid event name '" + name);
-		}
-		if (!data || typeof(data)!=='object'){
-			throw new TypeError("Invalid event data '" + data);
-		}
+		var onGoingNotification = {};
 
-		if (onGoingNotification[name] instanceof Array) {
-			var listeners = [].concat(onGoingNotification[name]);
-			for (var i = 0, len = listeners.length; i < len; i++) {
-				listeners[i].call(this, data);
+		this.notify = function(name, data){
+			if (!name || typeof(name)!=='string'){
+				throw new TypeError("Invalid event name '" + name);
+			}
+			if (!data || typeof(data)!=='object'){
+				throw new TypeError("Invalid event data '" + data);
+			}
+
+			if (onGoingNotification[name] instanceof Array) {
+				var listeners = [].concat(onGoingNotification[name]);
+				for (var i = 0, len = listeners.length; i < len; i++) {
+					listeners[i].call(this, data);
+				}
 			}
 		}
-	}
 
-	function subscribe(name, handler){
-		if (!name || typeof(name)!=='string'){
-			throw new TypeError("Invalid event name '" + name);
-		}
-		if (!handler || typeof(handler)!=='function'){
-			throw new TypeError("Invalid event handler '" + handler);
-		}
+		this.subscribe = function(name, handler){
+			if (!name || typeof(name)!=='string'){
+				throw new TypeError("Invalid event name '" + name);
+			}
+			if (!handler || typeof(handler)!=='function'){
+				throw new TypeError("Invalid event handler '" + handler);
+			}
 
-		if (typeof onGoingNotification[name] === "undefined") {
-			onGoingNotification[name] = [];
-		}
-		onGoingNotification[name].push(handler);
-	}	
-	return {
-		notify: notify,
-		subscribe: subscribe
+			if (typeof onGoingNotification[name] === "undefined") {
+				onGoingNotification[name] = [];
+			}
+			onGoingNotification[name].push(handler);
+		}	
 	}
-}
+});
+
+

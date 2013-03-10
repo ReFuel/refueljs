@@ -1,10 +1,11 @@
-defineModule('ListModule', {inherits: 'AbstractModule'}, function() {
+define(['Core', 'AbstractModule'] , function(Core, AbstractModule) {
 	return function ListModule(options) {
-        this.parse(options.root);
-    	
+        Core.implement(AbstractModule, this);
+
+        this.parse(options.root);  	
       	this.addTodo = function(e) {
-			console.log('addElement',e);
-		}		
+			console.log('addElement',options);
+		}
 	}
 });
 
