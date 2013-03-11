@@ -1,4 +1,4 @@
-define('Core', [], function() {
+define(function() {
     var moduleMap = {};
     /**
     *   cWhore structure is { inherits: (string), requires: [(string)] }

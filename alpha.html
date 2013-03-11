@@ -1,4 +1,5 @@
-<html>
+<!doctype html>
+<html lang="en">
 	<head>
 		<meta charset="utf-8">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
@@ -7,43 +8,52 @@
 		<script data-main="app.js" src="http://requirejs.org/docs/release/2.1.4/minified/require.js"></script>
 	</head>
 	<body>
-		<section id="todoapp" data-module="Todo">
+		<section id="todoapp">
 			<header id="header">
 				<h1>todos</h1>
-				<input id="new-todo" data-rf-method-keypress="addTodo" autofocus />
+				<input id="new-todo" placeholder="What needs to be done?" data-rf-method-keypress="addTodo" autofocus>
 			</header>
 			<!-- This section should be hidden by default and shown when there are todos -->
 			<section id="main">
-				<input id="toggle-all" type="checkbox" data-id="toggleAllButton">
+				<input id="toggle-all" type="checkbox">
 				<label for="toggle-all">Mark all as complete</label>
-				<ul id="todo-view" data-name="todoView" data-loop="todoList">
-					<li data-template="todoView">
+				<ul id="todo-list" data-rf-loop="todoList">
+					
+					<!-- List items should get the class `editing` when editing and `completed` when marked as completed -->
+					<li data-rf-template="todoTemplate"> 
 						<div class="view">
-							<input class="toggle" type="checkbox" value="{{done}}" data-method="changeDone">
-							<label>{{text}}</label> 
-							<button class="destroy" data-method="destroy" ></button>
+							<input class="toggle" type="checkbox" data-rf-method="changeDone" checked="{{done}}">
+							<label>{{text}}</label>
+							<button class="destroy" data-rf-method="destroy"></button>
 						</div>
-						<input class="edit" data-method="edit">
+						<input class="edit" value="Create a TodoMVC template">
 					</li>
+
 				</ul>
 			</section>
 			<footer id="footer">
-				<span id="todo-count">
-					<strong id="todoListLenght">{{length}}</strong> <span >item</span> left
-				</span>
+				<span id="todo-count"><strong>{{length}}</strong> item left</span> 
+				<!-- Remove this if you don't implement routing -->
 				<ul id="filters">
 					<li>
-						<a class="selected" href="#/" data-method="viewAll">All</a>
+						<a class="selected" href="#/">All</a>
 					</li>
 					<li>
-						<a href="#/active" data-method="viewActive">Active</a>
+						<a href="#/active">Active</a>
 					</li>
 					<li>
-						<a href="#/completed" data-method="viewCompleted">Completed</a>
+						<a href="#/completed">Completed</a>
 					</li>
 				</ul>
 				<button id="clear-completed">Clear completed ( {{completedLength}} )</button>
 			</footer>
 		</section>
+		<footer id="info">
+			<p>Double-click to edit a todo</p>			
+			<p>Created by <a href="http://appsfuel.com">Appsfuel</a></p>
+			<p>Part of <a href="http://todomvc.com">TodoMVC</a></p>
+		</footer>
+		<!-- Scripts here. Don't remove this ↓ -->
+		<script data-main="app.js" src="http://requirejs.org/docs/release/2.1.4/minified/require.js"></script>
 	</body>
 </html>

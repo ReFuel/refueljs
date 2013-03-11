@@ -1,4 +1,4 @@
-define('Events',[] , function() {
+define(function() {
 	return function Events(options) {
 
 		var onGoingNotification = {};
