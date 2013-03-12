@@ -4,6 +4,7 @@ define(['Core','Events'], function(Core,Events) {
 		var root = tRoot;
 		Core.implement(Events, this);
 		this.markMissedRefs = true;
+		this.bindingsProxy = null;
 		//	PARSER
 		var regExpToMatchName = new RegExp('data-rf-(\\w*)');
 		var regExpToMatchValue = new RegExp('\\{\\{(.*)\\}\\}');
@@ -59,16 +60,6 @@ define(['Core','Events'], function(Core,Events) {
 			return parsedAttributes;
 		}
 
-		function resolveChain(path, data) {
-			var extractedData = data;
-			if (path && path != '.' && path != '') {
-				var dataPath = path.split('.');
-				for (var c in dataPath) {
-					extractedData = extractedData[dataPath[c]];
-				}
-			}
-			return extractedData;
-		}
 
 		function hasDataMethod(element, type) {
 			for (var i in element.dataset) {
@@ -78,12 +69,13 @@ define(['Core','Events'], function(Core,Events) {
 		}
 
 		function notifyEvent(e) {
+			self.bindingsProxy = self.bindingsProxy || self;
 			if (eventTable[e.type] && hasDataMethod(e.target, e.type)) {
 				e.method = (e.type === 'click'? 
 					e.target.dataset['rfMethod'] || e.target.dataset['rfMethodClick'] : 
 					e.target.getAttribute('data-rf-method-' + e.type)
 			    );
-				self.notify('genericBinderEvent', e);
+				self.bindingsProxy.notify('genericBinderEvent', e);
 			}
 			//TODO preventDefault: Why Judy, why?
 			//event.preventDefault ? event.preventDefault() : event.returnValue = false;
@@ -155,48 +147,58 @@ define(['Core','Events'], function(Core,Events) {
 		*	@param data array or object of data to insert inside the template 
 		*/
 		this.render = function(data, tSymbolTable) {
-
 			if (!data) console.error('Template::render data argument is null');
 			if (!tSymbolTable) tSymbolTable = symbolTable;
-			console.log('render',data, tSymbolTable);
 			for(var i = 0, symbol;  symbol = tSymbolTable[i]; i++) {
-				switch(symbol.action) {
-					case 'replaceText': 
-						var linkedData = resolveChain(symbol.match[1], data) || '';
-						if (!linkedData && self.markMissedRefs) symbol.domElement.style.border = "1px solid red";
-						symbol.textNode.textContent = symbol.text.replace(symbol.match[0], linkedData);
-					break;
-					case 'replaceAttributeValue':
-						var linkedData = resolveChain(symbol.match[1], data) || '';
-						if (!linkedData && self.markMissedRefs) symbol.domElement.style.border = "1px solid red";
+				renderSymbol(data, symbol)
+			}
+		}
+		function renderSymbol(data, symbol) {
+			//console.log(symbol);
+			switch(symbol.action) {
+				case 'replaceText': 
+					var linkedData = Core.resolveChain(symbol.match[1], data) || '';
+					if (!linkedData && self.markMissedRefs) symbol.domElement.style.border = "1px solid red";
+					symbol.textNode.textContent = symbol.text.replace(symbol.match[0], linkedData);
+				break;
+				case 'replaceAttributeValue':
+					var linkedData = Core.resolveChain(symbol.match[1], data) || '';
+					if (!linkedData && self.markMissedRefs) symbol.domElement.style.border = "1px solid red";
 
-						switch(symbol.attributeName) {
-							case 'checked':
-							case 'selected':
-								linkedData ? symbol.domElement.setAttribute(symbol.attributeName, 'true') : 
-											 symbol.domElement.removeAttribute(symbol.attributeName)
-								symbol.attribute.value = linkedData == true;
-							break;
-							default:
-								symbol.attribute.value = symbol.attributeValue.replace(symbol.match[0], linkedData);	
-						}
-					break;
-					case 'loop':
-						var linkedData = resolveChain(symbol.attributeValue, data) || '';
-						symbol.elements = [];
-						for (var i = 0; i < linkedData.length; i++) {
-							var domClone = symbol.template.cloneNode(true);
-							var tmpl = new Template(domClone);
-							tmpl.parser();
-							tmpl.render(linkedData[i]);
-							symbol.elements.push(tmpl);
-							var html = tmpl.getRoot();
-							symbol.domElement.appendChild(html);
-							console.log(html);
-						};
+					switch(symbol.attributeName) {
+						case 'checked':
+						case 'selected':
+							linkedData ? symbol.domElement.setAttribute(symbol.attributeName, 'true') : 
+										 symbol.domElement.removeAttribute(symbol.attributeName)
+							symbol.attribute.value = linkedData == true;
+						break;
+						default:
+							symbol.attribute.value = symbol.attributeValue.replace(symbol.match[0], linkedData);	
+					}
+				break;
+				case 'loop':
+					//TODO da fattorizzare
+					var linkedData = Core.resolveChain(symbol.attributeValue, data) || '';
+					symbol.elements = [];
 
-					break;
-				}
+					
+					for (var i = 0; i < linkedData.length; i++) {
+						var domClone = symbol.template.cloneNode(true);
+						var tmpl = new Template(domClone);
+						tmpl.bindingsProxy = self;
+
+						//La symbol table per ogni elemento non ha bisogno di essere ri-parsata ogni volta
+						//andrebbe parsata una volta dal main-tmpl, clonata e passata direttamente al template 
+						//con un metodo apposito 
+						tmpl.parser();
+						tmpl.render(linkedData[i]);
+						symbol.elements.push(tmpl);
+						var html = tmpl.getRoot();
+						symbol.domElement.appendChild(html);
+					};
+					
+					
+				break;
 			}
 		}
 
@@ -206,7 +208,6 @@ define(['Core','Events'], function(Core,Events) {
 				if(symbol.name && symbol.name == name) return symbol;
 			}
 		}
-
 		this.getSymbolTable = function() {
 			return symbolTable;
 		}
@@ -215,6 +216,9 @@ define(['Core','Events'], function(Core,Events) {
 		}
 		this.getRoot = function() {
 			return root;
+		}
+		this.getBindings = function() {
+			return eventTable;
 		}
 
 	};

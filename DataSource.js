@@ -5,6 +5,8 @@ define(['Core', 'Events'], function(Core, Events) {
     	Core.implement(Events, this);
 
     	
+    	var data = [];
+    	
 
     }
 });
