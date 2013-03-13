@@ -1,8 +1,7 @@
-define(['Core', 'AbstractModule', 'Updater'] , function(Core, AbstractModule, Updater) {
+define(['Core', 'BasicModule'] , function(Core, BasicModule) {
 	return function ListModule(options) {
         this.name='ListModule';
-        Core.implement(AbstractModule, this);
-        Core.implement(Updater, this);
+        Core.implement(BasicModule, this);
 
         //sostituire con un datasource
         var dataList = [];
@@ -15,19 +14,8 @@ define(['Core', 'AbstractModule', 'Updater'] , function(Core, AbstractModule, Up
             length: numberOfElements,
             todoList: dataList
         }
-        this.observable('data.length');
-
-
-        //questo dovrà essere automatico alla dichiarazione di observable
-        this.observe('data.length', function(e) {
-            console.log('data is changed'); 
-        });
-
-        //this.observable('dataList');
-
-
-        this.parse(options.root);
         
+        this.parse(options.root);
         //serve anche sapere quando il tmpl ha finito di parsare? automatizzare il processo!
         //in callback del datasource, probabilmente automatizzando
         this.render(this.data);

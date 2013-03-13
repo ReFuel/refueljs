@@ -1,6 +1,6 @@
 define(function() {
 	return function Events(options) {
-
+		if(this.notify && this.subscribe) return;
 		var onGoingNotification = {};
 
 		this.notify = function(name, data){

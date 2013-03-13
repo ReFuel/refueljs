@@ -1,3 +1,13 @@
+/**
+Symbol-Structure = {
+	action: replaceText|replaceAttributeValue|loop|method
+	attribute: [DOM Reference to an Attribute if symbol is inside an attribute]
+	attributeName: [if attribute is present]
+	originalContent: original content of the symbol, not resolved
+	linkedTo: The name of the property the symbol is linked to
+}
+*/
+
 define(['Core','Events'], function(Core,Events) {
 	return function Template (tRoot) {
 		var self = this;
@@ -5,61 +15,59 @@ define(['Core','Events'], function(Core,Events) {
 		Core.implement(Events, this);
 		this.markMissedRefs = true;
 		this.bindingsProxy = null;
-		//	PARSER
+
 		var regExpToMatchName = new RegExp('data-rf-(\\w*)');
 		var regExpToMatchValue = new RegExp('\\{\\{(.*)\\}\\}');
 		var attributeRegExp = new RegExp('data-rf-method-','i');
 		var datasetRegExp = new RegExp('rfMethod', 'i');
 		
-		//	BINDER
 		var eventTable = {};
 		var symbolTable = [];
 
-		//TODO Clonare la root dentro un fragment
-		//TODO Trasformare in hash con un ID = chiave primaria (generare id seq. se non definito nel dom)
 		function parseAttributes(node, symbolTable, regExpToMatchName, regExpToMatchValue, refId,
 			 					/* privates */ nodeAttributes, matchedElms, attribute, attributeName, attributeValue) {
 			nodeAttributes = node.attributes;
 			var parsedAttributes = [];
 			for (var i = 0; attribute = nodeAttributes[i]; i++) {
+				if (!attribute.specified) continue;
 				attributeName = attribute.name;
 				attributeValue = attribute.value;
-				if (!attribute.specified || attribute.name == 'data-rf-name' || attribute.name == 'data-rf-parent') {
-					continue;
-				}
-				var name = node.getAttribute('data-rf-name');
+	
 				var symbol;
+				//Attribute is like data-rf-*
 				if (matchedElms = attributeName.match(regExpToMatchName)) {
 					symbol = {
 						domElement: node,
 						action: matchedElms[1],
 						attribute: attribute,
 						attributeName: attributeName,
-						attributeValue: attributeValue,
-						match: matchedElms,
-						name: name,
+						linkedTo: attributeValue,
 						symbolTable: []
 					};
 				}
-				else if (matchedElms = attributeValue.match(regExpToMatchValue)) {
+				//Attribute Value contains {{*}}
+				if (matchedElms = attributeValue.match(regExpToMatchValue)) {
+					var opts = matchedElms[1].split(':');
+					var linkedTo = opts.length > 1 ? opts[1] : opts[0];
 					symbol = {
-						domElement: node,
 						action: 'replaceAttributeValue',
 						attribute: attribute,
 						attributeName: attributeName,
-						attributeValue: attributeValue,
-						match: matchedElms,
-						name: name
+						domElement: node,
+						linkedTo: linkedTo,
+						originalContent: attributeValue,
+						originalSymbol: matchedElms[0]
 					};
+					if (opts.length > 1) symbol.option = opts[0];
 				}
 				if (symbol) {
 					symbolTable.push(symbol);
 					parsedAttributes[symbol.action] = symbol; 
 				}
 			}
+			//return a list of actions to the dom parser to know what kind of features that element has
 			return parsedAttributes;
 		}
-
 
 		function hasDataMethod(element, type) {
 			for (var i in element.dataset) {
@@ -77,13 +85,12 @@ define(['Core','Events'], function(Core,Events) {
 			    );
 				self.bindingsProxy.notify('genericBinderEvent', e);
 			}
-			//TODO preventDefault: Why Judy, why?
-			//event.preventDefault ? event.preventDefault() : event.returnValue = false;
 		}
 
 		// Per un bug degli eventi del dom, non è possibile associare ad un elemento l'evento doppio click e il click. 
 		// Diventa allora difficile agganciare tutti gli eventi alla root del template (TODO add a workaround)
 		function templateBinder (rootEl, symbolTable) {
+			//console.log('binder with', symbolTable.length);
 			for(var i = 0, symbol;  symbol = symbolTable[i]; i++) {
 				if (symbol.action === 'method') {
 					var eventType = (symbol.attributeName === 'data-rf-method' ? 'click' : symbol.attributeName.replace(attributeRegExp, '')); 
@@ -93,11 +100,14 @@ define(['Core','Events'], function(Core,Events) {
 						} else if (el.attachEvent) {
 							rootEl.attachEvent('on'+eventType, notifyEvent);
 						}
-						console.log('registered:', eventType);
+						//console.log('registered:', eventType);
 						eventTable[eventType] = true;
 					}
 				}
-			}
+				if (symbol.option == 'autoupdate') {
+					self.notify('_autoupdate', {symbol: symbol});
+				}		
+			}	
 		}
 
 		/**
@@ -126,21 +136,26 @@ define(['Core','Events'], function(Core,Events) {
 						}	
 					}
 				break;
-				case 3:
+				case 3: //Text Node
 					if (matchedElms = nodeValue.match(regExpToMatchValue)) {
-						localSymbolTable.push({
-							textNode: node,
-							domElement: node.parentElement,
+						//The nodeContent CAN contain two parameters separed by ':'
+						var opts = matchedElms[1].split(':');
+						var linkedTo = opts.length > 1 ? opts[1] : opts[0];
+						var symbol = {
 							action: 'replaceText',
-							text: nodeValue,
-							match: matchedElms
-						});
+							domElement: node.parentElement,
+							textNode: node,
+							originalContent: nodeValue,
+							originalSymbol: matchedElms[0],
+							linkedTo: linkedTo
+						}
+						if (opts.length > 1) symbol.option = opts[0];
+						localSymbolTable.push(symbol);
 					}
 				break;
 			}
-			templateBinder(root, symbolTable);	
+			if (node == root) templateBinder(node, symbolTable);
 		}
-
 
 		//RENDERER
 		/**
@@ -150,21 +165,21 @@ define(['Core','Events'], function(Core,Events) {
 			if (!data) console.error('Template::render data argument is null');
 			if (!tSymbolTable) tSymbolTable = symbolTable;
 			for(var i = 0, symbol;  symbol = tSymbolTable[i]; i++) {
-				renderSymbol(data, symbol)
+				self.renderSymbol(symbol, data)
 			}
 		}
-		function renderSymbol(data, symbol) {
-			//console.log(symbol);
+		this.renderSymbol = function(symbol, data) {
+			var linkedData = Core.resolveChain(symbol.linkedTo, data) || '';
+			
 			switch(symbol.action) {
 				case 'replaceText': 
-					var linkedData = Core.resolveChain(symbol.match[1], data) || '';
-					if (!linkedData && self.markMissedRefs) symbol.domElement.style.border = "1px solid red";
-					symbol.textNode.textContent = symbol.text.replace(symbol.match[0], linkedData);
+					//console.log('renderSymbol',symbol, data);
+					markMissing(symbol, linkedData);
+					symbol.textNode.textContent = symbol.originalContent.replace(symbol.originalSymbol, linkedData);
 				break;
+				
 				case 'replaceAttributeValue':
-					var linkedData = Core.resolveChain(symbol.match[1], data) || '';
-					if (!linkedData && self.markMissedRefs) symbol.domElement.style.border = "1px solid red";
-
+					markMissing(symbol);
 					switch(symbol.attributeName) {
 						case 'checked':
 						case 'selected':
@@ -173,12 +188,12 @@ define(['Core','Events'], function(Core,Events) {
 							symbol.attribute.value = linkedData == true;
 						break;
 						default:
-							symbol.attribute.value = symbol.attributeValue.replace(symbol.match[0], linkedData);	
+							symbol.attribute.value = symbol.originalContent.replace(symbol.originalSymbol, linkedData);	
 					}
 				break;
+
 				case 'loop':
 					//TODO da fattorizzare
-					var linkedData = Core.resolveChain(symbol.attributeValue, data) || '';
 					symbol.elements = [];
 
 					
@@ -202,12 +217,13 @@ define(['Core','Events'], function(Core,Events) {
 			}
 		}
 
-
-		this.getSymbolByName = function(name) {
-			for(var i = 0, symbol;  symbol = symbolTable[i]; i++) {
-				if(symbol.name && symbol.name == name) return symbol;
-			}
+		function markMissing(symbol, linkedData) {
+			if (self.markMissedRefs &&  typeof(linkedData) == 'undefined') {
+				symbol.domElement.style.border = "1px solid red";
+				console.warn('missing', symbol.linkedTo, typeof linkedData);
+			} 
 		}
+
 		this.getSymbolTable = function() {
 			return symbolTable;
 		}
