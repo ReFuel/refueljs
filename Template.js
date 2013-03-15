@@ -32,34 +32,39 @@ define(['Core','Events'], function(Core,Events) {
 				if (!attribute.specified) continue;
 				attributeName = attribute.name;
 				attributeValue = attribute.value;
-	
+				var matchedElms = null;
 				var symbol;
 				//Attribute is like data-rf-*
 				if (matchedElms = attributeName.match(regExpToMatchName)) {
 					symbol = {
-						domElement: node,
 						action: matchedElms[1],
 						attribute: attribute,
 						attributeName: attributeName,
+						domElement: node,
 						linkedTo: attributeValue,
-						symbolTable: []
+						originalSymbol: attributeValue
 					};
+					if (symbol.action == 'loop') symbol.symbolTable = [];
 				}
 				//Attribute Value contains {{*}}
-				if (matchedElms = attributeValue.match(regExpToMatchValue)) {
-					var opts = matchedElms[1].split(':');
-					var linkedTo = opts.length > 1 ? opts[1] : opts[0];
+				else if (matchedElms = attributeValue.match(regExpToMatchValue)) {
 					symbol = {
 						action: 'replaceAttributeValue',
 						attribute: attribute,
 						attributeName: attributeName,
 						domElement: node,
-						linkedTo: linkedTo,
-						originalContent: attributeValue,
+						linkedTo: matchedElms[1],
 						originalSymbol: matchedElms[0]
 					};
-					if (opts.length > 1) symbol.option = opts[0];
 				}
+				//parse linkedSymbol and options separated with ':'
+				if (matchedElms) {
+					symbol.originalContent = attributeValue;
+					var opts = symbol.linkedTo.split(':'); //<*--					
+					symbol.linkedTo = opts.length > 1 ? opts[1] : opts[0];
+					if (opts.length > 1) symbol.options = opts[0];
+				}
+
 				if (symbol) {
 					symbolTable.push(symbol);
 					parsedAttributes[symbol.action] = symbol; 
@@ -104,7 +109,7 @@ define(['Core','Events'], function(Core,Events) {
 						eventTable[eventType] = true;
 					}
 				}
-				if (symbol.option == 'autoupdate') {
+				if (symbol.options == 'autoupdate') {
 					self.notify('_autoupdate', {symbol: symbol});
 				}		
 			}	
@@ -116,6 +121,7 @@ define(['Core','Events'], function(Core,Events) {
 		*/
 		this.parser = function(node, localSymbolTable,
 						   /* privates */ nodeValue, matchedElms) {
+
 			if (!localSymbolTable) localSymbolTable = symbolTable;
 			var node = node || root;
 			nodeValue = node.nodeValue;
@@ -149,7 +155,7 @@ define(['Core','Events'], function(Core,Events) {
 							originalSymbol: matchedElms[0],
 							linkedTo: linkedTo
 						}
-						if (opts.length > 1) symbol.option = opts[0];
+						if (opts.length > 1) symbol.options = opts[0];
 						localSymbolTable.push(symbol);
 					}
 				break;
@@ -162,8 +168,11 @@ define(['Core','Events'], function(Core,Events) {
 		*	@param data array or object of data to insert inside the template 
 		*/
 		this.render = function(data, tSymbolTable) {
+			console.log('render', data, tSymbolTable);
+
 			if (!data) console.error('Template::render data argument is null');
 			if (!tSymbolTable) tSymbolTable = symbolTable;
+
 			for(var i = 0, symbol;  symbol = tSymbolTable[i]; i++) {
 				self.renderSymbol(symbol, data)
 			}
@@ -195,8 +204,8 @@ define(['Core','Events'], function(Core,Events) {
 				case 'loop':
 					//TODO da fattorizzare
 					symbol.elements = [];
-
-					
+					symbol.domElement.innerHTML = '';
+					console.log('renderSymbol',  symbol.linkedTo, data[symbol.linkedTo]);
 					for (var i = 0; i < linkedData.length; i++) {
 						var domClone = symbol.template.cloneNode(true);
 						var tmpl = new Template(domClone);
@@ -220,7 +229,7 @@ define(['Core','Events'], function(Core,Events) {
 		function markMissing(symbol, linkedData) {
 			if (self.markMissedRefs &&  typeof(linkedData) == 'undefined') {
 				symbol.domElement.style.border = "1px solid red";
-				console.warn('missing', symbol.linkedTo, typeof linkedData);
+				//console.warn('missing', symbol.linkedTo, typeof linkedData);
 			} 
 		}
 

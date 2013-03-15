@@ -1,5 +1,6 @@
-//TODO Rename in BasicModule?
-define(['Core', 'Events'], function(Core, Events) {
+//TODO fare metodo autoUpdateActivate(dataSource) e creare così un mountpoint privato e non usare dataSource?
+// mountpoint ora è self.dataSource.data scritto a foo'
+define(['Core', 'Events', 'ObservableArray'], function(Core, Events, ObservableArray) {
     return function Updater() {
     	if (this.observe) return;
 		var self = this;
@@ -12,40 +13,49 @@ define(['Core', 'Events'], function(Core, Events) {
 	    }
 
 	    function makeObservable(name) {
-	        var value = Core.resolveChain(name, self);
+	        var value = Core.resolveChain(name, self.dataSource.data);
 	        // Create object in map
 	        if (!_map[name]) {
 		        _map[name] = {
 		            'name': name,
-		            'owner': self,
+		            'owner': self.dataSource, //TODO Oh, really??
 		            'value': value
 		        }
 	        }
 	        var parent = name.split('.');
 	        var propName = parent[parent.length-1];
 	        parent = parent.slice(0,parent.length-1).join('.');
-	        parent = Core.resolveChain(parent, self);
-       		// Define Setter
-	        parent.__defineSetter__(propName, function(val) {
-	            var obj = _map[name];
-	            obj.propName = propName;
-	            obj.value = val;
-	            var callList = obj['callbackList'];
-	            if (callList && callList.length) {
-	            	var len = callList.length;
-	            	for (var i = 0, call; call = callList[i]; i++) {
-	            		call.callback.call(call.context, obj);
-	            	}
-	            }
-	        });
-	        // Define Getter
-	        parent.__defineGetter__(propName, function() {
-	            return _map[name].value;
-	        });
-	       	
+	        parent = Core.resolveChain(parent, self.dataSource.data);
+	        if (!Core.isArray(value)) {
+	        	console.log('binding object', name);
+		        Object.defineProperty(parent, propName, {
+						set: function(val) {
+					            var obj = _map[name];
+					            obj.propName = propName;
+					            obj.value = val;
+					            var callList = obj['callbackList'];
+					            if (callList && callList.length) {
+					            	var len = callList.length;
+					            	for (var i = 0, call; call = callList[i]; i++) {
+					            		call.callback.call(call.context, obj);
+					            	}
+					            }
+					        },
+						get: function() {
+					            return _map[name].value;
+					        }
+				});
+			} 
+			else {
+			   	console.log('binding array', name,value);
+			   	parent[propName] = new ObservableArray(value);
+			   	parent[propName].subscribe('_update', function(e) {
+			   		self.notify('_update' , {action: e.action, symbol: _map[name]})
+			   	});
+			}
 	       	return _map[name];
 	    }
-	    
+
 	    /**
 	    *	this.observe(propName, callback);
 	    *	this.observe(propName, data, callback);
