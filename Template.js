@@ -218,6 +218,7 @@ define(['Core','Events'], function(Core,Events) {
 						tmpl.render(linkedData[i]);
 						symbol.elements.push(tmpl);
 						var html = tmpl.getRoot();
+						html.setAttribute("data-rf-id", i);
 						symbol.domElement.appendChild(html);
 					};
 					
