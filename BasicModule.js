@@ -18,16 +18,14 @@ define(['Core', 'Template', 'Events', 'Updater', 'DataSource'], function(Core, T
         this.autoupdate = function(e) {
             self.observe(e.symbol.linkedTo, e.symbol, 
                 function(observable) {
-                    console.log('AUTOUPDATE!!',observable);
                     self.template.renderSymbol(observable.data, self.dataSource.data);
                 }
             );
         }
-        //magari trasformiamo in updateCallback
-        this.update = function(e) {
-            console.log('update ->',e, self.dataSource.data);
-            self.template.renderSymbol(e.symbol.data, self.dataSource.data);
 
+        this.oa_update = function(e) {
+            console.log('update ->',e);
+            self.template.updateSymbol(e.action, e.symbol.data, e.data);
         }
         this.parse = function(root) {
             this.template.setRoot(document.querySelector(root));
@@ -38,7 +36,7 @@ define(['Core', 'Template', 'Events', 'Updater', 'DataSource'], function(Core, T
         }
 
         this.template.subscribe('genericBinderEvent', this.genericEventHandler);
-        this.template.subscribe('_autoupdate', this.autoupdate);
-        this.subscribe('_update', this.update);
+        this.template.subscribe('_set_autoupdate', this.autoupdate);
+        this.subscribe('_oa_update', this.oa_update);
     }
 });

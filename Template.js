@@ -110,7 +110,7 @@ define(['Core','Events'], function(Core,Events) {
 					}
 				}
 				if (symbol.options == 'autoupdate') {
-					self.notify('_autoupdate', {symbol: symbol});
+					self.notify('_set_autoupdate', {symbol: symbol});
 				}		
 			}	
 		}
@@ -130,9 +130,9 @@ define(['Core','Events'], function(Core,Events) {
 					var parsedAttributes = parseAttributes(node, localSymbolTable, regExpToMatchName, regExpToMatchValue);
 					var loopSymbol = parsedAttributes['loop'];
 					if (loopSymbol) {
-						var troot = loopSymbol.domElement;
-						var child = troot.querySelector("[data-rf-template]"); 
-						var tmpl = troot.removeChild(child);
+						var tmplRoot = loopSymbol.domElement;
+						var child = tmplRoot.querySelector("[data-rf-template]"); 
+						var tmpl = tmplRoot.removeChild(child);
 						loopSymbol.template = tmpl;
 						this.parser(tmpl, loopSymbol.symbolTable);
 					}
@@ -168,7 +168,7 @@ define(['Core','Events'], function(Core,Events) {
 		*	@param data array or object of data to insert inside the template 
 		*/
 		this.render = function(data, tSymbolTable) {
-			console.log('render', data, tSymbolTable);
+			//console.log('render', data, tSymbolTable);
 
 			if (!data) console.error('Template::render data argument is null');
 			if (!tSymbolTable) tSymbolTable = symbolTable;
@@ -177,6 +177,16 @@ define(['Core','Events'], function(Core,Events) {
 				self.renderSymbol(symbol, data)
 			}
 		}
+		this.updateSymbol = function(action, symbol, data) {
+			switch(action) {
+				case 'add': 
+					var html = createListElement(data, symbol);
+					symbol.domElement.appendChild(html);
+				break;
+
+			}
+		}
+
 		this.renderSymbol = function(symbol, data) {
 			var linkedData = Core.resolveChain(symbol.linkedTo, data) || '';
 			
@@ -202,28 +212,30 @@ define(['Core','Events'], function(Core,Events) {
 				break;
 
 				case 'loop':
-					//TODO da fattorizzare
+					//La symbol table per ogni elemento non ha bisogno di essere ri-parsata ogni volta
+					//andrebbe parsata una volta dal main-tmpl, clonata e passata direttamente al template 
+					//con un metodo apposito 
 					symbol.elements = [];
 					symbol.domElement.innerHTML = '';
-					console.log('renderSymbol',  symbol.linkedTo, data[symbol.linkedTo]);
+					//console.log('renderSymbol',  symbol.linkedTo, data[symbol.linkedTo]);
+					var docFragment = document.createDocumentFragment();
 					for (var i = 0; i < linkedData.length; i++) {
-						var domClone = symbol.template.cloneNode(true);
-						var tmpl = new Template(domClone);
-						tmpl.bindingsProxy = self;
-
-						//La symbol table per ogni elemento non ha bisogno di essere ri-parsata ogni volta
-						//andrebbe parsata una volta dal main-tmpl, clonata e passata direttamente al template 
-						//con un metodo apposito 
-						tmpl.parser();
-						tmpl.render(linkedData[i]);
-						symbol.elements.push(tmpl);
-						var html = tmpl.getRoot();
-						symbol.domElement.appendChild(html);
+						docFragment.appendChild(createListElement(linkedData[i], symbol));
 					};
-					
-					
+					symbol.domElement.appendChild(docFragment);
+
 				break;
 			}
+		}
+
+		function createListElement(data, parentSymbol) {
+			var domClone = parentSymbol.template.cloneNode(true);
+			var tmpl = new Template(domClone);
+			tmpl.bindingsProxy = self;
+			tmpl.parser();
+			tmpl.render(data);
+			parentSymbol.elements.push(tmpl);
+			return tmpl.getRoot();
 		}
 
 		function markMissing(symbol, linkedData) {

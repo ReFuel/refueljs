@@ -1,3 +1,13 @@
+/**
+    @event _oa_update = {
+        symbol: ObservableArray corresponding template-symbol,
+        action: performed action by the ObservableArray (add|move|remove),
+        index: ObservableArray's index involved in the action,
+        data: ObservableArray's involved item
+    }
+
+*/
+
 
 define(['Core', 'Events'],function(Core, Events) {
 	return function ObservableArray(data) {
@@ -28,23 +38,7 @@ define(['Core', 'Events'],function(Core, Events) {
 
         for (var i = 0, prop; prop = data[i]; i++) {
             	watchElement(index, prop);
-               	/*
-                	Object.defineProperty(self, thisIndex, {
-                		get:function() {
-		            			console.log('getter called',index, prop);
-		            			return data[index];
-			                    //return self.getElementAt(thisIndex);
-	                    	}(index, prop),
-	                    set:function(val) {
-	                    		console.log('setter called',index, prop);
-	                    		self.setElementAt(thisIndex, val);
-	                    	}
-
-                	});
-				*/
-				//})(index, prop);	
-                index++;
-            
+                index++;  
         };
 		
 		["pop", "push", "reverse", "shift", "sort", "splice", "unshift"].forEach(function (methodName) {
@@ -55,9 +49,15 @@ define(['Core', 'Events'],function(Core, Events) {
 		  			case 'push': 
 		  				var index = self.length-1;
 		  				watchElement(index, val);
+		  				var e =  {action: 'add', index: index, data: self[index]};
+		  				self.notify('_oa_update',e);
+		  			break;
+		  			case 'splice': 
+		  				var index = val;
+		  				var e =  {action: 'delete', index: index};
+		  				self.notify('_oa_update',e);
 		  			break;
 		  		}
-		  		self.notify('_update', {action: methodName});
 		  		return r;
 		    };
 		});

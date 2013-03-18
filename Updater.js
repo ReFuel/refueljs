@@ -47,10 +47,11 @@ define(['Core', 'Events', 'ObservableArray'], function(Core, Events, ObservableA
 				});
 			} 
 			else {
-			   	console.log('binding array', name,value);
+			   	//console.log('binding array', name,value);
 			   	parent[propName] = new ObservableArray(value);
-			   	parent[propName].subscribe('_update', function(e) {
-			   		self.notify('_update' , {action: e.action, symbol: _map[name]})
+			   	parent[propName].subscribe('_oa_update', function(e) {
+			   		e.symbol = _map[name];
+			   		self.notify('_oa_update', e);
 			   	});
 			}
 	       	return _map[name];

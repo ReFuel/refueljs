@@ -2,7 +2,7 @@ define(function() {
 	return function Events(options) {
 		if(this.notify && this.subscribe) return;
 		var onGoingNotification = {};
-
+		this.eventTable = onGoingNotification;
 		this.notify = function(name, data){
 			if (!name || typeof(name)!=='string'){
 				throw new TypeError("Invalid event name '" + name);

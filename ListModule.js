@@ -1,6 +1,7 @@
 define(['Core', 'BasicModule', 'ObservableArray'] , function(Core, BasicModule, ObservableArray) {
 	return function ListModule(options) {
         this.name='ListModule';
+
         Core.implement(BasicModule, this);
 
         //sostituire con un datasource
