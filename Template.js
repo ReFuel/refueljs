@@ -219,7 +219,9 @@ define(['Core','Events'], function(Core,Events) {
 					//console.log('renderSymbol',  symbol.linkedTo, data[symbol.linkedTo]);
 					var docFragment = document.createDocumentFragment();
 					for (var i = 0; i < linkedData.length; i++) {
-						docFragment.appendChild(createListElement(linkedData[i], symbol));
+						var el = createListElement(linkedData[i], symbol);
+						el.setAttribute("data-rf-id", i);
+						docFragment.appendChild(el);
 					};
 					symbol.domElement.appendChild(docFragment);
 
