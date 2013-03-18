@@ -1,6 +1,6 @@
 define(function() {
 	var ajaxCounter = 0;
-	var timedOutCalls = {};
+	var callLog = {};
 
 	function setProvider(){
 		var XMLHttpRequest;
@@ -35,75 +35,71 @@ define(function() {
 	function killAjaxCall(xhr, url, options){
 		xhr.onreadystatechange = null;
 		xhr.abort();
-		if (!timedOutCalls[url]){
-			timedOutCalls[url] = 1;
-		} else {
-			timedOutCalls[url]++;
-		}
-
+		ajaxCounter--;
+		clearTimeout(callLog[url].timeoutId);
 		var resp = {
 			url: url,
 			responseText: "",
 			responseJSON: {}
 		};
-		if (options.timeout){
-			options.timeout(resp, 0, xhr);
-		} else if (timedOutCalls[url] <= 2) {
+		if (callLog[url] <= 2){
 			options.msTimeout *= 1.5;
 			ajax(url, options);
 		} else {
-			options.ko(resp, 0, xhr);
+			callLog[url].counter = 0;
+			options[options.timeout ? 'timeout' : 'ko'](resp, 0, xhr);
 		}
 	}
 
 	function ajax(url, options){
-		var xhr = setProvider();
-		var method = options.method ? options.method : "GET";
-		var headers;
-
 		if(!checkURL(url)){
 			// @TODO - maybe - CORS requests
 			return false;
 		}
+
+		var xhr = setProvider();
+		var method = options.method ? options.method : "GET";
+		var headers, timeout;
 		options.msTimeout = options.msTimeout || 100;
-		var timeout = setTimeout(function(xhr, url, options){
-			return function(){
+
+		timeout = setTimeout(function(xhr, url, options){
+			return function timeoutHandler(){
 				killAjaxCall(xhr, url, options);
 			}
 		}(xhr, url, options), options.msTimeout);
-
+		callLog[url] = {
+			counter: callLog[url] ? callLog[url].counter + 1 : 1,
+			timeoutId: timeout
+		};
 		xhr.onreadystatechange = function() {
-			var status, ct, resp = {};
-			if (xhr.readyState === 1){
-				ajaxCounter++;
-			}
+			var status, resp = {};
+
 			if (xhr.readyState === 4){
-				clearTimeout(timeout);
+				callLog[url].counter = 0;
+				clearTimeout(callLog[url].timeoutId);
 				ajaxCounter--;
 				try {
 					status = xhr.status;
 				} catch (e){
 					status = 0;
 				}
-				ct = xhr.getResponseHeader("Content-Type");
-				resp.url = url;
-				resp.responseXML = xhr.responseXML;
-				resp.responseText = xhr.responseText;
-				if (ct === 'application/json' && resp.responseText){
+				resp = {
+					url: url,
+					responseXML: xhr.responseXML,
+					responseText: xhr.responseText
+				};
+				if (xhr.getResponseHeader("Content-Type") === 'application/json' && resp.responseText){
 					resp.responseJSON = JSON.parse(resp.responseText) || {};
 				}
 				if (status >= 200 && status < 400 || status === 1224){
 					options.ok(resp, status, xhr);
 				} else if (status >= 400){
 					options.ko(resp, status, xhr);
-				} else if (status === 0){
-					// @TODO timeout implementation!
-					options.timeout(resp, 0, xhr);
 				}
 			}
 		};
-
 		xhr.open(method, url);
+		ajaxCounter++;
 
 		if (headers = options.headers){
 			for (var h in headers){
@@ -139,5 +135,4 @@ define(function() {
 			ajax(url, options);
 		}
 	}
-
 });
