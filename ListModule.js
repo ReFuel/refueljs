@@ -28,13 +28,25 @@ define(['Core', 'BasicModule', 'ObservableArray'] , function(Core, BasicModule, 
             }
         }
 
-        //metodo applicativo non deve sta qui
+        //metodi applicativi non devono sta qui
         this.changeDone = function(e) {
             //console.log('changeDone',e);
-            if (e.target.checked)
-                e.target.parentNode.parentNode.className = 'completed';
-            else 
+            if (e.target.checked) {
+				e.target.parentNode.parentNode.className = 'completed';
+				this.dataSource.data.todoList[new Number(e.target.getAttribute("data-rf-id"))].done = true;
+			}
+            else { 
                 e.target.parentNode.parentNode.classList.remove('completed');
+				this.dataSource.data.todoList[new Number(e.target.getAttribute("data-rf-id"))].done = false;
+			}
+        }
+        //come sopra, ma forse questo è da rendere standard e quindi DEVE stare qui????
+        this.destroy = function(e) {
+			console.log("destroyed:", this.dataSource.data.todoList.splice(e.target.getAttribute("data-rf-id"), 1));		
+        }
+        //idem????
+        this.update = function(e) {
+			
         }
 
 
