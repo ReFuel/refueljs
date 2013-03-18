@@ -192,7 +192,6 @@ define(['Core','Events'], function(Core,Events) {
 			
 			switch(symbol.action) {
 				case 'replaceText': 
-					//console.log('renderSymbol',symbol, data);
 					markMissing(symbol, linkedData);
 					symbol.textNode.textContent = symbol.originalContent.replace(symbol.originalSymbol, linkedData);
 				break;
