@@ -220,23 +220,7 @@ define(['Core','Events'], function(Core,Events) {
 					//console.log('renderSymbol',  symbol.linkedTo, data[symbol.linkedTo]);
 					var docFragment = document.createDocumentFragment();
 					for (var i = 0; i < linkedData.length; i++) {
-<<<<<<< HEAD
 						docFragment.appendChild(createListElement(linkedData[i], symbol));
-=======
-						var domClone = symbol.template.cloneNode(true);
-						var tmpl = new Template(domClone);
-						tmpl.bindingsProxy = self;
-
-						//La symbol table per ogni elemento non ha bisogno di essere ri-parsata ogni volta
-						//andrebbe parsata una volta dal main-tmpl, clonata e passata direttamente al template 
-						//con un metodo apposito 
-						tmpl.parser();
-						tmpl.render(linkedData[i]);
-						symbol.elements.push(tmpl);
-						var html = tmpl.getRoot();
-						html.setAttribute("data-rf-id", i);
-						symbol.domElement.appendChild(html);
->>>>>>> aab2d5d8554de8684b5df3501e2a468a3e2bef0e
 					};
 					symbol.domElement.appendChild(docFragment);
 
