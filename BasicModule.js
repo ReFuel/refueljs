@@ -15,7 +15,12 @@ define(['Core', 'Template', 'Events', 'Updater', 'DataSource'], function(Core, T
             else 
                 self[e.method].call(self, e);
         }
-        this.autoupdate = function(e) {
+
+        /**
+            @param e Template symbol
+        **/
+        function autoupdateOnSymbol(e) {
+            console.log("BasicModule.autoupdateOnSymbol",e.symbol.linkedTo);
             self.observe(e.symbol.linkedTo, e.symbol, 
                 function(observable) {
                     self.template.renderSymbol(observable.data, self.dataSource.data);
@@ -36,7 +41,7 @@ define(['Core', 'Template', 'Events', 'Updater', 'DataSource'], function(Core, T
         }
 
         this.template.subscribe('genericBinderEvent', this.genericEventHandler);
-        this.template.subscribe('_set_autoupdate', this.autoupdate);
+        this.template.subscribe('_set_autoupdate', autoupdateOnSymbol);
         this.subscribe('_oa_update', this.oa_update);
     }
 });

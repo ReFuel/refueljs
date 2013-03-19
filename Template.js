@@ -96,6 +96,7 @@ define(['Core','Events'], function(Core,Events) {
 		// Per un bug degli eventi del dom, non è possibile associare ad un elemento l'evento doppio click e il click. 
 		// Diventa allora difficile agganciare tutti gli eventi alla root del template (TODO add a workaround)
 		function templateBinder (rootEl, symbolTable) {
+			self.bindingsProxy = self.bindingsProxy || self;
 			//console.log('binder with', symbolTable.length);
 			for(var i = 0, symbol;  symbol = symbolTable[i]; i++) {
 				if (symbol.action === 'method') {
@@ -111,8 +112,9 @@ define(['Core','Events'], function(Core,Events) {
 					}
 				}
 				if (symbol.options == 'autoupdate') {
+					//console.log(symbol.originalSymbol, self);
 					self.notify('_set_autoupdate', {symbol: symbol});
-				}		
+				}
 			}	
 		}
 
@@ -218,6 +220,7 @@ define(['Core','Events'], function(Core,Events) {
 					symbol.elements = [];
 					symbol.domElement.innerHTML = '';
 					//console.log('renderSymbol',  symbol.linkedTo, data[symbol.linkedTo]);
+					/*
 					var docFragment = document.createDocumentFragment();
 					for (var i = 0; i < linkedData.length; i++) {
 						var el = createListElement(linkedData[i], symbol);
@@ -225,7 +228,10 @@ define(['Core','Events'], function(Core,Events) {
 						docFragment.appendChild(el);
 					};
 					symbol.domElement.appendChild(docFragment);
-
+					*/
+					for (var i = 0; i < linkedData.length; i++) {
+						self.notify('_new_listitem', {symbol:symbol, data:linkedData[i]});
+					}
 				break;
 			}
 		}
@@ -244,7 +250,7 @@ define(['Core','Events'], function(Core,Events) {
 			if (self.markMissedRefs &&  typeof(linkedData) == 'undefined') {
 				symbol.domElement.style.border = "1px solid red";
 				//console.warn('missing', symbol.linkedTo, typeof linkedData);
-			} 
+			}
 		}
 
 		this.getSymbolTable = function() {

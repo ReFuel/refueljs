@@ -7,8 +7,6 @@
     }
 
 */
-
-
 define(['Core', 'Events'],function(Core, Events) {
 	return function ObservableArray(data) {
 		var self = this;
@@ -68,8 +66,6 @@ define(['Core', 'Events'],function(Core, Events) {
 		this.getElementAt = function(index) {
 			return data[index];
 		}
-
-
 
 	}	
 });
