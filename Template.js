@@ -13,7 +13,7 @@ define(['Core','Events'], function(Core,Events) {
 		var self = this;
 		var root = tRoot;
 		Core.implement(Events, this);
-		this.markMissedRefs = true;
+		this.markMissedRefs = false;
 		this.bindingsProxy = null;
 
 		var regExpToMatchName = new RegExp('data-rf-(\\w*)');
