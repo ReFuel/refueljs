@@ -1,26 +1,33 @@
-define(['Core', 'BasicModule', 'ObservableArray'] , function(Core, BasicModule, ObservableArray) {
-	var ENTER_KEY = 13;
 
-	return function ListModule(options) {
+define(['Core', 'BasicModule', 'ObservableArray', 'ListItemModule'] , function(Core, BasicModule, ObservableArray, ListItemModule) {
+    return function ListModule(options) {
+	   var ENTER_KEY = 13;
         this.name='ListModule';
+        var self = this;
+        this.items = [];
 
         Core.implement(BasicModule, this);
 
-        //sostituire con un datasource
+        //POPOLAMENTO DATASOURCE
         var numberOfElements = 3;
-        this.dataSource.data = {
-            length: numberOfElements,
-            todoList: []
-        };
+        this.dataSource.data = { length: numberOfElements, todoList: [] };
         for (var i = 0; i < numberOfElements; i++) {
             this.dataSource.data.todoList.push({ text: 'my text '+i, done: false });
         };
-
+        this.obs = new ObservableArray(this.dataSource.data.todoList);
         
-        this.parse(options.root);  //BasicModule.parse
+        /**
+        
+        **/
+        this.create = function() {
+            this.template.subscribe('_new_listitem', createListItem);
+            this.parse(options.root);
+        }
         //serve anche sapere quando il tmpl ha finito di parsare? automatizzare il processo!
         //in callback del datasource, probabilmente automatizzando
-        this.render(); //BasicModule.render
+        this.draw = function() {
+            this.render();
+        }
 
         this.addTodo = function(e) {
             if (e.keyIdentifier === 'Enter') {
@@ -46,9 +53,20 @@ define(['Core', 'BasicModule', 'ObservableArray'] , function(Core, BasicModule, 
 			this.dataSource.data.todoList.splice(e.currentTarget.dataset.rfId, 1);
         }
         //idem????
-        this.editable = function(e) {
-			e.currentTarget.className += " editing";
-			e.currentTarget.querySelector("input.edit").focus();
+
+        //come sopra, ma forse questo è da rendere standard e quindi DEVE stare qui????
+        this.destroy = function(e) {
+            console.log("destroyed:", this.dataSource.data.todoList.splice(e.target.getAttribute("data-rf-id"), 1));        
+        }
+        //idem????
+        this.update = function(e) {
+            
+        }
+
+        function createListItem(obj) {
+            var listItem = new ListItemModule();
+            self.items.push(listItem);
+            //console.log('createListItem',obj.symbol, obj.data);
         }
 		this.update = function(e){
 			if (e.keyCode === ENTER_KEY){
@@ -58,8 +76,8 @@ define(['Core', 'BasicModule', 'ObservableArray'] , function(Core, BasicModule, 
 		}
 
 
+        
 
-        this.obs = new ObservableArray(this.dataSource.data.todoList);
 
 	}
 });
