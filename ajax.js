@@ -60,7 +60,7 @@ define(function() {
 		var xhr = setProvider();
 		var method = options.method ? options.method : "GET";
 		var headers, timeout;
-		options.msTimeout = options.msTimeout || 100;
+		options.msTimeout = options.msTimeout || 2500;
 
 		timeout = setTimeout(function(xhr, url, options){
 			return function timeoutHandler(){
