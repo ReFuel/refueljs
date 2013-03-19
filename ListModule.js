@@ -35,10 +35,10 @@ define(['Core', 'BasicModule', 'ObservableArray'] , function(Core, BasicModule, 
             //console.log('changeDone',e);
             if (e.target.checked) {
 				e.target.parentNode.parentNode.className = 'completed';
-				this.dataSource.data.todoList[new Number(e.currentTarget.dataset.rfId)].done = true;
+				this.dataSource.data.todoList[+e.currentTarget.dataset.rfId].done = true;
 			} else {
                 e.target.parentNode.parentNode.classList.remove('completed');
-				this.dataSource.data.todoList[new Number(e.currentTarget.dataset.rfId)].done = false;
+				this.dataSource.data.todoList[+e.currentTarget.dataset.rfId].done = false;
 			}
         }
         //come sopra, ma forse questo è da rendere standard e quindi DEVE stare qui????
@@ -53,7 +53,7 @@ define(['Core', 'BasicModule', 'ObservableArray'] , function(Core, BasicModule, 
 		this.update = function(e){
 			if (e.keyCode === ENTER_KEY){
 				e.currentTarget.className = e.currentTarget.className.replace(" editing", "");
-				this.dataSource.data.todoList[new Number(e.currentTarget.dataset.rfId)].text = e.target.value;
+				this.dataSource.data.todoList[+e.currentTarget.dataset.rfId].text = e.target.value;
 			}
 		}
 
