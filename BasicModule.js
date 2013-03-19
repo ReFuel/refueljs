@@ -33,8 +33,8 @@ define(['Core', 'Template', 'Events', 'Updater', 'DataSource'], function(Core, T
             self.template.updateSymbol(e.action, e.symbol.data, e.data);
         }
         this.parse = function(root) {
-            this.template.setRoot(document.querySelector(root));
-            this.template.parser();
+            this.template.setRoot(root);
+            this.template.parse();
         }
         this.render = function() {
             this.template.render(self.dataSource.data);

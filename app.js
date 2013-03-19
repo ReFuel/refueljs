@@ -5,7 +5,8 @@ requirejs.config({
 
 var list;
 define(['ListModule'], function(ListModule) {
-	list = new ListModule({root: '#todoapp'});
+	var root = document.querySelector("#todoapp"); 
+	list = new ListModule({root: root});
 	list.create();
 	list.draw();
 
