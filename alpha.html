@@ -23,10 +23,10 @@
 					<li data-rf-template="todoTemplate"> 
 						<div class="view">
 							<input class="toggle" type="checkbox" data-rf-method="changeDone" checked="{{done}}">
-							<label data-rf-dblclick="update">{{text}}</label>
+							<label data-rf-method-dblclick="editable">{{text}}</label>
 							<button class="destroy" data-rf-method="destroy"></button>
 						</div>
-						<input class="edit" value="Create a TodoMVC template">
+						<input class="edit" data-rf-method-keydown="update" value="Create a TodoMVC template">
 					</li>
 
 				</ul>

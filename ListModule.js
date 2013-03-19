@@ -1,4 +1,6 @@
 define(['Core', 'BasicModule', 'ObservableArray'] , function(Core, BasicModule, ObservableArray) {
+	var ENTER_KEY = 13;
+
 	return function ListModule(options) {
         this.name='ListModule';
 
@@ -21,7 +23,7 @@ define(['Core', 'BasicModule', 'ObservableArray'] , function(Core, BasicModule, 
         this.render(); //BasicModule.render
 
         this.addTodo = function(e) {
-            if (e.keyIdentifier == 'Enter') {
+            if (e.keyIdentifier === 'Enter') {
                 this.dataSource.data.todoList.push({ text: e.target.value, done: false });    
                 e.target.value = '';
                 this.dataSource.data.length = this.dataSource.data.todoList.length;
@@ -33,21 +35,28 @@ define(['Core', 'BasicModule', 'ObservableArray'] , function(Core, BasicModule, 
             //console.log('changeDone',e);
             if (e.target.checked) {
 				e.target.parentNode.parentNode.className = 'completed';
-				this.dataSource.data.todoList[new Number(e.target.getAttribute("data-rf-id"))].done = true;
-			}
-            else { 
+				this.dataSource.data.todoList[new Number(e.currentTarget.dataset.rfId)].done = true;
+			} else {
                 e.target.parentNode.parentNode.classList.remove('completed');
-				this.dataSource.data.todoList[new Number(e.target.getAttribute("data-rf-id"))].done = false;
+				this.dataSource.data.todoList[new Number(e.currentTarget.dataset.rfId)].done = false;
 			}
         }
         //come sopra, ma forse questo è da rendere standard e quindi DEVE stare qui????
         this.destroy = function(e) {
-			console.log("destroyed:", this.dataSource.data.todoList.splice(e.target.getAttribute("data-rf-id"), 1));		
+			this.dataSource.data.todoList.splice(e.currentTarget.dataset.rfId, 1);
         }
         //idem????
-        this.update = function(e) {
-			
+        this.editable = function(e) {
+			e.currentTarget.className += " editing";
+			e.currentTarget.querySelector("input.edit").focus();
         }
+		this.update = function(e){
+			if (e.keyCode === ENTER_KEY){
+				e.currentTarget.className = e.currentTarget.className.replace(" editing", "");
+				this.dataSource.data.todoList[new Number(e.currentTarget.dataset.rfId)].text = e.target.value;
+			}
+		}
+
 
 
         this.obs = new ObservableArray(this.dataSource.data.todoList);

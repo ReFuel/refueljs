@@ -99,7 +99,7 @@ define(['Core','Events'], function(Core,Events) {
 			//console.log('binder with', symbolTable.length);
 			for(var i = 0, symbol;  symbol = symbolTable[i]; i++) {
 				if (symbol.action === 'method') {
-					var eventType = (symbol.attributeName === 'data-rf-method' ? 'click' : symbol.attributeName.replace(attributeRegExp, '')); 
+					var eventType = (symbol.attributeName === 'data-rf-method' ? 'click' : symbol.attributeName.replace(attributeRegExp, ''));
 					if (!eventTable[eventType]) {
 						if (rootEl.addEventListener) {
 							rootEl.addEventListener(eventType, notifyEvent, false); 
@@ -161,7 +161,7 @@ define(['Core','Events'], function(Core,Events) {
 					}
 				break;
 			}
-			if (node == root) templateBinder(node, symbolTable);
+			if (node === root) templateBinder(node, symbolTable);
 		}
 
 		//RENDERER
