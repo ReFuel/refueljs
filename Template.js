@@ -12,6 +12,7 @@ define(['Core','Events'], function(Core,Events) {
 	return function Template (tRoot) {
 		var self = this;
 		var root = tRoot;
+		var profiler = {};
 		Core.implement(Events, this);
 		this.markMissedRefs = false;
 		this.bindingsProxy = null;
@@ -23,11 +24,12 @@ define(['Core','Events'], function(Core,Events) {
 		
 		var eventTable = {};
 		var symbolTable = [];
-
-		function parseAttributes(node, symbolTable, regExpToMatchName, regExpToMatchValue, refId,
+		
+		function parseDOMElement(node, symbolTable, regExpToMatchName, regExpToMatchValue, refId,
 			 					/* privates */ nodeAttributes, matchedElms, attribute, attributeName, attributeValue) {
 			nodeAttributes = node.attributes;
-			var parsedAttributes = [];
+			var parsedAttributes = {};
+			parsedAttributes['elementSymbolTable'] = [];
 			for (var i = 0; attribute = nodeAttributes[i]; i++) {
 				if (!attribute.specified) continue;
 				attributeName = attribute.name;
@@ -44,7 +46,7 @@ define(['Core','Events'], function(Core,Events) {
 						linkedTo: attributeValue,
 						originalSymbol: attributeValue
 					};
-					if (symbol.action == 'loop') symbol.symbolTable = [];
+					if (symbol.action === 'loop') symbol.symbolTable = [];
 				}
 				//Attribute Value contains {{*}}
 				else if (matchedElms = attributeValue.match(regExpToMatchValue)) {
@@ -66,8 +68,8 @@ define(['Core','Events'], function(Core,Events) {
 				}
 
 				if (symbol) {
-					symbolTable.push(symbol);
 					parsedAttributes[symbol.action] = symbol; 
+					parsedAttributes['elementSymbolTable'].push(symbol);
 				}
 			}
 			//return a list of actions to the dom parser to know what kind of features that element has
@@ -97,7 +99,6 @@ define(['Core','Events'], function(Core,Events) {
 		// Diventa allora difficile agganciare tutti gli eventi alla root del template (TODO add a workaround)
 		function templateBinder (rootEl, symbolTable) {
 			self.bindingsProxy = self.bindingsProxy || self;
-			//console.log('binder with', symbolTable.length);
 			for(var i = 0, symbol;  symbol = symbolTable[i]; i++) {
 				if (symbol.action === 'method') {
 					var eventType = (symbol.attributeName === 'data-rf-method' ? 'click' : symbol.attributeName.replace(attributeRegExp, ''));
@@ -107,31 +108,32 @@ define(['Core','Events'], function(Core,Events) {
 						} else if (el.attachEvent) {
 							rootEl.attachEvent('on'+eventType, notifyEvent);
 						}
-						//console.log('registered:', eventType);
 						eventTable[eventType] = true;
 					}
 				}
-				if (symbol.options == 'autoupdate') {
-					//console.log(symbol.originalSymbol, self);
+				if (symbol.options === 'autoupdate') {
 					self.notify('_set_autoupdate', {symbol: symbol});
 				}
 			}	
 		}
 
 		/**
+		*	
 		*	@param node HTMLDomElement to be processed as root
 		*	@param localSymbolTable can be passed to define another scope for the symbiol table (like in loops)
 		*/
-		this.parse = function(node, localSymbolTable,
+		this.parse = function(node,
 						   /* privates */ nodeValue, matchedElms) {
-
-			if (!localSymbolTable) localSymbolTable = symbolTable;
 			var node = node || root;
 			nodeValue = node.nodeValue;
 			switch (node.nodeType){
 				case 1:
-					var parsedAttributes = parseAttributes(node, localSymbolTable, regExpToMatchName, regExpToMatchValue);
+					var parsedAttributes = parseDOMElement(node, symbolTable, regExpToMatchName, regExpToMatchValue);
+					var isRoot = node === root;
 					var loopSymbol = parsedAttributes['loop'];
+					var listSymbol = parsedAttributes['list'];
+					var templateSymbol = parsedAttributes['template'];
+					
 					if (loopSymbol) {
 						var tmplRoot = loopSymbol.domElement;
 						var child = tmplRoot.querySelector("[data-rf-template]"); 
@@ -139,11 +141,24 @@ define(['Core','Events'], function(Core,Events) {
 						loopSymbol.template = tmpl;
 						this.parse(tmpl, loopSymbol.symbolTable);
 					}
+					else if ((templateSymbol || listSymbol) && !isRoot) { 
+
+					}
+					//This code parses childrenNodes of the current DOMElement, there are some DOMElement that not always you should 
+					//investigate inside, unless this particular node is the proper root of the current template.
+					else if (listSymbol && isRoot) { 
+						var tmplRoot = listSymbol.domElement;
+						var child = tmplRoot.querySelector("[data-rf-template]"); 
+						var tmpl = tmplRoot.removeChild(child);
+						listSymbol.template = tmpl;
+					}
 					else {
 						for (var i=0, childElm; childElm = node.childNodes[i++];) {
-							this.parse(childElm, localSymbolTable);
+							this.parse(childElm, symbolTable);
 						}	
 					}
+					
+					symbolTable = symbolTable.concat(parsedAttributes['elementSymbolTable']);
 				break;
 				case 3: //Text Node
 					if (matchedElms = nodeValue.match(regExpToMatchValue)) {
@@ -159,12 +174,12 @@ define(['Core','Events'], function(Core,Events) {
 							linkedTo: linkedTo
 						}
 						if (opts.length > 1) symbol.options = opts[0];
-						localSymbolTable.push(symbol);
+						symbolTable.push(symbol);
 					}
 				break;
 			}
-			if (node === root) templateBinder(node, localSymbolTable);
-			return localSymbolTable;
+			if (node === root) templateBinder(node, symbolTable);
+			return symbolTable;
 		}
 
 		/**
@@ -172,13 +187,18 @@ define(['Core','Events'], function(Core,Events) {
 		*	@tSymbolTable parsed template symbolTable to use, should be generated by the Template.parse method
 		**/
 		//TODO if !symbolTable should auto-parse
-		this.render = function(data, tSymbolTable) {
-			//console.log('render', data, tSymbolTable);
+		this.render = function(data) {
+			profiler.timestart = new Date().getTime();
 			if (!data) console.error('Template::render data argument is null');
-			if (!tSymbolTable) tSymbolTable = symbolTable;
-			for(var i = 0, symbol;  symbol = tSymbolTable[i]; i++) {
+			if (!symbolTable.length) symbolTable = this.parse()
+			
+			//console.log('Template.render', data, symbolTable);
+
+			for(var i = 0, symbol;  symbol = symbolTable[i]; i++) {
 				self.renderSymbol(symbol, data)
 			}
+			profiler.timestop = new Date().getTime();
+			//console.log('Template.profiler[render]',root.id, profiler.timestop - profiler.timestart);
 		}
 
 		//TODO the module should decide how to update a symbol, for example a list module will create a new listitem
@@ -192,8 +212,10 @@ define(['Core','Events'], function(Core,Events) {
 		}
 
 		this.renderSymbol = function(symbol, data) {
+			var isRoot = symbol.domElement === root;
+			if (isRoot) symbol.linkedTo = '.';
 			var linkedData = Core.resolveChain(symbol.linkedTo, data) || '';
-			
+
 			switch(symbol.action) {
 				case 'replaceText': 
 					markMissing(symbol, linkedData);
@@ -214,15 +236,12 @@ define(['Core','Events'], function(Core,Events) {
 					}
 				break;
 
-				case 'loop-TEMP':
+				case 'loop':
 					//La symbol table per ogni elemento non ha bisogno di essere ri-parsata ogni volta
 					//andrebbe parsata una volta dal main-tmpl, clonata e passata direttamente al template 
 					//con un metodo apposito 
-
 					symbol.elements = [];
 					symbol.domElement.innerHTML = '';
-					//console.log('renderSymbol',  symbol.linkedTo, data[symbol.linkedTo]);
-					
 					var docFragment = document.createDocumentFragment();
 					for (var i = 0; i < linkedData.length; i++) {
 						var el = createListElement(linkedData[i], symbol);
@@ -230,24 +249,20 @@ define(['Core','Events'], function(Core,Events) {
 						docFragment.appendChild(el);
 					};
 					symbol.domElement.appendChild(docFragment);
-					
 				break;
-
-				case 'loop':
 				case 'list':
-				//add list-symbol to parser
-					symbol.elements = [];
-					symbol.linkedData = linkedData;
-					symbol.domElement.innerHTML = '';
-					for (var i = 0; i < linkedData.length; i++) {
-						self.notify('_new_listitem', {symbol:symbol, data:linkedData[i]});
-					}
-
+					if (isRoot) {
+						for (var i = 0; i < linkedData.length; i++) {
+							self.notify('_new_listitem', {symbol:symbol, data:linkedData[i]});
+						}
+					} 
+					else {
+						symbol.linkedData = linkedData;
+						self.notify('_new_list', {symbol: symbol});
+					}					
 				break;
-
 			}
 		}
-
 
 		/**
 			Creates a new Template fragment and append it to the dom, this method is alternative to Template.render()

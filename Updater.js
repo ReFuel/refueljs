@@ -27,7 +27,7 @@ define(['Core', 'Events', 'ObservableArray'], function(Core, Events, ObservableA
 	        parent = parent.slice(0,parent.length-1).join('.');
 	        parent = Core.resolveChain(parent, self.dataSource.data);
 	        if (!Core.isArray(value)) {
-	        	console.log('-> BINDING', name,'ON',parent);
+	        	//console.log('-> BINDING', name,'ON',parent);
 		        Object.defineProperty(parent, propName, {
 						set: function(val) {
 					            var obj = _map[name];

@@ -20,7 +20,7 @@ define(['Core', 'Template', 'Events', 'Updater', 'DataSource'], function(Core, T
             @param e Template symbol
         **/
         function autoupdateOnSymbol(e) {
-            console.log("BasicModule.autoupdateOnSymbol",e.symbol.linkedTo);
+            //console.log("BasicModule.autoupdateOnSymbol",e.symbol.linkedTo);
             self.observe(e.symbol.linkedTo, e.symbol, 
                 function(observable) {
                     self.template.renderSymbol(observable.data, self.dataSource.data);
@@ -32,10 +32,12 @@ define(['Core', 'Template', 'Events', 'Updater', 'DataSource'], function(Core, T
             console.log('update ->',e);
             self.template.updateSymbol(e.action, e.symbol.data, e.data);
         }
+        /*
         this.parse = function(root) {
             this.template.setRoot(root);
-            this.template.parse();
+            //this.template.parse();
         }
+        */
         this.render = function() {
             this.template.render(self.dataSource.data);
         }
