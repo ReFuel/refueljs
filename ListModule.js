@@ -19,6 +19,7 @@ define(['Core', 'BasicModule', 'ObservableArray', 'ListItemModule'] , function(C
         /**
         
         **/
+
         this.create = function() {
             this.template.subscribe('_new_listitem', createListItem);
             this.parse(options.root);
@@ -50,12 +51,6 @@ define(['Core', 'BasicModule', 'ObservableArray', 'ListItemModule'] , function(C
         //come sopra, ma forse questo è da rendere standard e quindi DEVE stare qui????
         this.destroy = function(e) {
 			this.dataSource.data.todoList.splice(e.currentTarget.dataset.rfId, 1);
-        }
-        //idem????
-
-        //come sopra, ma forse questo è da rendere standard e quindi DEVE stare qui????
-        this.destroy = function(e) {
-            console.log("destroyed:", this.dataSource.data.todoList.splice(e.target.getAttribute("data-rf-id"), 1));        
         }
         //idem????
         this.update = function(e) {
