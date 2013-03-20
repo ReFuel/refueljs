@@ -59,11 +59,12 @@ define(['Core', 'BasicModule', 'ObservableArray', 'ListItemModule'] , function(C
 
         function createListItem(obj) {
 
-            var root = obj.symbol.domElement;
-            var listItem = new ListItemModule({root: root});
+            //var root = obj.symbol.domElement;
+            var listItem = new ListItemModule({rootSymbol: obj.symbol});
+            listItem.dataSource.data = obj.data;
             self.items.push(listItem);
-            //listItem.create();
-            //listItem.draw();
+            listItem.create();
+            listItem.draw();
 
             //console.log('createListItem',obj.symbol, obj.data);
         }
