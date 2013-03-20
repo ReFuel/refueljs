@@ -1,3 +1,10 @@
+/**
+*   @param options = {
+        root: HTMLElement,
+
+    }
+**/
+
 define(['Core', 'BasicModule', 'ObservableArray'] , function(Core, BasicModule, ObservableArray) {
 	return function ListItemModule(options) {
         this.name='ListItemModule';
