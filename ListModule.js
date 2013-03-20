@@ -1,5 +1,5 @@
 
-define(['Core', 'BasicModule', 'ObservableArray', 'ListItemModule'] , function(Core, BasicModule, ObservableArray, ListItemModule) {
+define(['Core', 'BasicModule', 'ObservableArray', 'ListItemModule', 'Filter'] , function(Core, BasicModule, ObservableArray, ListItemModule, Filter) {
     return function ListModule(options) {
 	   var ENTER_KEY = 13;
         this.name='ListModule';
@@ -19,6 +19,22 @@ define(['Core', 'BasicModule', 'ObservableArray', 'ListItemModule'] , function(C
         /**
         
         **/
+		this.doFilter = function(param) {
+			var data = this.dataSource.data.todoList; // da cambiare nell'array vero
+			switch(param){
+				case 'completed': {
+					data = Filter(data).where(function(item) {return item.done === true}).returnResult();
+					break;
+				}
+				case 'active': {
+					data = Filter(data).where(function(item) {return item.done === false}).returnResult();
+					break;
+				}
+				default: {
+					return data;
+				}
+			}
+		}
 
         this.create = function() {
             this.template.subscribe('_new_listitem', createListItem);
