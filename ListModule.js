@@ -17,7 +17,6 @@ define(['Core', 'BasicModule', 'ObservableArray', 'ListItemModule'] , function(C
         
         Core.implement(BasicModule, this);
 
-        //POPOLAMENTO DATASOURCE
         this.create = function() {
             this.template.subscribe('_new_listitem', createListItem);
             this.template.setRoot(options.root);
@@ -45,11 +44,7 @@ define(['Core', 'BasicModule', 'ObservableArray', 'ListItemModule'] , function(C
             }
         }
 
-        /**
-            this ha riferimenti a symbolTable e template per creare i nuovi item senza ri-parsare il tmpl
-        **/
         function createListItem(obj) {
-            console.log('ListModule < Template::_new_listitem');
             var listItem = new ListItemModule({rootSymbol: obj.symbol});
             listItem.dataSource.data = obj.data;
             self.items.push(listItem);

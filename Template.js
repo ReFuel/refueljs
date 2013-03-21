@@ -134,6 +134,8 @@ define(['Core','Events'], function(Core,Events) {
 					var listSymbol = parsedAttributes['list'];
 					var templateSymbol = parsedAttributes['template'];
 					
+					//This code parses childrenNodes of the current DOMElement, there are some DOMElement that not always you should 
+					//investigate inside, unless this particular node is the proper root of the current template.
 					if (loopSymbol) {
 						var tmplRoot = loopSymbol.domElement;
 						var child = tmplRoot.querySelector("[data-rf-template]"); 
@@ -144,8 +146,6 @@ define(['Core','Events'], function(Core,Events) {
 					else if ((templateSymbol || listSymbol) && !isRoot) { 
 
 					}
-					//This code parses childrenNodes of the current DOMElement, there are some DOMElement that not always you should 
-					//investigate inside, unless this particular node is the proper root of the current template.
 					else if (listSymbol && isRoot) { 
 						var tmplRoot = listSymbol.domElement;
 						var child = tmplRoot.querySelector("[data-rf-template]"); 
@@ -178,6 +178,9 @@ define(['Core','Events'], function(Core,Events) {
 					}
 				break;
 			}
+
+			
+
 			if (node === root) templateBinder(node, symbolTable);
 			return symbolTable;
 		}
@@ -191,14 +194,11 @@ define(['Core','Events'], function(Core,Events) {
 			profiler.timestart = new Date().getTime();
 			if (!data) console.error('Template::render data argument is null');
 			if (!symbolTable.length) symbolTable = this.parse()
-			
-			//console.log('Template.render', data, symbolTable);
-
 			for(var i = 0, symbol;  symbol = symbolTable[i]; i++) {
 				self.renderSymbol(symbol, data)
 			}
 			profiler.timestop = new Date().getTime();
-			//console.log('Template.profiler[render]',root.id, profiler.timestop - profiler.timestart);
+			//if(profiler.enabled) console.log('Template.profiler[render]',root.id, profiler.timestop - profiler.timestart);
 		}
 
 		//TODO the module should decide how to update a symbol, for example a list module will create a new listitem
@@ -213,7 +213,6 @@ define(['Core','Events'], function(Core,Events) {
 
 		this.renderSymbol = function(symbol, data) {
 			var isRoot = symbol.domElement === root;
-			if (isRoot) symbol.linkedTo = '.';
 			var linkedData = Core.resolveChain(symbol.linkedTo, data) || '';
 
 			switch(symbol.action) {
@@ -252,6 +251,7 @@ define(['Core','Events'], function(Core,Events) {
 				break;
 				case 'list':
 					if (isRoot) {
+						linkedData = Core.resolveChain('.', data) || '';
 						for (var i = 0; i < linkedData.length; i++) {
 							self.notify('_new_listitem', {symbol:symbol, data:linkedData[i]});
 						}
@@ -274,7 +274,7 @@ define(['Core','Events'], function(Core,Events) {
 		**/
 		this.create = function(loopSymbol, data) {
 			root = loopSymbol.template.cloneNode(true);
-			this.parse(); //TODO shouldn't be done, already in loopSymbol.symbolTable
+			//this.parse(); //TODO shouldn't be done, already in loopSymbol.symbolTable
 			this.render(data);
 			loopSymbol.domElement.appendChild(root);
 		}
