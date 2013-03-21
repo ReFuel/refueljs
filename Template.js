@@ -111,10 +111,13 @@ define(['Core','Events'], function(Core,Events) {
 						eventTable[eventType] = true;
 					}
 				}
-				if (symbol.options === 'autoupdate') {
+				if (symbol.options && symbol.options === 'autoupdate') {
 					self.notify('_set_autoupdate', {symbol: symbol});
 				}
-			}	
+				else if (symbol.options){
+
+				}
+			}
 		}
 
 		/**
@@ -193,7 +196,9 @@ define(['Core','Events'], function(Core,Events) {
 		this.render = function(data) {
 			profiler.timestart = new Date().getTime();
 			if (!data) console.error('Template::render data argument is null');
-			if (!symbolTable.length) symbolTable = this.parse()
+			if (!symbolTable.length) symbolTable = this.parse();
+			self.notify('_template_parsed', {symbolTable: symbolTable});
+			
 			for(var i = 0, symbol;  symbol = symbolTable[i]; i++) {
 				self.renderSymbol(symbol, data)
 			}
@@ -201,15 +206,17 @@ define(['Core','Events'], function(Core,Events) {
 			//if(profiler.enabled) console.log('Template.profiler[render]',root.id, profiler.timestop - profiler.timestart);
 		}
 
-		//TODO the module should decide how to update a symbol, for example a list module will create a new listitem
-		this.updateSymbol = function(action, symbol, data) {
-			switch(action) {
-				case 'add': 
-					var html = createListElement(data, symbol);
-					symbol.domElement.appendChild(html);
-				break;
-			}
-		}
+		
+		//this should be the DEFAULT ONE
+        this.updateSymbol = function(action, symbol, data) {
+            switch(action) {
+                case 'add': 
+                    var html = createListElement(data, symbol);
+                    symbol.domElement.appendChild(html);
+                break;
+            }
+        }
+		
 
 		this.renderSymbol = function(symbol, data) {
 			var isRoot = symbol.domElement === root;
@@ -266,17 +273,16 @@ define(['Core','Events'], function(Core,Events) {
 
 		/**
 			Creates a new Template fragment and append it to the dom, this method is alternative to Template.render()
-			@param	loopSymbol = {
-				domElement: root to append the newly created template into
-				template: template fragment to create
-				symbolTable: already parsed symbol table of the specified template
-			}
+			
+			@param rootElement root to append the newly created template into
+			@param template template fragment to render data
+			@param data 
+			
 		**/
-		this.create = function(loopSymbol, data) {
-			root = loopSymbol.template.cloneNode(true);
-			//this.parse(); //TODO shouldn't be done, already in loopSymbol.symbolTable
+		this.create = function(rootElement, template, data) {
+			root = template.cloneNode(true);
 			this.render(data);
-			loopSymbol.domElement.appendChild(root);
+			rootElement.appendChild(root);
 		}
 
 		function createListElement(data, parentSymbol) {
@@ -299,6 +305,13 @@ define(['Core','Events'], function(Core,Events) {
 		this.getSymbolTable = function() {
 			return symbolTable;
 		}
+		this.getSymbolByAction = function(action) {
+			for (var i = 0, symbol; symbol = symbolTable[i]; i++) {
+				if (symbol.action === action) 
+					return symbol;
+			};
+		}
+
 		//TODO getter and setter?
 		this.setRoot = function(r) {
 			root = r;

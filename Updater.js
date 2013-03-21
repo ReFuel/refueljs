@@ -1,9 +1,8 @@
-//TODO fare metodo autoUpdateActivate(dataSource) e creare così un mountpoint privato e non usare dataSource?
-// mountpoint ora è self.dataSource.data scritto a foo'
 define(['Core', 'Events', 'ObservableArray'], function(Core, Events, ObservableArray) {
     return function Updater() {
     	if (this.observe) return;
 		var self = this;
+		var mountpoint;
 		var _map = {};
 	    this.getObservers = function() {
 	        return _map;
@@ -11,21 +10,24 @@ define(['Core', 'Events', 'ObservableArray'], function(Core, Events, ObservableA
 	    this.getObservable = function(name) {
 	    	return _map[name];
 	    }
+	    this.enableAutoUpdate = function(mpDataSource) {
+	    	mountpoint = mpDataSource;
+	    }
 
 	    function makeObservable(name) {
-	        var value = Core.resolveChain(name, self.dataSource.data);
+	        var value = Core.resolveChain(name, mountpoint);
 	        // Create object in map
 	        if (!_map[name]) {
 		        _map[name] = {
 		            'name': name,
-		            'owner': self.dataSource, //TODO Oh, really??
+		            'owner': mountpoint, 
 		            'value': value
 		        }
 	        }
 	        var parent = name.split('.');
 	        var propName = parent[parent.length-1];
 	        parent = parent.slice(0,parent.length-1).join('.');
-	        parent = Core.resolveChain(parent, self.dataSource.data);
+	        parent = Core.resolveChain(parent, mountpoint);
 	        if (!Core.isArray(value)) {
 	        	//console.log('-> BINDING', name,'ON',parent);
 		        Object.defineProperty(parent, propName, {

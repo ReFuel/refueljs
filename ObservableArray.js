@@ -16,6 +16,14 @@ define(['Core', 'Events'],function(Core, Events) {
 		this.__defineGetter__('data', function() {
     		return data;
     	});
+
+
+    	this.__defineSetter__('length', function(val) {
+    		self.length = val;
+    		var e =  {action: 'update', data: val, prop: 'length'};
+		  	self.notify('_oa_update',e);
+    	});
+
     	this.__defineGetter__('length', function() {
     		return data.length;
     	});
@@ -47,6 +55,7 @@ define(['Core', 'Events'],function(Core, Events) {
 		  			case 'push': 
 		  				var index = self.length-1;
 		  				watchElement(index, val);
+		  				self.length = data.length;
 		  				var e =  {action: 'add', index: index, data: self[index]};
 		  				self.notify('_oa_update',e);
 		  			break;

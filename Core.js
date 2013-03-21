@@ -1,12 +1,29 @@
 define(function() {
-    
+    var modules = {};
     function argumentsToArray(args){
         return Array.prototype.slice.call(args);
     }
-    
+    /*
     function implement(interface, target) {
-        interface.apply(target); //arguments   
+        var obj = new interface();
+        //console.log('implement',target,obj);
+        for (l in obj) {
+            if (typeof target[l] === 'undefined') {
+                var prop = obj[l];
+                //console.log(l, typeof prop);
+                //if (typeof prop !== 'function') 
+                    target[l] = prop; 
+                //if (typeof prop === 'function') prop.apply(target); 
+                
+            }
+                
+        }
     }
+    */
+    function implement(interface, target) {
+        interface.apply(target);
+    }
+    
     function isArray(target) {
         return toString.call(target) === '[object Array]';
     }
@@ -30,11 +47,24 @@ define(function() {
         return extractedData;
     }
 
+    function defineModule(name, inherits, body) {
+        modules[name] = {body: body, inherits: inherits};
+        define(inherits, body);
+
+
+        //define(['Core', 'Template', 'Events', 'Updater', 'DataSource'], function(Core, Template, Events, Updater, DataSource) {
+    }
+    function newModule(name) {
+
+    }
+
     return {
         implement: implement,
         clone: clone,
         isArray: isArray,
-        resolveChain: resolveChain
+        resolveChain: resolveChain,
+        defineModule: defineModule,
+        newModule: newModule
     }
 
 });
