@@ -1,11 +1,13 @@
 
-define(['Core', 'BasicModule', 'ObservableArray', 'ListModule'] , function(Core, BasicModule, ObservableArray, ListModule) {
+define(['BasicModule', 'ObservableArray', 'ListModule'] , function(BasicModule, ObservableArray, ListModule) {
     return function GenericModule(options) {
         this.name = 'GenericModule';
         var self = this;
         this.items = {};
         
-        Core.implement(BasicModule, this);
+        Refuel.implement(BasicModule, this);
+
+
 
         this.create = function() {
             this.template.subscribe('_new_list', createList);
@@ -26,6 +28,12 @@ define(['Core', 'BasicModule', 'ObservableArray', 'ListModule'] , function(Core,
                 list.draw();
             }
         }
+
+
+        function oa_update(e) {
+            console.log(self.name,'GenericModule','update ->',e);      
+        }
+        this.defineUpdateManager(oa_update);
 
     }
 });

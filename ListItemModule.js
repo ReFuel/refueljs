@@ -5,12 +5,12 @@
     }
 **/
 
-define(['Core', 'BasicModule', 'ObservableArray'] , function(Core, BasicModule, ObservableArray) {
+define(['BasicModule', 'ObservableArray'] , function(BasicModule, ObservableArray) {
 	return function ListItemModule(options) {
         this.name='ListItemModule';
         var self = this;
 
-        Core.implement(BasicModule, this);
+        Refuel.implement(BasicModule, this);
         this.enableAutoUpdate(this.dataSource.data);
 
         this.create = function() {

@@ -1,15 +1,13 @@
-requirejs.config({
-    enforceDefine: true
-});
-
-
 var app;
 
 define(['GenericModule', 'ObservableArray'], function(GenericModule, ObservableArray) {
-	var root = document.querySelector("#todoapp"); 
-	app = new GenericModule({root: root});
+    
+    var root = document.querySelector("#todoapp"); 
+    //classeFijo = Refuel.createInstance('ClasseFijo', {root: root});
+    //classePadre = Refuel.createInstance('ClassePadre', {root: root});
+    app = new GenericModule({root: root});
 
-	//Main DataSource creation, will be replaced by the REAL DataSource
+    //Main DataSource creation, will be replaced by the REAL DataSource
     var numberOfElements = 3;
     app.dataSource.data = {title:'ReFuel Todo App', todoList: []};
     for (var i = 0; i < numberOfElements; i++) {
@@ -17,9 +15,8 @@ define(['GenericModule', 'ObservableArray'], function(GenericModule, ObservableA
     };
     //app.obs = new ObservableArray(app.dataSource.data.todoList);
 
-	app.create();
-	app.draw();
-
+    app.create();
+    app.draw();
     app.changeDone = function(e) {
 		if (e.target.checked) {
 			e.target.parentNode.parentNode.className = 'completed';
@@ -39,6 +36,4 @@ define(['GenericModule', 'ObservableArray'], function(GenericModule, ObservableA
             //this.dataSource.data.length = this.dataSource.data.todoList.length;
         }
     }
-
-
 });

@@ -1,4 +1,5 @@
-define(['Core', 'Events', 'ObservableArray'], function(Core, Events, ObservableArray) {
+
+define(['Events', 'ObservableArray'], function(Events, ObservableArray) {
     return function Updater() {
     	if (this.observe) return;
 		var self = this;
@@ -15,7 +16,7 @@ define(['Core', 'Events', 'ObservableArray'], function(Core, Events, ObservableA
 	    }
 
 	    function makeObservable(name) {
-	        var value = Core.resolveChain(name, mountpoint);
+	        var value = Refuel.resolveChain(name, mountpoint);
 	        // Create object in map
 	        if (!_map[name]) {
 		        _map[name] = {
@@ -27,8 +28,8 @@ define(['Core', 'Events', 'ObservableArray'], function(Core, Events, ObservableA
 	        var parent = name.split('.');
 	        var propName = parent[parent.length-1];
 	        parent = parent.slice(0,parent.length-1).join('.');
-	        parent = Core.resolveChain(parent, mountpoint);
-	        if (!Core.isArray(value)) {
+	        parent = Refuel.resolveChain(parent, mountpoint);
+	        if (!Refuel.isArray(value)) {
 	        	//console.log('-> BINDING', name,'ON',parent);
 		        Object.defineProperty(parent, propName, {
 						set: function(val) {

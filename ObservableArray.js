@@ -7,11 +7,11 @@
     }
 
 */
-define(['Core', 'Events'],function(Core, Events) {
+define(['Events'],function(Events) {
 	return function ObservableArray(data) {
 		var self = this;
 		var index = 0;
-		Core.implement(Events, this);
+		Refuel.implement(Events, this);
 
 		this.__defineGetter__('data', function() {
     		return data;

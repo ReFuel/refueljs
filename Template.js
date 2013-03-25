@@ -8,12 +8,12 @@ Symbol-Structure = {
 }
 */
 
-define(['Core','Events'], function(Core,Events) {
+define(['Events'], function(Events) {
 	return function Template (tRoot) {
 		var self = this;
 		var root = tRoot;
 		var profiler = {};
-		Core.implement(Events, this);
+		Refuel.implement(Events, this);
 		this.markMissedRefs = false;
 		this.bindingsProxy = null;
 
@@ -207,20 +207,11 @@ define(['Core','Events'], function(Core,Events) {
 		}
 
 		
-		//this should be the DEFAULT ONE
-        this.updateSymbol = function(action, symbol, data) {
-            switch(action) {
-                case 'add': 
-                    var html = createListElement(data, symbol);
-                    symbol.domElement.appendChild(html);
-                break;
-            }
-        }
-		
+
 
 		this.renderSymbol = function(symbol, data) {
 			var isRoot = symbol.domElement === root;
-			var linkedData = Core.resolveChain(symbol.linkedTo, data) || '';
+			var linkedData = Refuel.resolveChain(symbol.linkedTo, data) || '';
 
 			switch(symbol.action) {
 				case 'replaceText': 
@@ -258,7 +249,7 @@ define(['Core','Events'], function(Core,Events) {
 				break;
 				case 'list':
 					if (isRoot) {
-						linkedData = Core.resolveChain('.', data) || '';
+						linkedData = Refuel.resolveChain('.', data) || '';
 						for (var i = 0; i < linkedData.length; i++) {
 							self.notify('_new_listitem', {symbol:symbol, data:linkedData[i]});
 						}

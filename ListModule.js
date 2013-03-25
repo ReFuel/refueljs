@@ -6,14 +6,13 @@
     @param items Array of ListItemModule-s
 
 **/
-
-define(['Core', 'BasicModule', 'ObservableArray', 'ListItemModule', 'Filter'] , function(Core, BasicModule, ObservableArray, ListItemModule, Filter) {
+define(['BasicModule', 'ObservableArray', 'ListItemModule', 'Filter'] , function(BasicModule, ObservableArray, ListItemModule, Filter) {
     return function ListModule(options) {
         this.name='ListModule';
         var ENTER_KEY = 13;
         var self = this;
         this.items = [];   
-        Core.implement(BasicModule, this, true);
+        Refuel.implement(BasicModule, this, true);
         this.enableAutoUpdate(this.dataSource.data);
 
 		this.doFilter = function(param) {
@@ -58,6 +57,17 @@ define(['Core', 'BasicModule', 'ObservableArray', 'ListItemModule', 'Filter'] , 
             }
         }
 
+        this.oa_update = function(e) {
+            console.log(self.name,'update ->',e);      
+            //self.updateSymbol(e.action, e.symbol.data, e.data);
+
+            switch(e.action) {
+                case 'add': 
+                    var html = createListElement(e.data, e.symbol.data);
+                    e.symbol.data.domElement.appendChild(html);
+                break;
+            }
+        }
 
         function createListItem(e) {
             //console.log(self.name);

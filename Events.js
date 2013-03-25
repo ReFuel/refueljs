@@ -31,7 +31,11 @@ define(function() {
 				onGoingNotification[name] = [];
 			}
 			onGoingNotification[name].push(handler);
-		}	
+		}
+
+		this.unsubscribe = function(name) {
+			delete onGoingNotification[name];
+		}
 	}
 });
 
