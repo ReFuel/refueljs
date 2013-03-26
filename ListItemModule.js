@@ -20,11 +20,9 @@ define(['BasicModule', 'ObservableArray'] , function(BasicModule, ObservableArra
         //serve anche sapere quando il tmpl ha finito di parsare? automatizzare il processo!
         //in callback del datasource, probabilmente automatizzando
         this.draw = function() {
-            this.template.create(options.parentRoot, options.template, this.dataSource.data);
+            this.template.create(options.parentRoot, options.template, this.dataSource.getData());
         }
         
-
-
 	}
 });
 

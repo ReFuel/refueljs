@@ -9,7 +9,7 @@ define(['Template', 'Events', 'Updater', 'DataSource'], function(Template, Event
         
         this.dataSource = new DataSource();        
         this.template = new Template();
-        this.enableAutoUpdate(this.dataSource.data);
+        this.enableAutoUpdate(this.dataSource.getData());
         
         //TODO eventizzare
         this.genericEventHandler = function(e) {
@@ -23,10 +23,10 @@ define(['Template', 'Events', 'Updater', 'DataSource'], function(Template, Event
             @param e Template symbol
         **/
         function autoupdateOnSymbol(e) {
-            self.enableAutoUpdate(self.dataSource.data);
+            self.enableAutoUpdate(self.dataSource.getData());
             self.observe(e.symbol.linkedTo, e.symbol, 
                 function(observable) {
-                    self.template.renderSymbol(observable.data, self.dataSource.data);
+					self.template.renderSymbol(observable.data, self.dataSource.getData());
                 }
             );
         }
@@ -36,7 +36,7 @@ define(['Template', 'Events', 'Updater', 'DataSource'], function(Template, Event
         }
         
         this.render = function() {
-            this.template.render(self.dataSource.data);
+			this.template.render(self.dataSource.getData());
         }
 
         this.defineUpdateManager = function(callback) {

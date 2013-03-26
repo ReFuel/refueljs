@@ -13,17 +13,17 @@ define(['BasicModule', 'ObservableArray', 'ListItemModule', 'Filter'] , function
         var self = this;
         this.items = [];   
         Refuel.implement(BasicModule, this, true);
-        this.enableAutoUpdate(this.dataSource.data);
+        this.enableAutoUpdate(this.dataSource.getData());
 
 		this.doFilter = function(param) {
-			var data = this.dataSource.data.todoList; // da cambiare nell'array vero
+			var data = this.dataSource.getData(); // da cambiare nell'array vero
 			switch(param){
 				case 'completed': {
-					data = Filter(data).where(function(item) {return item.done === true}).returnResult();
+					data = Filter(data.todoList).where(function(item) {return item.done === true}).returnResult();
 					break;
 				}
 				case 'active': {
-					data = Filter(data).where(function(item) {return item.done === false}).returnResult();
+					data = Filter(data.todoList).where(function(item) {return item.done === false}).returnResult();
 					break;
 				}
 				default: {
@@ -43,17 +43,17 @@ define(['BasicModule', 'ObservableArray', 'ListItemModule', 'Filter'] , function
         //serve anche sapere quando il tmpl ha finito di parsare? automatizzare il processo!
         //in callback del datasource, probabilmente automatizzando
         this.draw = function() {
-            this.template.render(this.dataSource.data);
+            this.template.render(this.dataSource.getData());
         }
 
         this.delete = function(e) {
-        	this.dataSource.data.todoList.splice(e.currentTarget.dataset.rfId, 1);
+//         	this.dataSource.remove(e.currentTarget.dataset.rfId, 1); implementare remove
         }
 
         this.update = function(e) {
             if (e.keyCode === ENTER_KEY){
                 e.currentTarget.className = e.currentTarget.className.replace(" editing", "");
-                this.dataSource.data.todoList[+e.currentTarget.dataset.rfId].text = e.target.value;
+//                 this.dataSource.data.todoList[+e.currentTarget.dataset.rfId].text = e.target.value;
             }
         }
 
@@ -73,7 +73,7 @@ define(['BasicModule', 'ObservableArray', 'ListItemModule', 'Filter'] , function
             //console.log(self.name);
             var rootSymbol = self.template.getSymbolByAction('list');
             var listItem = new ListItemModule({ parentRoot: options.root, template: rootSymbol.template });
-            listItem.dataSource.data = e.data;
+            listItem.dataSource.setData(e.data);
             self.items.push(listItem);
             listItem.create(); //do we really need this?
             listItem.draw();

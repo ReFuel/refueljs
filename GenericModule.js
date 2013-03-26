@@ -22,7 +22,7 @@ define(['BasicModule', 'ObservableArray', 'ListModule'] , function(BasicModule, 
             if (typeof self.items[e.symbol.linkedTo] === 'undefined') {
                 //console.log(self.name+'::createList', e);
                 var list = new ListModule({ root: e.symbol.domElement });
-                list.dataSource.data = e.symbol.linkedData;// = linkedData;
+                list.dataSource.setData(e.symbol.linkedData);// = linkedData;
                 self.items[e.symbol.linkedTo] = list;
                 list.create();
                 list.draw();
