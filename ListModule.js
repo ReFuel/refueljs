@@ -1,19 +1,25 @@
 /**
-*   @param options = {
-        root: HTMLElement,
-        symbol: Parsed template symbol, if this symbol exists, this Module's Template has been already parsed
-    }
-    @param items Array of ListItemModule-s
+    @param root: HTMLElement,
+    @param symbol: Parsed template symbol, if this symbol exists, this Module's Template has been already parsed
+    
+    @param items Array of ListItemModule [read only]
 
 **/
-define(['BasicModule', 'ObservableArray', 'ListItemModule', 'Filter'] , function(BasicModule, ObservableArray, ListItemModule, Filter) {
-    return function ListModule(options) {
-        this.name='ListModule';
-        var ENTER_KEY = 13;
+Refuel.define('ListModule',{inherits: 'BasicModule', require:'ListItemModule'}, 
+    function ListModule() {
         var self = this;
+        var ENTER_KEY = 13;
         this.items = [];   
+<<<<<<< HEAD
         Refuel.implement(BasicModule, this, true);
         this.enableAutoUpdate(this.dataSource.getData());
+=======
+        this.enableAutoUpdate(this.dataSource.data);
+>>>>>>> 13ff27c45832cc20f7c590d09723f43eb03b5534
+
+        this.init = function(myConfig) {
+             this.config = Refuel.mix(this.config, myConfig);
+        }
 
 		this.doFilter = function(param) {
 			var data = this.dataSource.getData(); // da cambiare nell'array vero
@@ -38,7 +44,7 @@ define(['BasicModule', 'ObservableArray', 'ListItemModule', 'Filter'] , function
         }
         this.create = function() {
             this.template.subscribe('_new_listitem', createListItem);
-            this.template.setRoot(options.root);
+            this.template.setRoot(this.config.root);
         }
         //serve anche sapere quando il tmpl ha finito di parsare? automatizzare il processo!
         //in callback del datasource, probabilmente automatizzando
@@ -70,14 +76,14 @@ define(['BasicModule', 'ObservableArray', 'ListItemModule', 'Filter'] , function
         }
 
         function createListItem(e) {
-            //console.log(self.name);
             var rootSymbol = self.template.getSymbolByAction('list');
-            var listItem = new ListItemModule({ parentRoot: options.root, template: rootSymbol.template });
-            listItem.dataSource.setData(e.data);
+
+            var listItem = Refuel.createInstance('ListItemModule', { parentRoot: this.config.root, template: rootSymbol.template });
+
+            listItem.dataSource.data = e.data;
             self.items.push(listItem);
             listItem.create(); //do we really need this?
             listItem.draw();
         }
-	}
 });
 
