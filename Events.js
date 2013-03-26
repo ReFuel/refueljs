@@ -1,5 +1,5 @@
-define(function() {
-	return function Events(options) {
+Refuel.define('Events',
+	function Events() {
 		if(this.notify && this.subscribe) return;
 		var onGoingNotification = {};
 		this.eventTable = onGoingNotification;
@@ -36,7 +36,6 @@ define(function() {
 		this.unsubscribe = function(name) {
 			delete onGoingNotification[name];
 		}
-	}
 });
 
 

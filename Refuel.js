@@ -1,9 +1,19 @@
 (function() {
 	window.Refuel = {};
 	var classMap = {};
+
+	Refuel.classMap = classMap;
 	  
 	function argumentsToArray(args){
 		return Array.prototype.slice.call(args);
+	}
+
+	Refuel.mix = function(base, argumenting) {
+		var res = Refuel.clone(base);
+		for (var prop in argumenting) {
+			res[prop] = argumenting[prop];
+		}
+		return res;
 	}
 
 	Refuel.implement = function(interface, target, options) {
@@ -14,8 +24,11 @@
 	Refuel.isArray = function(target) {
 		return toString.call(target) === '[object Array]';
 	}
+	Refuel.isFunction = function(target) {
+		return toString.call(target) === '[object Function]';
+	}
 	
-	function clone(old) {
+	Refuel.clone = function(old) {
 		var obj = {};
 		for (var i in old) {
 			if (old.hasOwnProperty(i)) {
@@ -38,18 +51,25 @@
 
 	Refuel.createInstance = function (className, initObj) {
 	    var cl = classMap[className];
-	    if(typeof cl === 'undefined') throw className+" not declared, please use defineModule!";
+	    if(typeof cl === 'undefined') throw className+" not defined, please use Refuel.define";
+
 	    var instance;
 	    var F = cl.body;
+	    //console.log('createInstance', className, '<-', cl.inherits);
 	    if (cl.inherits) {
-	        F.prototype = new classMap[cl.inherits].body();
-	        cl.body.apply(instance);
+	    	if (!classMap[cl.inherits]) throw cl.inherits+" not defined, please use Refuel.define"  
+	        F.prototype = Refuel.createInstance(cl.inherits, initObj);
 	    }
-	    instance = new F();    
+	    instance = new F(initObj);    
+	   	instance.name = className;
+	    if (instance.hasOwnProperty('init')) {
+	    	instance.init(initObj);
+	    } 
 	    return instance;
+
 	}
 
-	Refuel.defineClass = function(className, req, body) {
+	Refuel.define = function(className, req, body) {
 	    if(classMap[className] !== undefined) {
 	        console.error(className," alredy defined!");
 	        return;
@@ -66,7 +86,7 @@
 	    });
 
 	    define(className, require, function() {
-	        console.log('defineClass.define', className,'->', require);
+	        //console.log('defineClass.define', className,'->', require);
 	        classMap[className] = {
 	            body: body,
 	            inherits: req.inherits
@@ -87,9 +107,12 @@
 
 	function onScriptLoad(e) {
 		if(e.type === 'load') {
-			console.log(node.src, 'loaded!',e);
+			console.log(node.src, 'loaded!');
 			e.target.parentNode.removeChild(e.target);
-			require([startupModule], function() {});
+			require([startupModule], function(start) {
+				classMap[startupModule].body();
+
+			});
 		}
 
 	}

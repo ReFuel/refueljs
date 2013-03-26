@@ -1,27 +1,20 @@
 
-define(['BasicModule', 'ObservableArray', 'ListModule'] , function(BasicModule, ObservableArray, ListModule) {
-    return function GenericModule(options) {
+Refuel.define('GenericModule',{inherits: 'BasicModule', require:'ListModule'}, 
+    function GenericModule() {
         this.name = 'GenericModule';
         var self = this;
         this.items = {};
+       
         
-        Refuel.implement(BasicModule, this);
-
-
-
         this.create = function() {
+            console.log('GenericModule.create',this.config.root);
             this.template.subscribe('_new_list', createList);
-            this.template.setRoot(options.root);
-        }
-        
-        this.draw = function() {
-            this.render();
+            this.template.setRoot(this.config.root);
         }
 
         function createList(e) {
             if (typeof self.items[e.symbol.linkedTo] === 'undefined') {
-                //console.log(self.name+'::createList', e);
-                var list = new ListModule({ root: e.symbol.domElement });
+                var list = Refuel.createInstance('ListModule', { root: e.symbol.domElement });
                 list.dataSource.data = e.symbol.linkedData;// = linkedData;
                 self.items[e.symbol.linkedTo] = list;
                 list.create();
@@ -29,11 +22,9 @@ define(['BasicModule', 'ObservableArray', 'ListModule'] , function(BasicModule, 
             }
         }
 
-
         function oa_update(e) {
-            console.log(self.name,'GenericModule','update ->',e);      
+            console.log(self.name,'update ->',e);      
         }
         this.defineUpdateManager(oa_update);
 
-    }
 });

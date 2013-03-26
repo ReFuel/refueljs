@@ -1,10 +1,11 @@
 
-define(['Events', 'ObservableArray'], function(Events, ObservableArray) {
-    return function Updater() {
+
+Refuel.define('Updater',{require: ['ObservableArray'], inherits: 'Events'}, function Updater() {
     	if (this.observe) return;
 		var self = this;
 		var mountpoint;
 		var _map = {};
+		
 	    this.getObservers = function() {
 	        return _map;
 	    }
@@ -51,7 +52,10 @@ define(['Events', 'ObservableArray'], function(Events, ObservableArray) {
 			} 
 			else {
 			   	//console.log('binding array', name,value);
-			   	parent[propName] = new ObservableArray(value);
+			   	//parent[propName] = new ObservableArray(value);
+			   	parent[propName] = Refuel.createInstance('ObservableArray', {value: value});
+			   	//parent[propName].init(value);
+			   	
 			   	parent[propName].subscribe('_oa_update', function(e) {
 			   		e.symbol = _map[name];
 			   		self.notify('_oa_update', e);
@@ -90,7 +94,6 @@ define(['Events', 'ObservableArray'], function(Events, ObservableArray) {
 	       	}
 	        //console.log(this.name.toUpperCase(),"sta osservando", context.name+'.'+name);
 	    }
-	}
 });
 
 /**

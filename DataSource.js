@@ -1,9 +1,14 @@
 //TODO Rename in BasicModule?
-define(['Events'], function(Events) {
-    return function DataSource() {
+Refuel.define('DataSource', {inherits: 'Events'}, 
+	function DataSource(myConfig) {
     	var self = this;
-    	//Core.implement(Events, this);    	
     	var data = {};
+    	this.config = {};
+
+		this.init = function(myConfig) {
+            this.config = Refuel.mix(self.config, myConfig);
+        }
+
+    	//Core.implement(Events, this);    	
         this.data = data;
-    }
 });

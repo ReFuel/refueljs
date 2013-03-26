@@ -8,12 +8,13 @@ Symbol-Structure = {
 }
 */
 
-define(['Events'], function(Events) {
-	return function Template (tRoot) {
+Refuel.define('Template',{inherits: 'Events'}, function Template() {
 		var self = this;
-		var root = tRoot;
+		var root;
 		var profiler = {};
-		Refuel.implement(Events, this);
+		var bindingTable = {};
+		var symbolTable = [];
+
 		this.markMissedRefs = false;
 		this.bindingsProxy = null;
 
@@ -22,9 +23,12 @@ define(['Events'], function(Events) {
 		var attributeRegExp = new RegExp('data-rf-method-','i');
 		var datasetRegExp = new RegExp('rfMethod', 'i');
 		
-		var eventTable = {};
-		var symbolTable = [];
-		
+		this.init = function(myConfig) {
+            this.config = Refuel.mix(this.config, myConfig);
+            root = this.config.root;
+            //console.log('Template.init', this.config);
+        }
+
 		function parseDOMElement(node, symbolTable, regExpToMatchName, regExpToMatchValue, refId,
 			 					/* privates */ nodeAttributes, matchedElms, attribute, attributeName, attributeValue) {
 			nodeAttributes = node.attributes;
@@ -86,7 +90,7 @@ define(['Events'], function(Events) {
 
 		function notifyEvent(e) {
 			self.bindingsProxy = self.bindingsProxy || self;
-			if (eventTable[e.type] && hasDataMethod(e.target, e.type)) {
+			if (bindingTable[e.type] && hasDataMethod(e.target, e.type)) {
 				e.method = (e.type === 'click'? 
 					e.target.dataset['rfMethod'] || e.target.dataset['rfMethodClick'] : 
 					e.target.getAttribute('data-rf-method-' + e.type)
@@ -102,13 +106,13 @@ define(['Events'], function(Events) {
 			for(var i = 0, symbol;  symbol = symbolTable[i]; i++) {
 				if (symbol.action === 'method') {
 					var eventType = (symbol.attributeName === 'data-rf-method' ? 'click' : symbol.attributeName.replace(attributeRegExp, ''));
-					if (!eventTable[eventType]) {
+					if (!bindingTable[eventType]) {
 						if (rootEl.addEventListener) {
 							rootEl.addEventListener(eventType, notifyEvent, false); 
 						} else if (el.attachEvent) {
 							rootEl.attachEvent('on'+eventType, notifyEvent);
 						}
-						eventTable[eventType] = true;
+						bindingTable[eventType] = true;
 					}
 				}
 				if (symbol.options && symbol.options === 'autoupdate') {
@@ -311,8 +315,6 @@ define(['Events'], function(Events) {
 			return root;
 		}
 		this.getBindings = function() {
-			return eventTable;
+			return bindingTable;
 		}
-
-	};
 });
