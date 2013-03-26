@@ -14,7 +14,11 @@ Refuel.define('TodoApp',{require: ['GenericModule']},
         };
         app.create();
         app.draw();
-        app.changeDone = function(e) {
+
+
+        //metodo applicativo ma si riferisce ad un elemento o alla lista, non all'intera app
+        //como se fa?
+        app.defineAction('changeDone', function(e) {
     		if (e.target.checked) {
     			e.target.parentNode.parentNode.className = 'completed';
     			this.dataSource.data.todoList[+e.currentTarget.dataset.rfId].done = true;
@@ -22,13 +26,13 @@ Refuel.define('TodoApp',{require: ['GenericModule']},
     		    e.target.parentNode.parentNode.classList.remove('completed');
     			this.dataSource.data.todoList[+e.currentTarget.dataset.rfId].done = false;
     		}
-    	}
+    	});
 
-        app.add = function(e) {
+        app.defineAction('add', function(e) {
             if (e.keyIdentifier === 'Enter') {
-            	this.items['todoList'].dataSource.data.push({ text: e.target.value, done: false });
+                this.items['todoList'].dataSource.data.push({ text: e.target.value, done: false });
                 e.target.value = '';
             }
-        }
+        });
     
 });

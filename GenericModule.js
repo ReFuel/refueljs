@@ -25,6 +25,8 @@ Refuel.define('GenericModule',{inherits: 'BasicModule', require:'ListModule'},
         function oa_update(e) {
             console.log(self.name,'update ->',e);      
         }
+
+
         this.defineUpdateManager(oa_update);
 
 });
