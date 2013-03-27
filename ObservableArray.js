@@ -45,6 +45,7 @@ Refuel.define('ObservableArray',{inherits: 'Events'},
 			    };
 			});
 		}
+		
 		this.__defineGetter__('data', function() {
     		return data;
     	});
@@ -58,7 +59,6 @@ Refuel.define('ObservableArray',{inherits: 'Events'},
     	this.__defineGetter__('length', function() {
     		return data.length;
     	});
-
 
 
     	function watchElement(index, prop) {

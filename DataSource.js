@@ -7,8 +7,6 @@ Refuel.define('DataSource', {inherits: 'Events'},
 
 		this.init = function(myConfig) {
             this.config = Refuel.mix(self.config, myConfig);
+        	this.data = data;
         }
-
-    	//Core.implement(Events, this);    	
-        this.data = data;
 });

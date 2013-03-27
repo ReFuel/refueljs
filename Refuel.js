@@ -61,7 +61,7 @@
 	        F.prototype = Refuel.createInstance(cl.inherits, initObj);
 	    }
 	    instance = new F(initObj);    
-	   	instance.name = className;
+	   	instance._refuelClassName = className;
 	    if (instance.hasOwnProperty('init')) {
 	    	instance.init(initObj);
 	    } 

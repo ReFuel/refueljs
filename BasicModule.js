@@ -4,15 +4,14 @@ Refuel.define('BasicModule', {require: ['Template', 'DataSource'], inherits: 'Up
     function BasicModule() {
         var self = this;
         var actionMap = {};
-        this.name = 'BasicModule';
         this.config = {};
+        
         this.init = function(myConfig) {
             this.config = Refuel.mix(this.config, myConfig);
             this.dataSource = Refuel.createInstance('DataSource');  
             this.template = Refuel.createInstance('Template', {root: this.config.root});
             
-            //console.log('BasicModule.init',this.config.root);
-            this.enableAutoUpdate(this.dataSource.data);     
+            //this.enableAutoUpdate(this.dataSource.data); 
             this.defineUpdateManager(oa_update);
             this.template.subscribe('genericBinderEvent', genericEventHandler);
             this.template.subscribe('_set_autoupdate', autoupdateOnSymbol);
@@ -20,20 +19,27 @@ Refuel.define('BasicModule', {require: ['Template', 'DataSource'], inherits: 'Up
 
         //TODO eventizzare
         function genericEventHandler(e) {
-            var action = actionMap[e.action];
-            if (!action)
-                console.error("No Callback defined for",e.action, 'on', self.name, 'inside', actionMap);
-            else 
-                action.callback.call(action.context, e);
+            var action = actionMap[e.linkedTo];
+            if (!action) {
+                console.error("No Callback defined for",e.linkedTo, 'on', self.name, 'inside', actionMap);
+            }
+            else {
+                //TODO questa è moooolto fragile, e se uno scrive minchiate:add? 
+                if (e.options) 
+                    action.callback.call(action.context.items[e.options], e);
+                else 
+                    action.callback.call(action.context, e);
+            }
         }
 
-
         /**
-            @param e Template symbol
+            called by the template (via event) when something has an option: autoupdate
         **/
-        
         function autoupdateOnSymbol(e) {
+            //TODO enableAutoUpdate dev'essere fatto solo un DS vero della sottoclasse
             self.enableAutoUpdate(self.dataSource.data);
+            //if(e.symbol.action == 'list') console.log('autoupdateOnSymbol',e.symbol, self);
+            //console.log('autoupdateOnSymbol', e.symbol);
             self.observe(e.symbol.linkedTo, e.symbol, 
                 function(observable) {
                     self.template.renderSymbol(observable.data, self.dataSource.data);
@@ -45,11 +51,11 @@ Refuel.define('BasicModule', {require: ['Template', 'DataSource'], inherits: 'Up
             console.log('BasicModule','update ->',e);      
         }
 
-
         this.draw = function() {
             this.template.render(this.dataSource.data);
         }
 
+        //TODO perchè defineUpdateManager lavora solo sugli ObsArray?
         this.defineUpdateManager = function(callback) {
             this.unsubscribe('_oa_update');
             this.subscribe('_oa_update', callback);  
@@ -58,6 +64,4 @@ Refuel.define('BasicModule', {require: ['Template', 'DataSource'], inherits: 'Up
         this.defineAction = function(name, callback) {
             actionMap[name] = {context: this, callback: callback};
         }
-
-       
 });
