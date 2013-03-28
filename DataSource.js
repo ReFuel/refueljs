@@ -1,10 +1,9 @@
-//TODO Rename in BasicModule?
 
-define(['Refuel', 'Events', 'ajax', 'localstorage'], function(Refuel, Events, ajax, localstorage) {
+Refuel.define('DataSource', {inherits: 'Events', require: ['ajax', 'localstorage']}, function() {
 	var data = {};
     return function DataSource(options) {
     	var self = this;
-    	Core.implement(Events, this);    	
+    	//Core.implement(Events, this);    	
 		
 		this.setData = function(dataObj) {
 			data = dataObj;
@@ -15,13 +14,13 @@ define(['Refuel', 'Events', 'ajax', 'localstorage'], function(Refuel, Events, aj
 			return data
 		}
 		
-		this.model =  function(dataObj) {
+		this.model =  function(dataObj, xhr) {
 			//specificare qui il modello dei dati???
 			//se non è specificato la mappatura è 1 a 1
 			return dataObj;
 		}
 		
-		function okCallback(dataObj, xhr, ) {
+		function okCallback(dataObj) {
 			self.setData(self.model(dataObj));
 		}
 		
@@ -54,7 +53,8 @@ define(['Refuel', 'Events', 'ajax', 'localstorage'], function(Refuel, Events, aj
 					},
 					"delete": function() {
 						ajax.delete(options.url, options.ajaxOptions);
-					}
+					},
+					"getData": self.getData()
 				}
 			 }
 			 else if (options.key){
@@ -73,7 +73,8 @@ define(['Refuel', 'Events', 'ajax', 'localstorage'], function(Refuel, Events, aj
 					"remove": function() {
 						localstorage.remove(options.key);
 						self.setData({});
-					}
+					},
+					"getData": self.getData()
 				}
 			 }
 			 else {

@@ -66,9 +66,7 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 				//parse linkedSymbol and options separated with ':'
 				if (matchedElms) {
 					symbol.originalContent = attributeValue;
-					var opts = symbol.linkedTo.split(':'); //<*--					
-					symbol.linkedTo = opts.length > 1 ? opts[1] : opts[0];
-					if (opts.length > 1) symbol.options = opts[0];
+					symbol = splitOptions(symbol, symbol.linkedTo);
 				}
 
 				if (symbol) {
@@ -78,6 +76,13 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 			}
 			//return a list of actions to the dom parser to know what kind of features that element has
 			return parsedAttributes;
+		}
+
+		function splitOptions(symbol, data) {
+			var opts = data.split(':');			
+			symbol.linkedTo = opts.length > 1 ? opts[1] : opts[0];
+			if (opts.length > 1) symbol.options = opts[0];
+			return symbol;
 		}
 
 		function hasDataAction(element, type) {
@@ -95,15 +100,18 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 					e.target.dataset['rfAction'] || e.target.dataset['rfActionClick'] : 
 					e.target.getAttribute('data-rf-action-' + e.type)
 			    );
+			    e = splitOptions(e, e.action);
 				self.bindingsProxy.notify('genericBinderEvent', e);
 			}
 		}
 
 		// Per un bug degli eventi del dom, non è possibile associare ad un elemento l'evento doppio click e il click. 
 		// Diventa allora difficile agganciare tutti gli eventi alla root del template (TODO add a workaround)
+		// Viene richiamato solo una volta per Template.parse
 		function templateBinder (rootEl, symbolTable) {
 			self.bindingsProxy = self.bindingsProxy || self;
 			for(var i = 0, symbol;  symbol = symbolTable[i]; i++) {
+				var isRoot = symbol.domElement === root;
 				if (symbol.action === 'action') {
 					var eventType = (symbol.attributeName === 'data-rf-action' ? 'click' : symbol.attributeName.replace(attributeRegExp, ''));
 					if (!bindingTable[eventType]) {
@@ -115,12 +123,17 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 						bindingTable[eventType] = true;
 					}
 				}
+				/*
+				if (symbol.action == 'list' && !isRoot) {
+					//symbol.linkedData = linkedData;
+					self.notify('_new_list', {symbol: symbol});
+				}
+				else 
+				*/
 				if (symbol.options && symbol.options === 'autoupdate') {
 					self.notify('_set_autoupdate', {symbol: symbol});
 				}
-				else if (symbol.options){
 
-				}
 			}
 		}
 
@@ -170,23 +183,18 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 				case 3: //Text Node
 					if (matchedElms = nodeValue.match(regExpToMatchValue)) {
 						//The nodeContent CAN contain two parameters separed by ':'
-						var opts = matchedElms[1].split(':');
-						var linkedTo = opts.length > 1 ? opts[1] : opts[0];
 						var symbol = {
 							action: 'replaceText',
 							domElement: node.parentElement,
 							textNode: node,
 							originalContent: nodeValue,
-							originalSymbol: matchedElms[0],
-							linkedTo: linkedTo
+							originalSymbol: matchedElms[0]
 						}
-						if (opts.length > 1) symbol.options = opts[0];
+						symbol = splitOptions(symbol, matchedElms[1]);
 						symbolTable.push(symbol);
 					}
 				break;
 			}
-
-			
 
 			if (node === root) templateBinder(node, symbolTable);
 			return symbolTable;

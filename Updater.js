@@ -1,19 +1,21 @@
 
+//TODO rename symbol in something-else because 'symbol' is also used by Template with another meaning
+//TODO find a name for this, OBSERVE or UPDATER, to use here and in markup
 
 Refuel.define('Updater',{require: ['ObservableArray'], inherits: 'Events'}, function Updater() {
     	if (this.observe) return;
 		var self = this;
-		var mountpoint;
+		var mountpoint, label;
 		var _map = {};
 		
 	    this.getObservers = function() {
 	        return _map;
 	    }
-	    this.getObservable = function(name) {
-	    	return _map[name];
-	    }
-	    this.enableAutoUpdate = function(mpDataSource) {
+	    this.enableAutoUpdate = function(mpDataSource, moduleLabel) {
+	    	debugger;
 	    	mountpoint = mpDataSource;
+	    	label = moduleLabel;
+	    	//console.log('#enableAutoUpdate', label);
 	    }
 
 	    function makeObservable(name) {
@@ -30,36 +32,41 @@ Refuel.define('Updater',{require: ['ObservableArray'], inherits: 'Events'}, func
 	        var propName = parent[parent.length-1];
 	        parent = parent.slice(0,parent.length-1).join('.');
 	        parent = Refuel.resolveChain(parent, mountpoint);
+	        
 	        if (!Refuel.isArray(value)) {
-	        	//console.log('-> BINDING', name,'ON',parent);
 		        Object.defineProperty(parent, propName, {
-						set: function(val) {
-					            var obj = _map[name];
-					            obj.propName = propName;
-					            obj.value = val;
-					            var callList = obj['callbackList'];
-					            if (callList && callList.length) {
-					            	var len = callList.length;
-					            	for (var i = 0, call; call = callList[i]; i++) {
-					            		call.callback.call(call.context, obj);
-					            	}
-					            }
-					        },
-						get: function() {
-					            return _map[name].value;
-					        }
+					set: function(val) {
+			            var obj = _map[name];
+			            obj.propName = propName;
+			            obj.value = val;
+			            var callList = obj['callbackList'];
+			            if (callList && callList.length) {
+			            	var len = callList.length;
+			            	for (var i = 0, call; call = callList[i]; i++) {
+			            		call.callback.call(call.context, obj);
+			            	}
+			            }
+				    },
+					get: function() {
+				        return _map[name].value;
+				    }
 				});
 			} 
 			else {
-			   	//console.log('binding array', name,value);
-			   	//parent[propName] = new ObservableArray(value);
-			   	parent[propName] = Refuel.createInstance('ObservableArray', {value: value});
-			   	//parent[propName].init(value);
-			   	
-			   	parent[propName].subscribe('_oa_update', function(e) {
-			   		e.symbol = _map[name];
-			   		self.notify('_oa_update', e);
+				/**
+					@param parent is often the very DataSource or some data inside DataSource
+					@param propName is the name of the property to bind inside the parent
+				**/
+				//TODO in caso di binding dell'intero mountpoint, parent[name] non esiste
+				//owner == parent == this == Module-Instance
+				//propName == 'dataSource' 
+				
+				parent[propName] = Refuel.createInstance('ObservableArray', {value: value});
+				parent[propName].subscribe('_oa_update', function(e) {
+					e.symbol = _map[name];
+					self.notify('_oa_update', e);
 			   	});
+
 			}
 	       	return _map[name];
 	    }
@@ -68,18 +75,18 @@ Refuel.define('Updater',{require: ['ObservableArray'], inherits: 'Events'}, func
 	    *	this.observe(propName, callback);
 	    *	this.observe(propName, data, callback);
 	    **/
-	    this.observe = function() {
-	    	var context, name, callback, data;
-			context = this;
-			name = arguments[0];
-			if (arguments.length == 2) {
-				callback = arguments[1];
+	    this.observe = function(name, data, callback) {
+	    	//console.log('observe', name);
+	    	var context = this;
+			if (!callback) {
+				callback = data;
+				data = null;
 			}
-			else if (arguments.length == 3) {
-				data = arguments[1];
-				callback = arguments[2];
-			}
-	        //var obj = context.observable(name);      
+	    	if (!mountpoint) {
+	    		console.error('Before making',name,'observable you should enableAutoUpdate on',name,'or it\'s parent');
+	    		return;
+	    	} 
+	    	//console.log('#makeObservable',name, label);
 	        var obj = makeObservable(name);      
 			// Add Callback
 			obj.data = data;
@@ -92,19 +99,22 @@ Refuel.define('Updater',{require: ['ObservableArray'], inherits: 'Events'}, func
 		        	'context' : this
 		       	});
 	       	}
+	    	//console.log('observe', name, obj.callbackList);
 	        //console.log(this.name.toUpperCase(),"sta osservando", context.name+'.'+name);
 	    }
 });
 
-/**
-	METODO 1: Al parsing dei symbol di replace viene controllato se sono "observable", in tal caso si aggancia 
-	un observe di quella variabile e si rifà il rendering di quel "symbol" ad ogni evento change della variabile
-	+ è più veloce e lineare
-	- bisogna definire prima del parsing cosa è osservabile... o in alternativa lo è sempre tutto 
-	
-	METODO 2: Quando si definisce observable una variabile accade che al suo "change" vengano presi dalla symbolTable del 
-	tmpl i simboli associati e ri-renderizzati.
-	+ possiamo definire osservabile un dato a runtime
-	- è più lento e potrebbe essere un problema con i dati degli elementi di una lista
+/*
 
-**/
+Generic -> DataSource GLOBALE
+	Deve leggere un certo dato NAME all'interno del suo DS
+	Va bene che bindi il dato NAME ma se c'è un sottomodulo più specializzato deve cedere il passo a lui.
+
+List -> DataSource = DS.NAME
+	Cerca il dato NAME all'interno del suo DS e non potrebbe fare altrimenti perchè nella mappa un etichetta ci vuole
+
+
+
+
+
+*/

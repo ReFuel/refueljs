@@ -26,10 +26,9 @@ Refuel.define('TodoApp',{require: ['GenericModule']},
     			this.dataSource.data.todoList[+e.currentTarget.dataset.rfId].done = false;
     		}
     	});
-
         app.defineAction('add', function(e) {
             if (e.keyIdentifier === 'Enter') {
-                this.items['todoList'].dataSource.data.push({ text: e.target.value, done: false });
+                this.dataSource.data.push({ text: e.target.value, done: false });
                 e.target.value = '';
             }
         });
