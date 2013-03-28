@@ -116,21 +116,21 @@ define(function() {
 		haveActiveConnections: function(){
 			return ajaxCounter > 0;
 		},
-		"get": function(url, options){
+		get: function(url, options){
 			options.method = "GET";
 			ajax(url, options);
 		},
-		"post": function(url, body, options){
+		set: function(url, body, options){
 			options.method = "POST";
 			options.body = body;
 			ajax(url, options);
 		},
-		"put": function(url, body, options){
+		update: function(url, body, options){
 			options.method = "PUT";
 			options.body = body;
 			ajax(url, options);
 		},
-		"delete": function(url, options){
+		remove: function(url, options){
 			options.method = "DELETE";
 			ajax(url, options);
 		}

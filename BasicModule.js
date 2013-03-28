@@ -3,6 +3,7 @@
 Refuel.define('BasicModule', {require: ['Template', 'DataSource'], inherits: 'Updater'}, 
     function BasicModule() {
         var self = this;
+
         var actionMap = {};
         this.config = {};
         
@@ -37,12 +38,14 @@ Refuel.define('BasicModule', {require: ['Template', 'DataSource'], inherits: 'Up
         **/
         function autoupdateOnSymbol(e) {
             //TODO enableAutoUpdate dev'essere fatto solo un DS vero della sottoclasse
-            self.enableAutoUpdate(self.dataSource.data);
             //if(e.symbol.action == 'list') console.log('autoupdateOnSymbol',e.symbol, self);
             //console.log('autoupdateOnSymbol', e.symbol);
+            //self.enableAutoUpdate(self.dataSource.data);
+            self.enableAutoUpdate(self.dataSource.getData());
+
             self.observe(e.symbol.linkedTo, e.symbol, 
                 function(observable) {
-                    self.template.renderSymbol(observable.data, self.dataSource.data);
+					self.template.renderSymbol(observable.data, self.dataSource.getData());
                 }
             );
         }
@@ -51,10 +54,10 @@ Refuel.define('BasicModule', {require: ['Template', 'DataSource'], inherits: 'Up
             console.log('BasicModule','update ->',e);      
         }
 
-        this.draw = function() {
-            this.template.render(this.dataSource.data);
-        }
+        this.render = function() {
+			this.template.render(self.dataSource.getData());
 
+        }
         //TODO perchè defineUpdateManager lavora solo sugli ObsArray?
         this.defineUpdateManager = function(callback) {
             this.unsubscribe('_oa_update');

@@ -1,6 +1,5 @@
 var app;
 
-
 Refuel.define('TodoApp',{require: ['GenericModule']},
     function TodoApp() {    
         var root = document.querySelector("#todoapp"); 

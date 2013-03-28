@@ -15,8 +15,26 @@ Refuel.define('ListModule',{inherits: 'BasicModule', require:'ListItemModule'},
             this.config = Refuel.mix(this.config, myConfig);
             this.defineUpdateManager(oa_update);
             this._label = this.config.label;
-
+            this.enableAutoUpdate(this.dataSource.data);
         }
+
+		this.doFilter = function(param) {
+			var data = this.dataSource.getData(); // da cambiare nell'array vero
+			switch(param){
+				case 'completed': {
+					data = Filter(data.todoList).where(function(item) {return item.done === true}).returnResult();
+					break;
+				}
+				case 'active': {
+					data = Filter(data.todoList).where(function(item) {return item.done === false}).returnResult();
+					break;
+				}
+				default: {
+					return data;
+				}
+			}
+		}
+
         this.create = function() {
             this.template.subscribe('_new_listitem', createListItem);
             this.template.setRoot(this.config.root);
@@ -48,17 +66,17 @@ Refuel.define('ListModule',{inherits: 'BasicModule', require:'ListItemModule'},
         //serve anche sapere quando il tmpl ha finito di parsare? automatizzare il processo!
         //in callback del datasource, probabilmente automatizzando
         this.draw = function() {
-            this.template.render(this.dataSource.data);
+            this.template.render(this.dataSource.getData());
         }
 
         this.delete = function(e) {
-        	this.dataSource.data.todoList.splice(e.currentTarget.dataset.rfId, 1);
+//         	this.dataSource.remove(e.currentTarget.dataset.rfId, 1); implementare remove
         }
 
         this.update = function(e) {
             if (e.keyCode === ENTER_KEY) {
                 e.currentTarget.className = e.currentTarget.className.replace(" editing", "");
-                this.dataSource.data.todoList[+e.currentTarget.dataset.rfId].text = e.target.value;
+//                 this.dataSource.data.todoList[+e.currentTarget.dataset.rfId].text = e.target.value;
             }
         }
 

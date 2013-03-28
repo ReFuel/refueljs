@@ -21,8 +21,9 @@ Refuel.define('ListItemModule', {inherits: 'BasicModule'},
         //serve anche sapere quando il tmpl ha finito di parsare? automatizzare il processo!
         //in callback del datasource, probabilmente automatizzando
         this.draw = function() {
+
             this.template.create(this.config.parentRoot, this.config.template, this.dataSource.data);
         }
-	
+
 });
 
