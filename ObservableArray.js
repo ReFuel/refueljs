@@ -29,7 +29,7 @@ Refuel.define('ObservableArray',{inherits: 'Events'},
 			  		var r = data[methodName].apply(data, arguments);
 			  		switch(methodName) {
 			  			case 'push': 
-			  				var index = self.length-1;
+			  				var index = self.length;
 			  				watchElement(index, val);
 			  				self.length = data.length;
 			  				var e =  {action: 'add', index: index, data: self[index]};

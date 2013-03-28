@@ -7,7 +7,7 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax', 'localstorage
 		
 		this.setData = function(dataObj) {
 			data = dataObj;
-			self.notify("dataAvailable", self.getData());
+			self.notify("dataAvailable", {'data': data});
 		}
 		
 		this.getData = function() {

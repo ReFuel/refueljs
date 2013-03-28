@@ -261,7 +261,7 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 				break;
 				case 'list':
 					if (isRoot) {
-						linkedData = Refuel.resolveChain('.', data) || '';
+						//linkedData = Refuel.resolveChain('.', data) || '';
 						for (var i = 0; i < linkedData.length; i++) {
 							self.notify('_new_listitem', {symbol:symbol, data:linkedData[i]});
 						}
