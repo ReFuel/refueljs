@@ -1,7 +1,7 @@
 
-Refuel.define('DataSource', {inherits: 'Events', require: ['ajax', 'localstorage']}, function() {
-	var data = {};
-    return function DataSource(options) {
+Refuel.define('DataSource', {inherits: 'Events', require: ['ajax', 'localstorage']}, 
+	function DataSource(options) {
+		var data = {};
     	var self = this;
     	//Core.implement(Events, this);    	
 		
@@ -31,10 +31,18 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax', 'localstorage
 		}
 		
 		function initialize(options) {
-			 if (!options) {
-				return;
-			 }
-			 else if (options.url) {
+			if(!options){
+				return {
+					"getData": function() {self.getData()},
+					"setData": function(dataObj) {
+						self.setData(dataObj)
+					}
+				}
+			}
+			if(options && (!options.url || !options.key)) {
+				self.setData(options);
+			}
+			if (options.url) {
 				if (!options.ajaxOptions.ok) {
 					options.ajaxOptions.ok = okCallback;
 				}
@@ -54,7 +62,7 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax', 'localstorage
 					"delete": function() {
 						ajax.delete(options.url, options.ajaxOptions);
 					},
-					"getData": self.getData()
+					"getData": self.getData() //è veramente da rendere pubblica??? potrebbe essere necessario 
 				}
 			 }
 			 else if (options.key){
@@ -77,10 +85,7 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax', 'localstorage
 					"getData": self.getData()
 				}
 			 }
-			 else {
 				//options è un plain object
-				 setData(options);
-			 }
 		}
 		return initialize(options);
-    }});
+    });
