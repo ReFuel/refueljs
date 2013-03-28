@@ -7,9 +7,11 @@ Refuel.define('Events',
 			if (!name || typeof(name)!=='string'){
 				throw new TypeError("Invalid event name '" + name);
 			}
+			data = data || {};
+			/*
 			if (!data || typeof(data)!=='object'){
 				throw new TypeError("Invalid event data '" + data);
-			}
+			}*/
 
 			if (onGoingNotification[name] instanceof Array) {
 				var listeners = [].concat(onGoingNotification[name]);

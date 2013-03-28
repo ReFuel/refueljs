@@ -1,6 +1,5 @@
 
-//TODO rename symbol in something-else because 'symbol' is also used by Template with another meaning
-//TODO find a name for this, OBSERVE or UPDATER, to use here and in markup
+//TODO rename in Observer and option in "observe"
 
 Refuel.define('Updater',{require: ['ObservableArray'], inherits: 'Events'}, function Updater() {
     	if (this.observe) return;
@@ -12,7 +11,6 @@ Refuel.define('Updater',{require: ['ObservableArray'], inherits: 'Events'}, func
 	        return _map;
 	    }
 	    this.enableAutoUpdate = function(mpDataSource, moduleLabel) {
-// 	    	debugger;
 	    	mountpoint = mpDataSource;
 	    	label = moduleLabel;
 	    	//console.log('#enableAutoUpdate', label);
@@ -28,13 +26,34 @@ Refuel.define('Updater',{require: ['ObservableArray'], inherits: 'Events'}, func
 		            'value': value
 		        }
 	        }
+
 	        var parent = name.split('.');
 	        var propName = parent[parent.length-1];
 	        parent = parent.slice(0,parent.length-1).join('.');
 	        parent = Refuel.resolveChain(parent, mountpoint);
 	        
-	        if (!Refuel.isArray(value)) {
-		        Object.defineProperty(parent, propName, {
+	        if (Refuel.isArray(value)) {
+		        /**
+					@param parent is often the very DataSource or some data inside DataSource
+					@param propName is the name of the property to bind inside the parent
+				**/
+			
+				parent[propName] = Refuel.createInstance('ObservableArray', {'value': value});
+				parent[propName].subscribe('_oa_update', function(e) {
+					e.observer = _map[name];
+					self.notify('_oa_update', e);
+			   	});
+
+			} 
+			else if (value._refuelClassName && value._refuelClassName == 'ObservableArray') {
+				debugger;
+				parent[propName].subscribe('_oa_update', function(e) {
+					e.observer = _map[name];
+					self.notify('_oa_update', e);
+			   	});
+			}
+			else {
+				Object.defineProperty(parent, propName, {
 					set: function(val) {
 			            var obj = _map[name];
 			            obj.propName = propName;
@@ -51,22 +70,6 @@ Refuel.define('Updater',{require: ['ObservableArray'], inherits: 'Events'}, func
 				        return _map[name].value;
 				    }
 				});
-			} 
-			else {
-				/**
-					@param parent is often the very DataSource or some data inside DataSource
-					@param propName is the name of the property to bind inside the parent
-				**/
-				//TODO in caso di binding dell'intero mountpoint, parent[name] non esiste
-				//owner == parent == this == Module-Instance
-				//propName == 'dataSource' 
-				
-				parent[propName] = Refuel.createInstance('ObservableArray', {value: value});
-				parent[propName].subscribe('_oa_update', function(e) {
-					e.symbol = _map[name];
-					self.notify('_oa_update', e);
-			   	});
-
 			}
 	       	return _map[name];
 	    }
@@ -111,10 +114,8 @@ Generic -> DataSource GLOBALE
 	Va bene che bindi il dato NAME ma se c'è un sottomodulo più specializzato deve cedere il passo a lui.
 
 List -> DataSource = DS.NAME
-	Cerca il dato NAME all'interno del suo DS e non potrebbe fare altrimenti perchè nella mappa un etichetta ci vuole
-
-
-
+	Cerca il dato NAME all'interno del suo DS e non potrebbe fare altrimenti perchè nella mappa una etichetta ci vuole
+		
 
 
 */

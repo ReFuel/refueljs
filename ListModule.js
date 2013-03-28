@@ -15,7 +15,7 @@ Refuel.define('ListModule',{inherits: 'BasicModule', require:'ListItemModule'},
             this.config = Refuel.mix(this.config, myConfig);
             this.defineUpdateManager(oa_update);
             this._label = this.config.label;
-            this.enableAutoUpdate(this.dataSource.getData());
+            //this.enableAutoUpdate(this.dataSource.getData());
         }
 
 		this.doFilter = function(param) {
@@ -38,8 +38,6 @@ Refuel.define('ListModule',{inherits: 'BasicModule', require:'ListItemModule'},
         this.create = function() {
             this.template.subscribe('_new_listitem', createListItem);
             this.template.setRoot(this.config.root);
-            
-            //TODO URGENTE ma se gli passassimo il dataSource?
             this.enableAutoUpdate(this.dataSource.getData(), this._label);
         }
 
@@ -61,6 +59,7 @@ Refuel.define('ListModule',{inherits: 'BasicModule', require:'ListItemModule'},
         }
 
         this.add = function(objData) {
+            console.log('ListModule.add', objData);
             createListItem({data: objData});
         }
         //TODO serve anche sapere quando il tmpl ha finito di parsare? automatizzare il processo!
@@ -81,16 +80,14 @@ Refuel.define('ListModule',{inherits: 'BasicModule', require:'ListItemModule'},
         }
 
         function oa_update(e) {
-            console.log('ListModule.update ->',e.symbol);      
+            //console.log('ListModule.update ->',e);      
 
             switch(e.action) {
                 case 'add': 
-                    var html = createListItem(e.data, e.symbol.data);
-                    e.symbol.data.domElement.appendChild(html);
+                    createListItem({data: e.data, observer: e.observer});
                 break;
             }
         }
-        
 
         function createListItem(e) {
             var rootSymbol = self.template.getSymbolByAction('list');
@@ -98,7 +95,7 @@ Refuel.define('ListModule',{inherits: 'BasicModule', require:'ListItemModule'},
                 parentRoot: self.config.root, 
                 template: rootSymbol.template 
             });
-
+            //console.log('createListItem', e, self);
             listItem.dataSource.setData(e.data);
             self.items.push(listItem);
             listItem.create(); //do we really need this?

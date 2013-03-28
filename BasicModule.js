@@ -57,7 +57,7 @@ Refuel.define('BasicModule', {require: ['Template', 'DataSource'], inherits: 'Up
         this.defineUpdateManager = function(callback) {
             this.unsubscribe('_oa_update');
             this.subscribe('_oa_update', callback);  
-        };
+        }
 
         this.defineAction = function(name, callback) {
             actionMap[name] = {context: this, callback: callback};

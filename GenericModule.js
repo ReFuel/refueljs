@@ -24,7 +24,13 @@ Refuel.define('GenericModule',{inherits: 'BasicModule', require:'ListModule'},
                     root: e.symbol.domElement,
                     label: label
                 });
-                list.dataSource.setData(linkedData);
+
+                //XXX viene re-istanziato un ObservableArray o è sempre lo stesso?
+                //XXX va levato il listener sul generic?
+                var obj = {};
+                obj[label] = e.symbol.linkedData;
+                list.dataSource.setData(obj);
+
                 self.items[label] = list;
                 list.create();
                 list.draw();
@@ -32,7 +38,7 @@ Refuel.define('GenericModule',{inherits: 'BasicModule', require:'ListModule'},
         }
 
         function oa_update(e) {
-            console.log('GenericModule.update ->',e);      
+            //console.log('GenericModule.update ->',e);      
         }
 
 });
