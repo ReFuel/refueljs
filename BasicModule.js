@@ -54,7 +54,7 @@ Refuel.define('BasicModule', {require: ['Template', 'DataSource'], inherits: 'Up
             console.log('BasicModule','update ->',e);      
         }
 
-        this.render = function() {
+        this.draw = function() {
 			this.template.render(self.dataSource.getData());
 
         }

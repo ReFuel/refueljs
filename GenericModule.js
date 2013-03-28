@@ -13,7 +13,7 @@ Refuel.define('GenericModule',{inherits: 'BasicModule', require:'ListModule'},
             this.template.setRoot(this.config.root);
 
         }
-
+        
 
         //TODO il generic module se trova una List non deve bindarsi il suo DS, anche se definito come autoupdate
         function createList(e) {
