@@ -30,13 +30,15 @@ Refuel.define('ObservableArray',{inherits: 'Events'},
 			  		switch(methodName) {
 			  			case 'push': 
 			  				var index = self.length;
-			  				watchElement(index, val);
+			  				watchElement(index);
 			  				self.length = data.length;
 			  				var e =  {action: 'add', index: index, data: self[index]};
 			  				self.notify('_oa_update',e);
 			  			break;
 			  			case 'splice': 
 			  				var index = val;
+			  				self.length = data.length;
+			  				unWatchElement(index);
 			  				var e =  {action: 'delete', index: index};
 			  				self.notify('_oa_update',e);
 			  			break;
@@ -60,20 +62,30 @@ Refuel.define('ObservableArray',{inherits: 'Events'},
     		return data.length;
     	});
 
-
-    	function watchElement(index, prop) {
-    		if(!self.__lookupGetter__(prop)) {
-	    		(function(thisIndex, thisProp) {
-	            		self.__defineGetter__(thisIndex, function() {
-	                		//console.log('getter called',thisIndex, thisProp); 
-	                		return self.getElementAt(thisIndex);
-	                	});
-	                	self.__defineSetter__(thisIndex, function(val) {
-	                		self.setElementAt(thisIndex, val);
-	                	});
-	            })(index, prop);
+    	//FIXME al delete i getter restano ai vecchi indici
+    	function watchElement(index) {
+    		if(!self.__lookupGetter__(index)) {
+	    		(function(thisIndex) {
+		    		Object.defineProperty(self, thisIndex, {
+					    configurable: true,
+						set: function(val) {
+				            self.setElementAt(thisIndex, val);
+					    },
+						get: function() {
+					        return self.getElementAt(thisIndex);
+					    }
+					});
+	            })(index);
 	        }
     	}
+    	function unWatchElement(index) {
+    		delete self[index];
+    		for (var i = 0; i < data.length; i++) {
+    			delete self[i];
+    			watchElement(i)
+    		};
+    	}
+
 		this.setElementAt = function(index, val) {
 			data[index] = val;
 		}

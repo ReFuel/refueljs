@@ -35,5 +35,9 @@ Refuel.define('TodoApp',{require: ['GenericModule']},
                 e.target.value = '';
             }
         });
+        app.items['todoList'].defineAction('delete', function(e) {
+            console.log('delete', e);
+        });
+        
     
 });

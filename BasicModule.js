@@ -21,7 +21,7 @@ Refuel.define('BasicModule', {require: ['Template', 'DataSource'], inherits: 'Up
         function genericEventHandler(e) {
             var action = actionMap[e.linkedTo];
             if (!action) {
-                console.error("No Callback defined for",e.linkedTo, 'on', self.name, 'inside', actionMap);
+                console.error("No Callback defined on",self._refuelClassName ,"for",e.linkedTo, 'inside', actionMap);
             }
             else {
                 //TODO questa è moooolto fragile, e se uno scrive minchiate:add? 
@@ -36,7 +36,6 @@ Refuel.define('BasicModule', {require: ['Template', 'DataSource'], inherits: 'Up
             called by the template (via event) when something has an option: autoupdate
         **/
         function autoupdateOnSymbol(e) {
-            //TODO enableAutoUpdate dev'essere fatto solo un DS vero della sottoclasse
             self.enableAutoUpdate(self.dataSource.getData());
             self.observe(e.symbol.linkedTo, e.symbol, 
                 function(observable) {
@@ -53,7 +52,7 @@ Refuel.define('BasicModule', {require: ['Template', 'DataSource'], inherits: 'Up
 			this.template.render(self.dataSource.getData());
 
         }
-        //TODO perchè defineUpdateManager lavora solo sugli ObsArray?
+        //XXX perchè UpdateManager lavora solo sugli ObsArray e non anche sugli object?
         this.defineUpdateManager = function(callback) {
             this.unsubscribe('_oa_update');
             this.subscribe('_oa_update', callback);  

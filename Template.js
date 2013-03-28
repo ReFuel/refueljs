@@ -288,6 +288,10 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 			rootElement.appendChild(root);
 		}
 
+		this.remove = function() {
+			root.parentNode.removeChild(root);
+		}
+
 		function createListElement(data, parentSymbol) {
 			var domClone = parentSymbol.template.cloneNode(true);
 			var tmpl = new Template(domClone);

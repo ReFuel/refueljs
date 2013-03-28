@@ -15,7 +15,6 @@ Refuel.define('ListModule',{inherits: 'BasicModule', require:'ListItemModule'},
             this.config = Refuel.mix(this.config, myConfig);
             this.defineUpdateManager(oa_update);
             this._label = this.config.label;
-            //this.enableAutoUpdate(this.dataSource.getData());
         }
 
 		this.doFilter = function(param) {
@@ -36,7 +35,7 @@ Refuel.define('ListModule',{inherits: 'BasicModule', require:'ListItemModule'},
 		}
 
         this.create = function() {
-            this.template.subscribe('_new_listitem', createListItem);
+            this.template.subscribe('_new_listitem', addListItem);
             this.template.setRoot(this.config.root);
             this.enableAutoUpdate(this.dataSource.getData(), this._label);
         }
@@ -60,16 +59,13 @@ Refuel.define('ListModule',{inherits: 'BasicModule', require:'ListItemModule'},
 
         this.add = function(objData) {
             console.log('ListModule.add', objData);
-            createListItem({data: objData});
+            addListItem({data: objData});
         }
+               
         //TODO serve anche sapere quando il tmpl ha finito di parsare? automatizzare il processo!
         //in callback del datasource, probabilmente automatizzando
         this.draw = function() {
             this.template.render(this.dataSource.getData());
-        }
-
-        this.delete = function(e) {
-//         	this.dataSource.remove(e.currentTarget.dataset.rfId, 1); implementare remove
         }
 
         this.update = function(e) {
@@ -80,26 +76,46 @@ Refuel.define('ListModule',{inherits: 'BasicModule', require:'ListItemModule'},
         }
 
         function oa_update(e) {
-            //console.log('ListModule.update ->',e);      
-
             switch(e.action) {
                 case 'add': 
-                    createListItem({data: e.data, observer: e.observer});
+                    addListItem({data: e.data, observer: e.observer});
                 break;
+                case 'delete': {
+                    removeListItem({index: e.index});
+                }
             }
         }
 
-        function createListItem(e) {
+        function removeListItem(e) {
+            self.items[e.index].template.remove();
+        }
+
+        //XXX fattorizzare l'add di un elemento?
+        function addListItem(e) {
             var rootSymbol = self.template.getSymbolByAction('list');
             var listItem = Refuel.createInstance('ListItemModule', { 
                 parentRoot: self.config.root, 
-                template: rootSymbol.template 
+                template: rootSymbol.template
             });
-            //console.log('createListItem', e, self);
+
             listItem.dataSource.setData(e.data);
             self.items.push(listItem);
-            listItem.create(); //do we really need this?
+            listItem.create(); 
             listItem.draw();
+            listItem.subscribe('delete', function(e) {
+                var index = self.getItemIndex(e.item);
+                var ds = self.dataSource.getData()[self._label];
+
+                ds.splice(index, 1);
+                self.items.splice(index, 1);
+            });
         }
+
+        this.getItemIndex = function(item) {
+            for (var i = 0, curItem; curItem = this.items[i]; i++) {
+                if (curItem === item) return i;
+            };
+        }
+
 });
 

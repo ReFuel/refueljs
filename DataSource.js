@@ -13,7 +13,7 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax', 'localstorage
 		this.getData = function() {
 			return data;
 		}
-		
+
 		this.model =  function(dataObj, xhr) {
 			//specificare qui il modello dei dati???
 			//se non è specificato la mappatura è 1 a 1

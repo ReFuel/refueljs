@@ -10,20 +10,21 @@ Refuel.define('ListItemModule', {inherits: 'BasicModule'},
         var self = this;
 
         this.init = function(myConfig) {
-             this.config = Refuel.mix(this.config, myConfig);
+            this.config = Refuel.mix(this.config, myConfig);
             this.enableAutoUpdate(this.dataSource.getData());
         }
-
         this.create = function() {
-            //console.log('ListItemModule.create', this.config.parentRoot);
-            //this.parse(this.config.root);
         }
+        
         //serve anche sapere quando il tmpl ha finito di parsare? automatizzare il processo!
         //in callback del datasource, probabilmente automatizzando
         this.draw = function() {
-
             this.template.create(this.config.parentRoot, this.config.template, this.dataSource.getData());
         }
+
+        this.defineAction('delete', function(e) {
+            this.notify('delete', {'item': this});
+        });
 
 });
 
