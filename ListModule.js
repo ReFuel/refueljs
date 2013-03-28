@@ -10,12 +10,7 @@ Refuel.define('ListModule',{inherits: 'BasicModule', require:'ListItemModule'},
         var self = this;
         var ENTER_KEY = 13;
         this.items = [];   
-<<<<<<< HEAD
-        Refuel.implement(BasicModule, this, true);
-        this.enableAutoUpdate(this.dataSource.getData());
-=======
         this.enableAutoUpdate(this.dataSource.data);
->>>>>>> 13ff27c45832cc20f7c590d09723f43eb03b5534
 
         this.init = function(myConfig) {
              this.config = Refuel.mix(this.config, myConfig);
@@ -49,7 +44,7 @@ Refuel.define('ListModule',{inherits: 'BasicModule', require:'ListItemModule'},
         //serve anche sapere quando il tmpl ha finito di parsare? automatizzare il processo!
         //in callback del datasource, probabilmente automatizzando
         this.draw = function() {
-            this.template.render(this.dataSource.getData());
+            this.template.render(this.dataSource.data);
         }
 
         this.delete = function(e) {

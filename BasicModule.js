@@ -34,10 +34,10 @@ Refuel.define('BasicModule', {require: ['Template', 'DataSource'], inherits: 'Up
         **/
         
         function autoupdateOnSymbol(e) {
-            self.enableAutoUpdate(self.dataSource.getData());
+            self.enableAutoUpdate(self.dataSource.data);
             self.observe(e.symbol.linkedTo, e.symbol, 
                 function(observable) {
-					self.template.renderSymbol(observable.data, self.dataSource.getData());
+					self.template.renderSymbol(observable.data, self.dataSource.data);
                 }
             );
         }
@@ -45,16 +45,10 @@ Refuel.define('BasicModule', {require: ['Template', 'DataSource'], inherits: 'Up
         function oa_update(e) {
             console.log('BasicModule','update ->',e);      
         }
-<<<<<<< HEAD
-        
-        this.render = function() {
-			this.template.render(self.dataSource.getData());
-=======
 
 
         this.draw = function() {
             this.template.render(this.dataSource.data);
->>>>>>> 13ff27c45832cc20f7c590d09723f43eb03b5534
         }
 
         this.defineUpdateManager = function(callback) {
