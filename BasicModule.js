@@ -12,7 +12,6 @@ Refuel.define('BasicModule', {require: ['Template', 'DataSource'], inherits: 'Up
             this.dataSource = Refuel.createInstance('DataSource');  
             this.template = Refuel.createInstance('Template', {root: this.config.root});
             
-            //this.enableAutoUpdate(this.dataSource.data); 
             this.defineUpdateManager(oa_update);
             this.template.subscribe('genericBinderEvent', genericEventHandler);
             this.template.subscribe('_set_autoupdate', autoupdateOnSymbol);
@@ -37,15 +36,11 @@ Refuel.define('BasicModule', {require: ['Template', 'DataSource'], inherits: 'Up
             called by the template (via event) when something has an option: autoupdate
         **/
         function autoupdateOnSymbol(e) {
-
             //TODO enableAutoUpdate dev'essere fatto solo un DS vero della sottoclasse
-            //if(e.symbol.action == 'list') console.log('autoupdateOnSymbol',e.symbol, self);
-            //console.log('autoupdateOnSymbol', e.symbol);
-            //self.enableAutoUpdate(self.dataSource.data);
             self.enableAutoUpdate(self.dataSource.getData());
             self.observe(e.symbol.linkedTo, e.symbol, 
                 function(observable) {
-					self.template.renderSymbol(observable.data, self.dataSource.data);
+					self.template.renderSymbol(observable.data, self.dataSource.getData());
                 }
             );
         }

@@ -8,10 +8,10 @@
 Refuel.define('ListItemModule', {inherits: 'BasicModule'},  
     function ListItemModule() {
         var self = this;
-        this.enableAutoUpdate(this.dataSource.data);
 
         this.init = function(myConfig) {
              this.config = Refuel.mix(this.config, myConfig);
+            this.enableAutoUpdate(this.dataSource.getData());
         }
 
         this.create = function() {
@@ -22,7 +22,7 @@ Refuel.define('ListItemModule', {inherits: 'BasicModule'},
         //in callback del datasource, probabilmente automatizzando
         this.draw = function() {
 
-            this.template.create(this.config.parentRoot, this.config.template, this.dataSource.data);
+            this.template.create(this.config.parentRoot, this.config.template, this.dataSource.getData());
         }
 
 });

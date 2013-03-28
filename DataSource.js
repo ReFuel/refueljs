@@ -11,7 +11,7 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax', 'localstorage
 		}
 		
 		this.getData = function() {
-			return data
+			return data;
 		}
 		
 		this.model =  function(dataObj, xhr) {
@@ -33,10 +33,8 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax', 'localstorage
 		function initialize(options) {
 			if(!options){
 				return {
-					"getData": function() {self.getData()},
-					"setData": function(dataObj) {
-						self.setData(dataObj)
-					}
+					"getData": self.getData,
+					"setData": self.setData
 				}
 			}
 			if(options && (!options.url || !options.key)) {
@@ -62,7 +60,7 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax', 'localstorage
 					"delete": function() {
 						ajax.delete(options.url, options.ajaxOptions);
 					},
-					"getData": self.getData() //è veramente da rendere pubblica??? potrebbe essere necessario 
+					"getData": self.getData //è veramente da rendere pubblica??? potrebbe essere necessario 
 				}
 			 }
 			 else if (options.key){
@@ -82,7 +80,7 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax', 'localstorage
 						localstorage.remove(options.key);
 						self.setData({});
 					},
-					"getData": self.getData()
+					"getData": self.getData
 				}
 			 }
 				//options è un plain object

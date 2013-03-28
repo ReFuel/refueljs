@@ -13,18 +13,18 @@ Refuel.define('GenericModule',{inherits: 'BasicModule', require:'ListModule'},
             this.template.setRoot(this.config.root);
 
         }
-        
+
 
         //TODO il generic module se trova una List non deve bindarsi il suo DS, anche se definito come autoupdate
         function createList(e) {
             var label = e.symbol.linkedTo;
             if (typeof self.items[label] === 'undefined') {
-                var linkedData = Refuel.resolveChain(label, self.dataSource.data) || '';
+                var linkedData = Refuel.resolveChain(label, self.dataSource.getData()) || '';
                 var list = Refuel.createInstance('ListModule', { 
                     root: e.symbol.domElement,
                     label: label
                 });
-                list.dataSource.data = linkedData;
+                list.dataSource.setData(linkedData);
                 self.items[label] = list;
                 list.create();
                 list.draw();
