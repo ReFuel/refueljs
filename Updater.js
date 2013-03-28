@@ -12,7 +12,7 @@ Refuel.define('Updater',{require: ['ObservableArray'], inherits: 'Events'}, func
 	        return _map;
 	    }
 	    this.enableAutoUpdate = function(mpDataSource, moduleLabel) {
-	    	debugger;
+// 	    	debugger;
 	    	mountpoint = mpDataSource;
 	    	label = moduleLabel;
 	    	//console.log('#enableAutoUpdate', label);
