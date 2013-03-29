@@ -52,6 +52,11 @@
 		bottom: 1px;
 	}
 	
+	#filters li {
+		display: inline-block;
+		width: 32.3333%;
+	}
+	
 	footer>p:first-child{
 		padding-top: 15px;
 	}
@@ -101,6 +106,7 @@
 		z-index: 1;
 		text-align: center;
 	}
+	
 	#filters {
 		margin: 0;
 		padding: 0;
@@ -109,6 +115,11 @@
 		right: 0;
 		left: 0;
 		bottom: 1px;
+	}
+	
+	#filters li {
+		display: inline-block;
+		width: 32.3333%;
 	}
 	
 	footer>p:first-child{
