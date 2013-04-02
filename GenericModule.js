@@ -27,14 +27,14 @@ Refuel.define('GenericModule',{inherits: 'BasicModule', require:'ListModule'},
                 obj[label] = e.symbol.linkedData;
                 list.dataSource.setData(obj);
 
-                self.items[label] = list;
+                self.addItem(list);
                 list.create();
                 list.draw();
             }
         }
 
         function oa_update(e) {
-            console.log('GenericModule.update ->',e);      
+            //console.log('GenericModule.update ->',e);      
         }
 
 });

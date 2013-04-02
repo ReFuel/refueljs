@@ -25,7 +25,7 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 		
 		this.init = function(myConfig) {
             this.config = Refuel.mix(this.config, myConfig);
-            root = this.config.root;
+           	root = this.config.root;
             //console.log('Template.init', this.config);
         }
 
@@ -101,7 +101,7 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 					e.target.getAttribute('data-rf-action-' + e.type)
 			    );
 			    e = splitOptions(e, e.action);
-				self.bindingsProxy.notify('genericBinderEvent', e);
+			   	self.bindingsProxy.notify('genericBinderEvent', e);
 			}
 		}
 

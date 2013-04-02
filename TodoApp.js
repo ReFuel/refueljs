@@ -18,26 +18,19 @@ Refuel.define('TodoApp',{require: ['GenericModule']},
         app.draw();
 
 
-        //metodo applicativo ma si riferisce ad un elemento o alla lista, non all'intera app
-        //como se fa?
         app.defineAction('changeDone', function(e) {
-    		if (e.target.checked) {
-    			e.target.parentNode.parentNode.className = 'completed';
-    			data.todoList[+e.currentTarget.dataset.rfId].done = true;
-    		} else {
-    		    e.target.parentNode.parentNode.classList.remove('completed');
-    			data.todoList[+e.currentTarget.dataset.rfId].done = false;
-    		}
-    	});
+            var checked =  e.target.checked;
+            e.item.dataSource.getData().done = checked;
+            e.item.toggleClass('completed', checked);    
+        });
+
         app.defineAction('add', function(e) {
             if (e.keyIdentifier === 'Enter') {
                 data.todoList.push({ text: e.target.value, done: false });
                 e.target.value = '';
             }
         });
-        app.items['todoList'].defineAction('delete', function(e) {
-            console.log('delete', e);
-        });
+
         
     
 });

@@ -17,23 +17,6 @@ Refuel.define('ListModule',{inherits: 'BasicModule', require:'ListItemModule'},
             this._label = this.config.label;
         }
 
-		this.doFilter = function(param) {
-			var data = this.dataSource.getData(); // da cambiare nell'array vero
-			switch(param){
-				case 'completed': {
-					data = Filter(data.todoList).where(function(item) {return item.done === true}).returnResult();
-					break;
-				}
-				case 'active': {
-					data = Filter(data.todoList).where(function(item) {return item.done === false}).returnResult();
-					break;
-				}
-				default: {
-					return data;
-				}
-			}
-		}
-
         this.create = function() {
             this.template.subscribe('_new_listitem', addListItem);
             this.template.setRoot(this.config.root);
@@ -88,6 +71,7 @@ Refuel.define('ListModule',{inherits: 'BasicModule', require:'ListItemModule'},
 
         function removeListItem(e) {
             self.items[e.index].template.remove();
+            self.items.splice(e.index, 1);
         }
 
         //XXX fattorizzare l'add di un elemento?
@@ -97,19 +81,22 @@ Refuel.define('ListModule',{inherits: 'BasicModule', require:'ListItemModule'},
                 parentRoot: self.config.root, 
                 template: rootSymbol.template
             });
-
             listItem.dataSource.setData(e.data);
-            self.items.push(listItem);
-            listItem.create(); 
-            listItem.draw();
-            listItem.subscribe('delete', function(e) {
-                var index = self.getItemIndex(e.item);
-                var ds = self.dataSource.getData()[self._label];
+            self.addItem(listItem);
 
-                ds.splice(index, 1);
-                self.items.splice(index, 1);
-            });
+            listItem.create();
+            listItem.draw();
         }
+
+
+        //TODO defineAction('add') ?
+        this.defineAction('delete', function(e) {
+            var index = this.getItemIndex(e.item);
+            var ds = this.dataSource.getData()[this._label];
+            ds.splice(index, 1);    
+        });
+
+
 
         this.getItemIndex = function(item) {
             for (var i = 0, curItem; curItem = this.items[i]; i++) {
@@ -118,4 +105,3 @@ Refuel.define('ListModule',{inherits: 'BasicModule', require:'ListItemModule'},
         }
 
 });
-
