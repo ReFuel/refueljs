@@ -1,0 +1,128 @@
+@media screen and (orientation:portrait) and (max-width: 640px) {
+	body{
+		width: 100%
+	}
+	
+	#todoapp {
+		margin: 75px 0 40px 0;
+	}
+	
+	#todoapp h1 {
+		font-size: 50px;
+		top: -90px;
+	}
+	
+	#todoapp:before {
+		content: none;
+		border-left: none;
+		border-right: none;
+		width: 0px;
+		position: relative;
+		top: auto;
+		left: auto;
+		height: 0%;
+	}
+	
+	#new-todo, .edit, #todo-list li  {
+		font-size: 18px;
+	}
+	
+	#toggle-all {
+		top: -51px;
+	}
+	
+	#footer {
+		color: #777;
+		padding: 0 15px;
+		position: absolute;
+		right: 0;
+		bottom: -60px;
+		left: 0;
+		height: 54px;
+		z-index: 1;
+		text-align: center;
+	}
+	#filters {
+		margin: 0;
+		padding: 0;
+		list-style: none;
+		position: absolute;
+		right: 0;
+		left: 0;
+		bottom: 1px;
+	}
+	
+	#filters li {
+		display: inline-block;
+		width: 32.3333%;
+	}
+	
+	footer>p:first-child{
+		padding-top: 15px;
+	}
+}
+
+@media screen and (orientation:landscape) and (min-height: 640px) {
+	body{
+		width: 100%
+	}
+	
+	#todoapp {
+		margin: 75px 0 40px 0;
+	}
+	
+	#todoapp h1 {
+		font-size: 50px;
+		top: -90px;
+	}
+	
+	#todoapp:before {
+		content: none;
+		border-left: none;
+		border-right: none;
+		width: 0px;
+		position: relative;
+		top: auto;
+		left: auto;
+		height: 0%;
+	}
+	
+	#new-todo, .edit, #todo-list li  {
+		font-size: 18px;
+	}
+	
+	#toggle-all {
+		top: -51px;
+	}
+	
+	#footer {
+		color: #777;
+		padding: 0 15px;
+		position: absolute;
+		right: 0;
+		bottom: -60px;
+		left: 0;
+		height: 54px;
+		z-index: 1;
+		text-align: center;
+	}
+	
+	#filters {
+		margin: 0;
+		padding: 0;
+		list-style: none;
+		position: absolute;
+		right: 0;
+		left: 0;
+		bottom: 1px;
+	}
+	
+	#filters li {
+		display: inline-block;
+		width: 32.3333%;
+	}
+	
+	footer>p:first-child{
+		padding-top: 15px;
+	}
+}

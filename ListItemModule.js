@@ -30,5 +30,9 @@ Refuel.define('ListItemModule', {inherits: 'BasicModule'},
         this.draw = function() {
             this.template.create(this.config.parentRoot, this.config.template, this.dataSource.getData());
         }
+
+		
+
+
 });
 

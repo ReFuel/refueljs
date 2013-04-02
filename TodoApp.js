@@ -31,6 +31,15 @@ Refuel.define('TodoApp',{require: ['GenericModule']},
             }
         });
 
-        
+        app.defineAction('toggleDeleteButton', function(e) {
+            //console.log('showDeleteButton:', e);
+            var el = e.currentTarget.querySelector('.destroy');
+            if (el.style.display === 'block') {
+                el.style.display = 'none';
+            }
+            else {
+                el.style.display = 'block';
+            }
+        });
     
 });
