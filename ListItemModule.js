@@ -25,6 +25,17 @@ Refuel.define('ListItemModule', {inherits: 'BasicModule'},
         this.defineAction('delete', function(e) {
             this.notify('delete', {'item': this});
         });
+		
+		this.defineAction('toggleDeleteButton', function(e) {
+			console.log('showDeleteButton:', e);
+			var el = e.currentTarget.querySelector('.destroy');
+			if (el.style.display === 'block') {
+				el.style.display = 'none';
+			}
+			else {
+				el.style.display = 'block';
+			}
+		});
 
 });
 

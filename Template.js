@@ -103,6 +103,14 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 			    e = splitOptions(e, e.action);
 				self.bindingsProxy.notify('genericBinderEvent', e);
 			}
+			else if (bindingTable[e.type] && hasDataAction(e.currentTarget, e.type)) {
+				e.action = (e.type === 'click'? 
+					e.currentTarget.dataset['rfAction'] || e.currentTarget.dataset['rfActionClick'] : 
+					e.currentTarget.getAttribute('data-rf-action-' + e.type)
+				);
+				e = splitOptions(e, e.action);
+				self.bindingsProxy.notify('genericBinderEvent', e);
+			}
 		}
 
 		// Per un bug degli eventi del dom, non è possibile associare ad un elemento l'evento doppio click e il click. 
@@ -115,10 +123,13 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 				if (symbol.action === 'action') {
 					var eventType = (symbol.attributeName === 'data-rf-action' ? 'click' : symbol.attributeName.replace(attributeRegExp, ''));
 					if (!bindingTable[eventType]) {
-						if (rootEl.addEventListener) {
-							rootEl.addEventListener(eventType, notifyEvent, false); 
-						} else if (el.attachEvent) {
-							rootEl.attachEvent('on'+eventType, notifyEvent);
+						var gesture = Hammer(rootEl).on(eventType, notifyEvent);
+						if (!gesture){
+							if (rootEl.addEventListener) {
+								rootEl.addEventListener(eventType, notifyEvent, false); 
+							} else if (el.attachEvent) {
+								rootEl.attachEvent('on'+eventType, notifyEvent);
+							}
 						}
 						bindingTable[eventType] = true;
 					}
