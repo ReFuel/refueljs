@@ -1,8 +1,9 @@
-define(function(){
-	var items=[];
-	return function Filter(data){
-		
-		function where(clause) {
+Refuel.define('Filter',
+    function Filter() {
+        var self = this;
+		var items=[];
+
+		this.where = function(clause) {
 			var item;
 			var newArray = new Array();
 			for (var index = 0; index < items.length; index++) {
@@ -13,7 +14,7 @@ define(function(){
 			items = newArray;
 			return this;
 		}
-		function select(clause) {
+		this.select = function(clause) {
 			var item;
 			var newArray = new Array();
 			for (var i = 0; i < items.length; i++) {
@@ -24,7 +25,7 @@ define(function(){
 			items = newArray;
 			return this;
 		}
-		function orderBy(clause) {
+		this.orderBy = function(clause) {
 			var tempArray = new Array();
 			for (var i = 0; i < items.length; i++) {
 				tempArray[tempArray.length] = items[i];
@@ -36,7 +37,7 @@ define(function(){
 			});
 			return this;
 		}
-		function orderByDescending(clause) {
+		this.orderByDescending = function(clause) {
 			var tempArray = new Array();
 			for (var i = 0; i < items.length; i++) {
 				tempArray[tempArray.length] = items[i];
@@ -48,18 +49,8 @@ define(function(){
 			});
 			return this;
 		}
-		function returnResult() {
+		this.returnResult = function() {
 			return items;
 		}
 
-		items = data;
-		
-		return{
-			where: where,
-			select: select,
-			orderBy: orderBy,
-			orderByDescending: orderByDescending,
-			returnResult: returnResult
-		}
-	}
 }) 

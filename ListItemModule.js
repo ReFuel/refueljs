@@ -11,17 +11,28 @@ Refuel.define('ListItemModule', {inherits: 'BasicModule'},
 
         this.init = function(myConfig) {
             this.config = Refuel.mix(this.config, myConfig);
+            //this.defineUpdateManager(oa_update);
             this.enableAutoUpdate(this.dataSource.getData());
         }
+
+        /*
+        function oa_update(e) {
+            console.log('ListItemModule.oa_update', e);
+        }
+        */
+
         this.create = function() {
         }
 
         this.toggleClass = function(classname, value) {
             var root = this.template.getRoot();
-            //var value = value || !this.template.getRoot().className
-            if (value === undefined) root.classList.toggle(classname);
-            root.classList.add(classname);
-            root.classList.remove(classname);
+            if (value === undefined) {
+                root.classList.toggle(classname);
+            }
+            else {
+                if (value) root.classList.add(classname);
+                else root.classList.remove(classname);
+            }
 
         }
         
@@ -29,10 +40,7 @@ Refuel.define('ListItemModule', {inherits: 'BasicModule'},
         //in callback del datasource, probabilmente automatizzando
         this.draw = function() {
             this.template.create(this.config.parentRoot, this.config.template, this.dataSource.getData());
+            //console.log('ListItemModule getObservers',this.getObservers());
         }
-
-		
-
-
 });
 

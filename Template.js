@@ -235,7 +235,7 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 		this.renderSymbol = function(symbol, data) {
 			var isRoot = symbol.domElement === root;
 			var linkedData = Refuel.resolveChain(symbol.linkedTo, data) || '';
-
+			//console.log('renderSymbol',symbol,data,linkedData);
 			switch(symbol.action) {
 				case 'replaceText': 
 					markMissing(symbol, linkedData);
@@ -273,6 +273,7 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 				case 'list':
 					if (isRoot) {
 						//linkedData = Refuel.resolveChain('.', data) || '';
+						root.innerHTML = '';
 						for (var i = 0; i < linkedData.length; i++) {
 							self.notify('_new_listitem', {symbol:symbol, data:linkedData[i]});
 						}
