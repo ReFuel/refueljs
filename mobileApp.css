@@ -72,7 +72,7 @@
 	}
 }
 
-@media screen and (orientation:landscape) and (max-height: 640px) {
+@media screen and (orientation:landscape) and (max-width: 640px) {
 	body{
 		width: 100%
 	}
