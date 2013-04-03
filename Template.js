@@ -250,9 +250,9 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 					switch(symbol.attributeName) {
 						case 'checked':
 						case 'selected':
-							linkedData ? symbol.domElement.setAttribute(symbol.attributeName, 'true') : 
-										 symbol.domElement.removeAttribute(symbol.attributeName)
-							symbol.attribute.value = linkedData == true;
+							/*linkedData ? symbol.domElement.setAttribute(symbol.attributeName, 'true') : 
+										 symbol.domElement.removeAttribute(symbol.attributeName)*/
+							symbol.domElement[symbol.attributeName] = linkedData == true;
 						break;
 						default:
 							symbol.attribute.value = symbol.originalContent.replace(symbol.originalSymbol, linkedData);	
