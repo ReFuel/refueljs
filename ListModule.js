@@ -9,18 +9,19 @@ Refuel.define('ListModule',{inherits: 'BasicModule', require:'ListItemModule'},
     function ListModule() {
         var self = this;
         var ENTER_KEY = 13;
-        this.items = [];   
+        this.items = [];
+        var label;   
 
         this.init = function(myConfig) {
             this.config = Refuel.mix(this.config, myConfig);
             this.defineUpdateManager(oa_update);
-            this._label = this.config.label;
+            label = this.label = this.config.label;
         }
 
         this.create = function() {
             this.template.subscribe('_new_listitem', addListItem);
             this.template.setRoot(this.config.root);
-            this.enableAutoUpdate(this.dataSource.getData(), this._label);
+            this.enableAutoUpdate(this.dataSource.getData(), label);
         }
 
         this.doFilter = function(param) {
@@ -41,16 +42,10 @@ Refuel.define('ListModule',{inherits: 'BasicModule', require:'ListItemModule'},
         }
 
         this.add = function(objData) {
-            console.log('ListModule.add', objData);
+            console.error('ListModule.add', objData);
             addListItem({data: objData});
         }
                
-        //TODO serve anche sapere quando il tmpl ha finito di parsare? automatizzare il processo!
-        //in callback del datasource, probabilmente automatizzando
-        this.draw = function() {
-            this.template.render(this.dataSource.getData());
-        }
-
         this.update = function(e) {
             if (e.keyCode === ENTER_KEY) {
                 e.currentTarget.className = e.currentTarget.className.replace(" editing", "");
@@ -66,6 +61,12 @@ Refuel.define('ListModule',{inherits: 'BasicModule', require:'ListItemModule'},
                 case 'delete': {
                     removeListItem({index: e.index});
                 }
+                break;
+                case 'filter': {
+                    console.log('ListModule.oa_update', e);
+                    self.draw();
+                }
+                break;
             }
         }
 
@@ -82,7 +83,7 @@ Refuel.define('ListModule',{inherits: 'BasicModule', require:'ListItemModule'},
                 template: rootSymbol.template
             });
             listItem.dataSource.setData(e.data);
-            self.addItem(listItem);
+            self.addModule(listItem);
 
             listItem.create();
             listItem.draw();
@@ -91,17 +92,46 @@ Refuel.define('ListModule',{inherits: 'BasicModule', require:'ListItemModule'},
 
         //TODO defineAction('add') ?
         this.defineAction('delete', function(e) {
-            var index = this.getItemIndex(e.item);
-            var ds = this.dataSource.getData()[this._label];
+            var index = this.getItemIndex(e.module);
+            var ds = this.dataSource.getData()[label];
             ds.splice(index, 1);    
         });
 
-
+        this.applyOnItems = function(callback, args) {
+            var data = this.items;
+            for(var i = 0, item; item = data[i]; i++) {
+                var newargs = [].concat(args);
+                newargs.unshift(item);
+                callback.apply(item, newargs);
+            }
+        }
 
         this.getItemIndex = function(item) {
             for (var i = 0, curItem; curItem = this.items[i]; i++) {
                 if (curItem === item) return i;
             };
+            return null;
+        }
+
+        this.filterBy = function(prop, negated) {
+            //var newDS = {}; 
+            //newDS[label] = 
+            this.dataSource.getData()[label].filter(function(item, index, array) {
+                var value = Refuel.resolveChain(prop, item);
+                if (negated) value = !value;
+                return value;
+            });
+            
+            //console.log(this.dataSource.getData(),newDS);
+
+            //NON deve essere risettato il DS
+            //var obj = {};
+            //obj[label] = newDS;
+            //this.dataSource.setData(newDS);
+        }
+
+        this.filterClear = function() {
+            this.dataSource.getData()[label].filterClear();
         }
 
 });

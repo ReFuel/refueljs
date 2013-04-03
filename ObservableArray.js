@@ -12,7 +12,7 @@ Refuel.define('ObservableArray',{inherits: 'Events'},
 		var self = this;
 		this.config = {};
 		var index = 0;
-		var data;
+		var data, unFilteredData;
 
 		this.init = function(myConfig) {
 			this.config = Refuel.mix(this.config, myConfig);
@@ -23,9 +23,14 @@ Refuel.define('ObservableArray',{inherits: 'Events'},
 	                index++;  
 	        };
 			
-			["pop", "push", "reverse", "shift", "sort", "splice", "unshift"].forEach(function (methodName) {
-			  	self[methodName] = function (val) {
-					//check della len anzichè gestire ogni singolo metodo?
+			["pop", "push", "reverse", "shift", "sort", "splice", "unshift", "filter"].forEach(function (methodName) {
+			  	self[methodName] = function () {
+					//TODO fattorizzare len.
+					//XXX c'è un setter pubblico per la len.. sicuri?
+					if (unFilteredData) {
+	  					self.filterClear();
+	  				} 
+					var oldData = data;
 			  		var r = data[methodName].apply(data, arguments);
 			  		switch(methodName) {
 			  			case 'push': 
@@ -36,12 +41,27 @@ Refuel.define('ObservableArray',{inherits: 'Events'},
 			  				self.notify('_oa_update',e);
 			  			break;
 			  			case 'splice': 
-			  				var index = val;
+			  				var index = arguments[0];
 			  				self.length = data.length;
 			  				unWatchElement(index);
 			  				var e =  {action: 'delete', index: index};
 			  				self.notify('_oa_update',e);
 			  			break;
+			  			case 'filter': 
+			  				//external modify
+			  				//r = Refuel.createInstance('ObservableArray', {'value': r});
+			  				
+			  				//selfmodify
+			  				unFilteredData = oldData;
+			  				data = r;
+			  				self.length = data.length;
+			  				resetWatchers();
+
+			  				var e =  {action: 'filter', index: null};
+			  				self.notify('_oa_update',e);
+			  			break;
+			  			
+			  			
 			  		}
 			  		return r;
 			    };
@@ -79,11 +99,14 @@ Refuel.define('ObservableArray',{inherits: 'Events'},
 	        }
     	}
     	function unWatchElement(index) {
-    		delete self[index];
+    		if (index) delete self[index];
+    		resetWatchers();
+    	}
+    	function resetWatchers() {
     		for (var i = 0; i < data.length; i++) {
     			delete self[i];
     			watchElement(i)
-    		};
+    		};	
     	}
 
 		this.setElementAt = function(index, val) {
@@ -91,6 +114,18 @@ Refuel.define('ObservableArray',{inherits: 'Events'},
 		}
 		this.getElementAt = function(index) {
 			return data[index];
+		}
+		this.filterClear = function() {
+			if (unFilteredData) {
+				data = unFilteredData;
+				unFilteredData = null;
+				resetWatchers();
+				this.length = data.length;
+				
+				var e =  {action: 'filter', index: null};
+				this.notify('_oa_update',e);	
+			}
+
 		}
 
 });

@@ -27,7 +27,7 @@ Refuel.define('GenericModule',{inherits: 'BasicModule', require:'ListModule'},
                 obj[label] = e.symbol.linkedData;
                 list.dataSource.setData(obj);
 
-                self.addItem(list);
+                self.addModule(list);
                 list.create();
                 list.draw();
             }

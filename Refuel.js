@@ -78,14 +78,14 @@
 	        body = req;
 	    }
 	    //console.log( 'defineClass',className, req);
-	    var require = [];
-	    require = require.concat(req.require, req.inherits);
-	    require = require.filter(function(c){
+	    var requirements = [];
+	    requirements = requirements.concat(req.require, req.inherits);
+	    requirements = requirements.filter(function(c){
 	        if (c !== undefined) return true;
 	        else return false;
 	    });
 
-	    define(className, require, function() {
+	    define(className, requirements, function() {
 	        //console.log('defineClass.define', className,'->', require);
 	        classMap[className] = {
 	            body: body,
@@ -109,9 +109,17 @@
 		if(e.type === 'load') {
 			console.log(node.src, 'loaded!');
 			e.target.parentNode.removeChild(e.target);
-			require([startupModule], function(start) {
+			require.config({
+            	baseUrl: ".",
+            	paths: {
+            		"hammer.js": ".",
+            		"path.js": "."
+            	}
+          	});
+          	startupRequirements = [startupModule, 'hammer.js', 'path.js'];
+			require(startupRequirements, function(start) {
+				Path.listen();
 				classMap[startupModule].body();
-
 			});
 		}
 

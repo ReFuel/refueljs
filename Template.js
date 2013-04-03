@@ -123,7 +123,10 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 				if (symbol.action === 'action') {
 					var eventType = (symbol.attributeName === 'data-rf-action' ? 'click' : symbol.attributeName.replace(attributeRegExp, ''));
 					if (!bindingTable[eventType]) {
-						var gesture = Hammer(rootEl).on(eventType, notifyEvent);
+						var gesture;
+						if (typeof(Hammer) !== 'undefined') 
+							gesture = Hammer(rootEl).on(eventType, notifyEvent);
+						
 						if (!gesture){
 							if (rootEl.addEventListener) {
 								rootEl.addEventListener(eventType, notifyEvent, false); 
@@ -234,8 +237,8 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 
 		this.renderSymbol = function(symbol, data) {
 			var isRoot = symbol.domElement === root;
-			var linkedData = Refuel.resolveChain(symbol.linkedTo, data) || '';
-
+			var linkedData = Refuel.resolveChain(symbol.linkedTo, data);
+			//console.log('renderSymbol',symbol,data,linkedData);
 			switch(symbol.action) {
 				case 'replaceText': 
 					markMissing(symbol, linkedData);
@@ -273,6 +276,7 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 				case 'list':
 					if (isRoot) {
 						//linkedData = Refuel.resolveChain('.', data) || '';
+						root.innerHTML = '';
 						for (var i = 0; i < linkedData.length; i++) {
 							self.notify('_new_listitem', {symbol:symbol, data:linkedData[i]});
 						}
@@ -316,7 +320,7 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 		function markMissing(symbol, linkedData) {
 			if (self.markMissedRefs &&  typeof(linkedData) == 'undefined') {
 				symbol.domElement.style.border = "1px solid red";
-				//console.warn('missing', symbol.linkedTo, typeof linkedData);
+				console.warn('missing', symbol.linkedTo, typeof linkedData);
 			}
 		}
 
