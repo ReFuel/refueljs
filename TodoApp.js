@@ -9,14 +9,6 @@ Refuel.define('TodoApp',{require: ['GenericModule']},
         var numberOfElements = 3;
         var appliedFilter;
 
-        //XXX potremmo inserirla in GenericModule in qualche maniera figa?
-        function selectFilter(target) {
-            var els = document.querySelectorAll('#filters li a');
-            for (var i=0, item; item = els[i]; i++) {
-                item.classList.remove('selected');
-            }
-            target.classList.add('selected');
-        }
         
         //TODO fare subscribe di dataAvailable
         app.dataSource.setData({title:'ReFuel Todo App', todoList: []});
@@ -30,36 +22,50 @@ Refuel.define('TodoApp',{require: ['GenericModule']},
 
         app.defineAction('changeDone', function(e) {
             var checked =  e.target.checked;
+            e.module.toggleClass('completed', checked);
             e.module.dataSource.getData().done = checked;
         });
 
         app.defineAction('changeDoneAll', function(e) {
             e.module.applyOnItems(function(item) {
-                item.dataSource.getData().done = true;
-                item.toggleClass('completed', true);
+                var checked =  e.target.checked;
+                item.dataSource.getData().done = checked;
+                item.toggleClass('completed', checked);
             });
         });
         
         app.defineAction('add', function(e) {
-            if (e.keyIdentifier === 'Enter') {
-                data.todoList.push({ text: e.target.value, done: false });
+            var textContent = e.target.value;
+            if (e.keyIdentifier === 'Enter' && textContent != '') {
+                data.todoList.push({ text: textContent.trim(), done: false });
                 e.target.value = '';
             }
         });
 
-        app.defineAction('filterCompleted', function(e) {
-            selectFilter(e.target);
-            e.module.filterBy('done');
+        //XXX potremmo inserirla in GenericModule in qualche maniera figa?
+        function selectFilter(target) {
+            var els = document.querySelectorAll('#filters li a');
+            for (var i=0, item; item = els[i]; i++) {
+                item.classList.remove('selected');
+            }
+            target.classList.add('selected');
+        }
+
+        Path.root("#/");
+
+        Path.map("#/").to(function() {
+            app.items['todoList'].filterClear();
+            selectFilter(document.querySelector('[href="#/"]'));
         });
-        app.defineAction('filterActive', function(e) {
-            selectFilter(e.target);
-            e.module.filterBy('done', true);
+        Path.map("#/active").to(function(){
+            app.items['todoList'].filterBy('done', true);
+            selectFilter(document.querySelector('[href="#/active"]'));
+        });
+        Path.map("#/completed").to(function(){
+            app.items['todoList'].filterBy('done'); 
+            selectFilter(document.querySelector('[href="#/completed"]'));
         });
         
-        app.defineAction('unfilter', function(e) {
-            selectFilter(e.target);
-            e.module.filterClear();
-        });
 
         app.defineAction('toggleDeleteButton', function(e) {
             var el = e.currentTarget.querySelector('.destroy');
@@ -71,4 +77,5 @@ Refuel.define('TodoApp',{require: ['GenericModule']},
             }
         });
     
+        
 });

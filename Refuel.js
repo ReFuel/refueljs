@@ -109,9 +109,17 @@
 		if(e.type === 'load') {
 			console.log(node.src, 'loaded!');
 			e.target.parentNode.removeChild(e.target);
-			require([startupModule], function(start) {
+			require.config({
+            	baseUrl: ".",
+            	paths: {
+            		"hammer.js": ".",
+            		"path.js": "."
+            	}
+          	});
+          	startupRequirements = [startupModule, 'hammer.js', 'path.js'];
+			require(startupRequirements, function(start) {
+				Path.listen();
 				classMap[startupModule].body();
-
 			});
 		}
 

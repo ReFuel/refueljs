@@ -5,7 +5,7 @@ Refuel.define('BasicModule', {require: ['Template', 'DataSource'], inherits: 'Up
         var self = this;
         var actionMap = {};
         this.config = {};
-        
+
         this.init = function(myConfig) {
             this.config = Refuel.mix(this.config, myConfig);
             this.dataSource = Refuel.createInstance('DataSource');  
@@ -13,13 +13,13 @@ Refuel.define('BasicModule', {require: ['Template', 'DataSource'], inherits: 'Up
             
             this.defineUpdateManager(oa_update);
             this.template.subscribe('genericBinderEvent', genericEventHandler);
-            //this.subscribe('unhandledAction', genericEventHandler);
             this.template.subscribe('_set_autoupdate', autoupdateOnSymbol);
         }
 
         //TODO eventizzare
 
         function genericEventHandler(e) {
+                
             var action = actionMap[e.linkedTo];
             if (action) {
                 var context = e.options ? action.context.items[e.options] : action.context;
@@ -27,6 +27,7 @@ Refuel.define('BasicModule', {require: ['Template', 'DataSource'], inherits: 'Up
                 action.callback.call(context, e);
             }
             else {
+
             	self.notify('unhandledAction', e);
             }
         }
@@ -46,8 +47,9 @@ Refuel.define('BasicModule', {require: ['Template', 'DataSource'], inherits: 'Up
         this.addModule = function(module) {
         	if (module.label) this.items[module.label] = module;
         	else 			 this.items.push(module);
+
             module.subscribe('unhandledAction', function(e) {
-                console.log('unhandledAction',e);
+
                 if (!e.module) e.module = module; //keeps only the original module inside the event data
                 genericEventHandler(e);
             });
