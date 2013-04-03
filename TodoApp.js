@@ -9,36 +9,51 @@ Refuel.define('TodoApp',{require: ['GenericModule']},
         var numberOfElements = 3;
         var appliedFilter;
 
-        
-        //TODO fare subscribe di dataAvailable
-        app.dataSource.setData({title:'ReFuel Todo App', todoList: []});
-        var data = app.dataSource.getData();
+        //TODO sostituire con data from remote
+        var todoList = [];
         for (var i = 0; i < numberOfElements; i++) {
-            data.todoList.push({ text: 'my text '+i, done: false });
+            todoList.push({ text: 'my text '+i, done: false });
         };
-        app.create();
-        app.draw();
-
+        app.dataSource.subscribe('dataAvailable', function(data) {
+            app.create();
+            app.draw();
+        });
+        app.dataSource.setData({title:'ReFuel Todo App', 'todoList': todoList});
 
         app.defineAction('changeDone', function(e) {
             var checked =  e.target.checked;
             e.module.toggleClass('completed', checked);
-            e.module.dataSource.getData().done = checked;
+            e.module.data('done', checked);
         });
 
+        //TODO selezione del tasto changeDoneAll, dipendente praticamente dal filterBy:done .lenght
         app.defineAction('changeDoneAll', function(e) {
             e.module.applyOnItems(function(item) {
                 var checked =  e.target.checked;
-                item.dataSource.getData().done = checked;
+                item.data('done', checked);
                 item.toggleClass('completed', checked);
             });
         });
         
         app.defineAction('add', function(e) {
-            var textContent = e.target.value;
+            var textContent = e.target.value.trim();
             if (e.keyIdentifier === 'Enter' && textContent != '') {
-                data.todoList.push({ text: textContent.trim(), done: false });
+                //XXX controllare l'uso di add, forse serve fattorizzazione in List
+                e.module.add({ text: textContent, done: false });
                 e.target.value = '';
+            }
+        });
+
+        app.defineAction('edit', function(e) {
+            e.module.toggleClass('editing', true);
+            e.module.querySelector('input.edit').focus();
+        });
+
+        app.defineAction('save', function(e) {
+            var textContent = e.target.value.trim();
+            if (e.keyIdentifier === 'Enter' || e.type === 'focusout') {
+                if (textContent != '') e.module.data('text', textContent);
+                e.module.toggleClass('editing', false);
             }
         });
 

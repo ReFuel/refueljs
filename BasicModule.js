@@ -27,7 +27,6 @@ Refuel.define('BasicModule', {require: ['Template', 'DataSource'], inherits: 'Up
                 action.callback.call(context, e);
             }
             else {
-
             	self.notify('unhandledAction', e);
             }
         }
@@ -37,9 +36,10 @@ Refuel.define('BasicModule', {require: ['Template', 'DataSource'], inherits: 'Up
         **/
         function autoupdateOnSymbol(e) {
             self.enableAutoUpdate(self.dataSource.getData());
+            //if (e.symbol.linkedTo == 'text') console.log('setting as observable',e.symbol.linkedTo, e.symbol );
             self.observe(e.symbol.linkedTo, e.symbol, 
-                function(observable) {
-                    self.template.renderSymbol(observable.data, self.dataSource.getData());
+                function(observable, tmplSymbol) {
+                    self.template.renderSymbol(tmplSymbol, self.dataSource.getData());
                 }
             );
         }
@@ -64,6 +64,7 @@ Refuel.define('BasicModule', {require: ['Template', 'DataSource'], inherits: 'Up
 			this.template.render(data);
         }
         //XXX perchè UpdateManager lavora solo sugli ObsArray e non anche sugli object?
+        //mergiare con autoUpdate
         this.defineUpdateManager = function(callback) {
             this.unsubscribe('_oa_update');
             this.subscribe('_oa_update', callback);  
@@ -72,4 +73,17 @@ Refuel.define('BasicModule', {require: ['Template', 'DataSource'], inherits: 'Up
         this.defineAction = function(name, callback) {
             actionMap[name] = {context: this, callback: callback};
         }
+
+        this.querySelector = function(query) {
+            return this.template.getRoot().querySelector(query);
+        } 
+        this.data = function(prop, value) {
+            if (typeof(value) === 'undefined') {
+                return this.dataSource.getData()[prop];
+            }
+            else {
+                this.dataSource.getData()[prop] = value;   
+            }
+        }
+
 });

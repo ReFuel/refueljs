@@ -126,8 +126,11 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 						var gesture;
 						if (typeof(Hammer) !== 'undefined') 
 							gesture = Hammer(rootEl).on(eventType, notifyEvent);
-						
+						gesture = false;
 						if (!gesture){
+							if (eventType == 'blur') {
+								rootEl.style.border = '1px solid red';
+							}
 							if (rootEl.addEventListener) {
 								rootEl.addEventListener(eventType, notifyEvent, false); 
 							} else if (el.attachEvent) {

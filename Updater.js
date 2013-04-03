@@ -16,8 +16,8 @@ Refuel.define('Updater',{require: ['ObservableArray'], inherits: 'Events'},
 	    	label = moduleLabel;
 	    }
 
-	    function makeObservable(name) {
-	        var value = Refuel.resolveChain(name, mountpoint);
+	    function makeObservable(name, value) {
+	        
 	        // Create object in map
 	        if (!_map[name]) {
 		        _map[name] = {
@@ -31,7 +31,6 @@ Refuel.define('Updater',{require: ['ObservableArray'], inherits: 'Events'},
 	        var propName = parent[parent.length-1];
 	        parent = parent.slice(0,parent.length-1).join('.');
 	        parent = Refuel.resolveChain(parent, mountpoint);
-	        
 	        if (Refuel.isArray(value)) {
 		        /**
 					@param parent is often some data inside DataSource
@@ -59,9 +58,10 @@ Refuel.define('Updater',{require: ['ObservableArray'], inherits: 'Events'},
 			            obj.value = val;
 			            var callList = obj['callbackList'];
 			            if (callList && callList.length) {
+
 			            	var len = callList.length;
 			            	for (var i = 0, call; call = callList[i]; i++) {
-			            		call.callback.call(call.context, obj);
+			            		call.callback.call(call.context, obj, call.params);
 			            	}
 			            }
 				    },
@@ -78,6 +78,7 @@ Refuel.define('Updater',{require: ['ObservableArray'], inherits: 'Events'},
 	    *	this.observe(propName, data, callback);
 	    **/
 	    this.observe = function(name, data, callback) {
+	    	//if (name == 'text') console.log('observe',name, data);
 	    	var context = this;
 			if (!callback) {
 				callback = data;
@@ -87,16 +88,19 @@ Refuel.define('Updater',{require: ['ObservableArray'], inherits: 'Events'},
 	    		console.error('Before making',name,'observable you should enableAutoUpdate on',name,'or it\'s parent');
 	    		return;
 	    	} 
-	        var obj = makeObservable(name);      
+	    	var value = Refuel.resolveChain(name, mountpoint);
+	        if (Refuel.isUndefined(value)) return;
+	        var obj = makeObservable(name, value);      
+			
 			// Add Callback
-			obj.data = data;
 	        if (callback) {
 		        if (!obj.callbackList) {
 		        	obj.callbackList = [];
 		       	}
 		        obj.callbackList.push({
 		        	'callback': callback,
-		        	'context' : this
+		        	'context' : this,
+		        	'params'  : data
 		       	});
 	       	}
 	    }

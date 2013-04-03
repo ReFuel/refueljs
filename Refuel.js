@@ -27,6 +27,9 @@
 	Refuel.isFunction = function(target) {
 		return toString.call(target) === '[object Function]';
 	}
+	Refuel.isUndefined = function(target) {
+		return typeof(target) === 'undefined';
+	}
 	
 	Refuel.clone = function(old) {
 		var obj = {};
