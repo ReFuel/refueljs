@@ -15,6 +15,10 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax', 'localstorage
 			return data;
 		}
 
+		this.setOptions = function(newopts) {
+			options = Refuel.mix(options, newopts);
+		}
+
 		this.model =  function(dataObj, xhr) {
 			//specificare qui il modello dei dati???
 			//se non è specificato la mappatura è 1 a 1
@@ -34,14 +38,14 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax', 'localstorage
 		function initialize(options) {
 			if (options) {
 				if(!options.url || !options.key) {
-					self.setData(options);
+					self.setData(options);	//XXX why?
 				}
 				if (options.url) {
 					if (!options.ajaxOptions.ok) {
 						options.ajaxOptions.ok = okCallback;
 					}
-					if (options.ajaxOptions.ko) { 
-						options.ajaxOptions.ko= koCallback;
+					if (!options.ajaxOptions.ko) { 
+						options.ajaxOptions.ko = koCallback;
 					}
 					facade = {
 						"get": function() {
@@ -62,7 +66,7 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax', 'localstorage
 				 else if (options.key){
 					facade = {
 						"get": function() {
-							self.setData(localstorage.get(options.key));
+							localstorage.get(options.key);
 						},
 						"set": function(dataObj) {
 							localstorage.set(options.key, dataObj);
@@ -82,12 +86,6 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax', 'localstorage
 			}
 
 			facade = Refuel.mix(facade, self);
-			
-			//facade["getData"] = self.getData;
-			//facade["subscribe"] = self.subscribe;
-			//facade["notify"] = self.notify;
-			//facade["unsubscribe"] = self.unsubscribe;
-			//facade["unsubscribeAll"] = self.unsubscribeAll;
 			return facade;
 		}
 		return initialize(options);

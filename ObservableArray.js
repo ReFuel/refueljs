@@ -17,7 +17,7 @@ Refuel.define('ObservableArray',{inherits: 'Events'},
 		this.init = function(myConfig) {
 			this.config = Refuel.mix(this.config, myConfig);
 			data = this.config.value;
-		
+			this.subscribe('change', function(e){console.log(e.type, e)});
 	        for (var i = 0, prop; prop = data[i]; i++) {
 	            	watchElement(index, prop);
 	                index++;  
@@ -28,9 +28,9 @@ Refuel.define('ObservableArray',{inherits: 'Events'},
 					//TODO fattorizzare len.
 					//XXX c'è un setter pubblico per la len.. sicuri?
 					if (unFilteredData) {
-	  					self.filterClear();
+	  					filterClear();
 	  				} 
-					var oldData = data;
+					//var oldData = data;
 			  		var r = data[methodName].apply(data, arguments);
 			  		switch(methodName) {
 			  			case 'push': 
@@ -39,6 +39,7 @@ Refuel.define('ObservableArray',{inherits: 'Events'},
 			  				self.length = data.length;
 			  				var e =  {action: 'add', index: index, data: self[index]};
 			  				self.notify('_oa_update',e);
+			  				self.notify('change', {'index':index});
 			  			break;
 			  			case 'splice': 
 			  				var index = arguments[0];
@@ -46,27 +47,17 @@ Refuel.define('ObservableArray',{inherits: 'Events'},
 			  				unWatchElement(index);
 			  				var e =  {action: 'delete', index: index};
 			  				self.notify('_oa_update',e);
+			  				self.notify('change', {'index':index});
 			  			break;
 			  			case 'filter': 
-			  				//external modify
 			  				//r = Refuel.createInstance('ObservableArray', {'value': r});
-			  				
-			  				//selfmodify
-			  				unFilteredData = oldData;
-			  				data = r;
-			  				self.length = data.length;
-			  				resetWatchers();
-
-			  				var e =  {action: 'filter', index: null};
-			  				self.notify('_oa_update',e);
-			  			break;
-			  			
-			  			
+			  			break;			  			
 			  		}
 			  		return r;
 			    };
 			});
 		}
+
 		
 		this.__defineGetter__('data', function() {
     		return data;
@@ -111,21 +102,33 @@ Refuel.define('ObservableArray',{inherits: 'Events'},
 
 		this.setElementAt = function(index, val) {
 			data[index] = val;
+			self.notify('change', {'index':index});
 		}
 		this.getElementAt = function(index) {
 			return data[index];
 		}
+		function filterClear() {
+			data = unFilteredData;
+			unFilteredData = null;
+			resetWatchers();
+			self.length = data.length;
+		}
+
 		this.filterClear = function() {
 			if (unFilteredData) {
-				data = unFilteredData;
-				unFilteredData = null;
-				resetWatchers();
-				this.length = data.length;
-				
-				var e =  {action: 'filter', index: null};
+				filterClear();
+				var e =  {action: 'filterClear', index: null};
 				this.notify('_oa_update',e);	
 			}
-
+		}
+		this.applyFilter = function() {
+			var filteredData = this.filter(arguments[0]);
+			unFilteredData = data;
+			data = filteredData;
+			this.length = data.length;
+			resetWatchers();
+			var e =  {action: 'filterApply', index: null};
+			this.notify('_oa_update',e);
 		}
 
 });
