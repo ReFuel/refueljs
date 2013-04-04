@@ -38,7 +38,7 @@ Refuel.define('ListModule',{inherits: 'BasicModule', require:'ListItemModule'},
         function oa_update(e) {
             switch(e.action) {
                 case 'add': 
-                    addListItem({data: e.data});
+                    addListItem({data: e.data, index:e.index});
                 break;
                 case 'delete': 
                     removeListItem({index: e.index});
@@ -62,7 +62,10 @@ Refuel.define('ListModule',{inherits: 'BasicModule', require:'ListItemModule'},
                 parentRoot: self.config.root, 
                 template: rootSymbol.template
             });
-            listItem.dataSource.setData(obj.data);
+
+            //listItem.dataSource.setData(obj.data);
+            listItem.dataSource.setData(self.dataSource.getData()[label][obj.index]);
+
             self.addModule(listItem);
 
             listItem.create();
@@ -70,7 +73,7 @@ Refuel.define('ListModule',{inherits: 'BasicModule', require:'ListItemModule'},
         }
 
         //TODO defineAction('add') ?
-        
+
         this.defineAction('delete', function(e) {
             this.remove(e.module)
         });

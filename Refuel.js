@@ -24,6 +24,9 @@
 	Refuel.isArray = function(target) {
 		return toString.call(target) === '[object Array]';
 	}
+	Refuel.isObject = function(target) {
+		return toString.call(target) === '[object Object]';
+	}
 	Refuel.isFunction = function(target) {
 		return toString.call(target) === '[object Function]';
 	}

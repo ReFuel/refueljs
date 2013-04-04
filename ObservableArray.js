@@ -39,7 +39,7 @@ Refuel.define('ObservableArray',{inherits: 'Events'},
 			  				self.length = data.length;
 			  				var e =  {action: 'add', index: index, data: self[index]};
 			  				self.notify('_oa_update',e);
-			  				self.notify('change', {'index':index});
+			  			
 			  			break;
 			  			case 'splice': 
 			  				var index = arguments[0];
@@ -47,7 +47,7 @@ Refuel.define('ObservableArray',{inherits: 'Events'},
 			  				unWatchElement(index);
 			  				var e =  {action: 'delete', index: index};
 			  				self.notify('_oa_update',e);
-			  				self.notify('change', {'index':index});
+			  			
 			  			break;
 			  			case 'filter': 
 			  				//r = Refuel.createInstance('ObservableArray', {'value': r});
@@ -73,16 +73,17 @@ Refuel.define('ObservableArray',{inherits: 'Events'},
     		return data.length;
     	});
 
-    	//FIXME al delete i getter restano ai vecchi indici
     	function watchElement(index) {
     		if(!self.__lookupGetter__(index)) {
 	    		(function(thisIndex) {
 		    		Object.defineProperty(self, thisIndex, {
 					    configurable: true,
 						set: function(val) {
+				            console.log('set element', thisIndex);
 				            self.setElementAt(thisIndex, val);
 					    },
 						get: function() {
+							//console.log('set element', index);
 					        return self.getElementAt(thisIndex);
 					    }
 					});
@@ -102,7 +103,7 @@ Refuel.define('ObservableArray',{inherits: 'Events'},
 
 		this.setElementAt = function(index, val) {
 			data[index] = val;
-			self.notify('change', {'index':index});
+		
 		}
 		this.getElementAt = function(index) {
 			return data[index];

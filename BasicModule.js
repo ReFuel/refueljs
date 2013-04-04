@@ -35,20 +35,29 @@ Refuel.define('BasicModule', {require: ['Template', 'DataSource'], inherits: 'Up
         **/
         function autoupdateOnSymbol(e) {
             self.enableAutoUpdate(self.dataSource.getData());
-            //if (e.symbol.linkedTo == 'text') console.log('setting as observable',e.symbol.linkedTo, e.symbol );
-            self.observe(e.symbol.linkedTo, e.symbol, 
+            //console.log('autoupdateOnSymbol', e.symbol.linkedTo);
+            //console.log('setting as observable',e.symbol.linkedTo, e.symbol );
+            //self.notify('observableChange', {'observable': e.symbol}, true);
+            var obs = self.observe(e.symbol.linkedTo, e.symbol, 
                 function(observable, tmplSymbol) {
                     self.template.renderSymbol(tmplSymbol, self.dataSource.getData());
+                    self.notify('observableChange', {'observable': observable}, true);
+                    //console.log('observableChange',observable);
                 }
             );
+            if (e.symbol.linkedTo == 'remainingLength') console.log(obs);
+            //forzare un ricalcolo dopo l'inizializzazione?
+
         }
 
         this.addModule = function(module) {
         	if (module.label) this.items[module.label] = module;
         	else 			 this.items.push(module);
 
+            module.subscribe('observableChange', function(e) {
+                self.notify('observableChange', e);
+            });
             module.subscribe('unhandledAction', function(e) {
-
                 if (!e.module) e.module = module; //keeps only the original module inside the event data
                 genericEventHandler(e);
             });
@@ -62,8 +71,7 @@ Refuel.define('BasicModule', {require: ['Template', 'DataSource'], inherits: 'Up
             data = data || this.dataSource.getData();
 			this.template.render(data);
         }
-        //XXX perchè UpdateManager lavora solo sugli ObsArray e non anche sugli object?
-        //mergiare con autoUpdate
+
         this.defineUpdateManager = function(callback) {
             this.unsubscribe('_oa_update');
             this.subscribe('_oa_update', callback);  
@@ -76,12 +84,26 @@ Refuel.define('BasicModule', {require: ['Template', 'DataSource'], inherits: 'Up
         this.querySelector = function(query) {
             return this.template.getRoot().querySelector(query);
         } 
+
+        this.toggleClass = function(classname, value) {
+            var root = this.template.getRoot();
+            if (value === undefined) {
+                root.classList.toggle(classname);
+            }
+            else {
+                if (value) root.classList.add(classname);
+                else root.classList.remove(classname);
+            }
+
+        }
+
         this.data = function(prop, value) {
             if (!prop && !value) {
                 console.error('No parameters in '+this+'.data');
                 return undefined;
             }
             var data = this.dataSource.getData()[prop];
+            
             if (typeof(value) === 'undefined') {
                 return data;
             }
@@ -90,7 +112,7 @@ Refuel.define('BasicModule', {require: ['Template', 'DataSource'], inherits: 'Up
                     console.error('Setting an Array in '+this+'.data');
                     return undefined;
                 }
-                data = value;   
+                this.dataSource.getData()[prop] = value;
             }
         }
 

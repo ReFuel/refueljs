@@ -32,14 +32,14 @@
 				</ul>
 			</section>
 			<footer id="footer" data-rf-visibility="autoupdate:todoList.length">
-				<span id="todo-count" ><strong>{{autoupdate:todoList.length}}</strong> item left</span> 
+				<span id="todo-count" ><strong>{{autoupdate:remainingLength}}</strong> item left</span> 
 				<!-- Remove this if you don't implement routing -->
 				<ul id="filters">
 					<li><a href="#/" class="selected">All</a>	</li>
 					<li><a href="#/active">Active</a>			</li>
-					<li><a href="#/completed">Completed</a>	</li>
+					<li><a href="#/completed">Completed</a>		</li>
 				</ul>
-				<button id="clear-completed">Clear completed ( {{autoupdate:todoList.completedLength}} )</button>
+				<button id="clear-completed">Clear completed ( {{autoupdate:completedLength}} )</button>
 			</footer>
 		</section>
 		<footer id="info">

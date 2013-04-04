@@ -264,7 +264,6 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 				case 'visibility':
 					if (linkedData) symbol.domElement.style.display = 'block';
 					else  symbol.domElement.style.display = 'none';
-					//console.log('visibility', linkedData);
 				break;
 				case 'loop':
 					//La symbol table per ogni elemento non ha bisogno di essere ri-parsata ogni volta
@@ -285,7 +284,7 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 						//linkedData = Refuel.resolveChain('.', data) || '';
 						root.innerHTML = '';
 						for (var i = 0; i < linkedData.length; i++) {
-							self.notify('_new_listitem', {symbol:symbol, data:linkedData[i]});
+							self.notify('_new_listitem', {symbol:symbol, data:linkedData[i], index: i});
 						}
 					} 
 					else {

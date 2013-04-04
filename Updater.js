@@ -16,8 +16,7 @@ Refuel.define('Updater',{require: ['ObservableArray'], inherits: 'Events'},
 	    	label = moduleLabel;
 	    }
 
-	    function makeObservable(name, value) {
-	        
+	    function makeObservable(name, value) {  
 	        // Create object in map
 	        if (!_map[name]) {
 		        _map[name] = {
@@ -56,14 +55,7 @@ Refuel.define('Updater',{require: ['ObservableArray'], inherits: 'Events'},
 			            var obj = _map[name];
 			            obj.propName = propName;
 			            obj.value = val;
-			            var callList = obj['callbackList'];
-			            if (callList && callList.length) {
-
-			            	var len = callList.length;
-			            	for (var i = 0, call; call = callList[i]; i++) {
-			            		call.callback.call(call.context, obj, call.params);
-			            	}
-			            }
+			            notifyChange(obj);
 				    },
 					get: function() {
 				        return _map[name].value;
@@ -72,6 +64,16 @@ Refuel.define('Updater',{require: ['ObservableArray'], inherits: 'Events'},
 			}
 	       	return _map[name];
 	    }
+
+	    function notifyChange(obs) {
+	    	var callList = obs['callbackList'];
+            if (callList && callList.length) {
+            	var len = callList.length;
+            	for (var i = 0, call; call = callList[i]; i++) {
+            		call.callback.call(call.context, obs, call.params);
+            	}
+            }
+		}
 
 	    /**
 	    *	this.observe(propName, callback);
@@ -103,6 +105,7 @@ Refuel.define('Updater',{require: ['ObservableArray'], inherits: 'Events'},
 		        	'params'  : data
 		       	});
 	       	}
+	       	return obj;
 	    }
 });
 

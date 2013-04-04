@@ -24,17 +24,7 @@ Refuel.define('ListItemModule', {inherits: 'BasicModule'},
         this.create = function() {
         }
 
-        this.toggleClass = function(classname, value) {
-            var root = this.template.getRoot();
-            if (value === undefined) {
-                root.classList.toggle(classname);
-            }
-            else {
-                if (value) root.classList.add(classname);
-                else root.classList.remove(classname);
-            }
 
-        }
         
         //serve anche sapere quando il tmpl ha finito di parsare? automatizzare il processo!
         //in callback del datasource, probabilmente automatizzando

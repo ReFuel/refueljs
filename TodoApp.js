@@ -3,7 +3,7 @@ Refuel.define('TodoApp',{require: ['GenericModule']},
     function TodoApp() {    
         var root = document.querySelector("#todoapp"); 
         
-        app = Refuel.createInstance('GenericModule', {root: root});
+        app = Refuel.createInstance('GenericModule', {'root': root});
         //Main DataSource creation, will be replaced by the REAL DataSource
         var numberOfElements = 3;
         var appliedFilter;
@@ -17,11 +17,27 @@ Refuel.define('TodoApp',{require: ['GenericModule']},
             app.create();
             app.draw();
         });
-        app.dataSource.setData({title:'ReFuel Todo App', 'todoList': todoList});
-
+        
+        //app.init({
+        //    root: document.querySelector("#todoapp"),
+        //    key: 'todos-refueljs'
+        //})
         //app.init({dataUrl:  ''});
         //app.data({key: 'todo_'});
         //app.start()
+
+        //TODO app.observe(['todoList.lenght','completed'], function() {})
+        //sono  i nomi del simbolo nel markup
+        app.subscribe('observableChange', function(e) {
+            var name = e.observable.name;
+            if (name == 'todoList.lenght' ||  name == 'completed') {
+                var len = app.data('todoList').length;
+                var completed = app.items['todoList'].filterBy('completed').length;
+
+                app.data('completedLength', completed );
+                app.data('remainingLength', len-completed);
+            }
+        });
 
         app.defineAction('changeDone', function(e) {
             var checked =  e.target.checked;
@@ -61,6 +77,15 @@ Refuel.define('TodoApp',{require: ['GenericModule']},
             e.module.toggleClass('show-delete');
         });
 
+        
+        app.dataSource.setData({
+            title:'ReFuel Todo App', 
+            'todoList': todoList, 
+            completedLength: 0, 
+            remainingLength: 0
+        });
+        
+
         //XXX potremmo inserirla in GenericModule in qualche maniera figa?
         function selectFilter(target) {
             var els = document.querySelectorAll('#filters li a');
@@ -71,7 +96,7 @@ Refuel.define('TodoApp',{require: ['GenericModule']},
         }
 
         Path.root("#/");
-
+        //TODO FILTER BY OBJECT {completed: false}
         Path.map("#/").to(function() {
             app.items['todoList'].filterClear();
             selectFilter(document.querySelector('[href="#/"]'));
