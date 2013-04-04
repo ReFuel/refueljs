@@ -41,6 +41,7 @@ Refuel.define('TodoApp',{require: ['GenericModule']},
                 //XXX controllare l'uso di add, forse serve fattorizzazione in List
                 e.module.add({ text: textContent, done: false });
                 e.target.value = '';
+				e.target.blur();
             }
         });
 
@@ -83,6 +84,7 @@ Refuel.define('TodoApp',{require: ['GenericModule']},
         
 
         app.defineAction('toggleDeleteButton', function(e) {
+			e.preventDefault();
             var el = e.currentTarget.querySelector('.destroy');
             if (el.style.display === 'block') {
                 el.style.display = 'none';

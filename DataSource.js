@@ -41,7 +41,7 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax', 'localstorage
 						options.ajaxOptions.ok = okCallback;
 					}
 					if (options.ajaxOptions.ko) { 
-						options.ajaxOptions.ko= koCallback;
+						options.ajaxOptions.ko = koCallback;
 					}
 					facade = {
 						"get": function() {
@@ -62,27 +62,22 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax', 'localstorage
 				 else if (options.key){
 					facade = {
 						"get": function() {
-							self.setData(localstorage.get(options.key));
+							return localstorage.get(options.key);
 						},
 						"set": function(dataObj) {
 							localstorage.set(options.key, dataObj);
-							self.setData(dataObj);
 						},
 						"update": function(dataObj) {
-							localstorage.update(options.key, body);
-							self.setData(dataObj);
+							localstorage.update(options.key, dataObj);
 						},
 						"remove": function() {
 							localstorage.remove(options.key);
-							self.setData({});
-						},
-						"getData": self.getData
+						}
 					}
 				}
 			}
 
 			facade = Refuel.mix(facade, self);
-			
 			//facade["getData"] = self.getData;
 			//facade["subscribe"] = self.subscribe;
 			//facade["notify"] = self.notify;
