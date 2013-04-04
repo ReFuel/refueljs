@@ -24,77 +24,55 @@ Refuel.define('ListModule',{inherits: 'BasicModule', require:'ListItemModule'},
             this.enableAutoUpdate(this.dataSource.getData(), label);
         }
 
-        this.doFilter = function(param) {
-            var data = this.dataSource.getData().todoList; // da cambiare nell'array vero
-            switch(param){
-                case 'completed': {
-                    data = Filter(data).where(function(item) {return item.done === true}).returnResult();
-                    break;
-                }
-                case 'active': {
-                    data = Filter(data).where(function(item) {return item.done === false}).returnResult();
-                    break;
-                }
-                default: {
-                    return data;
-                }
-            }
-        }
-
         this.add = function(objData) {
-            console.error('ListModule.add', objData);
-            addListItem({data: objData});
+            this.dataSource.getData()[label].push(objData);
         }
-               
-        this.update = function(e) {
-            if (e.keyCode === ENTER_KEY) {
-                e.currentTarget.className = e.currentTarget.className.replace(" editing", "");
-//                 this.dataSource.data.todoList[+e.currentTarget.dataset.rfId].text = e.target.value;
-            }
+        this.remove = function(objData) {
+            var index = this.getItemIndex(objData);
+            this.dataSource.getData()[label].splice(index, 1);    
+        }
+        this.removeAt = function(index) {
+            this.dataSource.getData()[label].splice(index, 1);    
         }
 
         function oa_update(e) {
             switch(e.action) {
                 case 'add': 
-                    addListItem({data: e.data, observer: e.observer});
+                    addListItem({data: e.data});
                 break;
-                case 'delete': {
+                case 'delete': 
                     removeListItem({index: e.index});
-                }
                 break;
-                case 'filter': {
-                    console.log('ListModule.oa_update', e);
-                    self.draw();
-                }
+                break;
+                case 'filterApply': 
+                case 'filterClear': 
+                    self.draw(); 
                 break;
             }
         }
 
+        //Data change callbacks
         function removeListItem(e) {
             self.items[e.index].template.remove();
             self.items.splice(e.index, 1);
         }
-
-        //XXX fattorizzare l'add di un elemento?
-        function addListItem(e) {
+        function addListItem(obj) {
             var rootSymbol = self.template.getSymbolByAction('list');
             var listItem = Refuel.createInstance('ListItemModule', { 
                 parentRoot: self.config.root, 
                 template: rootSymbol.template
             });
-            listItem.dataSource.setData(e.data);
+            listItem.dataSource.setData(obj.data);
             self.addModule(listItem);
 
             listItem.create();
             listItem.draw();
         }
 
-
         //TODO defineAction('add') ?
+        
         this.defineAction('delete', function(e) {
-            var index = this.getItemIndex(e.module);
-            var ds = this.dataSource.getData()[label];
-            ds.splice(index, 1);    
+            this.remove(e.module)
         });
 
         this.applyOnItems = function(callback, args) {
@@ -113,21 +91,20 @@ Refuel.define('ListModule',{inherits: 'BasicModule', require:'ListItemModule'},
             return null;
         }
 
+        this.applyFilterBy = function(prop, negated) {
+            this.dataSource.getData()[label].applyFilter(function(item, index, array) {
+                var value = Refuel.resolveChain(prop, item);
+                if (negated) value = !value;
+                return value;
+            });            
+        }
+
         this.filterBy = function(prop, negated) {
-            //var newDS = {}; 
-            //newDS[label] = 
-            this.dataSource.getData()[label].filter(function(item, index, array) {
+            return this.dataSource.getData()[label].filter(function(item, index, array) {
                 var value = Refuel.resolveChain(prop, item);
                 if (negated) value = !value;
                 return value;
             });
-            
-            //console.log(this.dataSource.getData(),newDS);
-
-            //NON deve essere risettato il DS
-            //var obj = {};
-            //obj[label] = newDS;
-            //this.dataSource.setData(newDS);
         }
 
         this.filterClear = function() {

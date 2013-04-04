@@ -18,8 +18,7 @@ Refuel.define('BasicModule', {require: ['Template', 'DataSource'], inherits: 'Up
 
         //TODO eventizzare
 
-        function genericEventHandler(e) {
-                
+        function genericEventHandler(e) {        
             var action = actionMap[e.linkedTo];
             if (action) {
                 var context = e.options ? action.context.items[e.options] : action.context;
@@ -78,11 +77,20 @@ Refuel.define('BasicModule', {require: ['Template', 'DataSource'], inherits: 'Up
             return this.template.getRoot().querySelector(query);
         } 
         this.data = function(prop, value) {
+            if (!prop && !value) {
+                console.error('No parameters in '+this+'.data');
+                return undefined;
+            }
+            var data = this.dataSource.getData()[prop];
             if (typeof(value) === 'undefined') {
-                return this.dataSource.getData()[prop];
+                return data;
             }
             else {
-                this.dataSource.getData()[prop] = value;   
+                if (Refuel.isArray(data)) {
+                    console.error('Setting an Array in '+this+'.data');
+                    return undefined;
+                }
+                data = value;   
             }
         }
 

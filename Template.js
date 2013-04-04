@@ -261,7 +261,11 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 							symbol.attribute.value = symbol.originalContent.replace(symbol.originalSymbol, linkedData);	
 					}
 				break;
-
+				case 'visibility':
+					if (linkedData) symbol.domElement.style.display = 'block';
+					else  symbol.domElement.style.display = 'none';
+					//console.log('visibility', linkedData);
+				break;
 				case 'loop':
 					//La symbol table per ogni elemento non ha bisogno di essere ri-parsata ogni volta
 					//andrebbe parsata una volta dal main-tmpl, clonata e passata direttamente al template 

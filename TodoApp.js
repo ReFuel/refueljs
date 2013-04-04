@@ -1,5 +1,4 @@
 var app;
-
 Refuel.define('TodoApp',{require: ['GenericModule']},
     function TodoApp() {    
         var root = document.querySelector("#todoapp"); 
@@ -12,7 +11,7 @@ Refuel.define('TodoApp',{require: ['GenericModule']},
         //TODO sostituire con data from remote
         var todoList = [];
         for (var i = 0; i < numberOfElements; i++) {
-            todoList.push({ text: 'my text '+i, done: false });
+            todoList.push({ text: 'my text '+i, completed: false });
         };
         app.dataSource.subscribe('dataAvailable', function(data) {
             app.create();
@@ -20,26 +19,27 @@ Refuel.define('TodoApp',{require: ['GenericModule']},
         });
         app.dataSource.setData({title:'ReFuel Todo App', 'todoList': todoList});
 
+        //app.init({dataUrl:  ''});
+        //app.data({key: 'todo_'});
+        //app.start()
+
         app.defineAction('changeDone', function(e) {
             var checked =  e.target.checked;
-            e.module.toggleClass('completed', checked);
-            e.module.data('done', checked);
+            e.module.data('completed', checked);
         });
 
-        //TODO selezione del tasto changeDoneAll, dipendente praticamente dal filterBy:done .lenght
+        //TODO selezione del tasto changeDoneAll, dipendente praticamente dal filterBy:completed .lenght
         app.defineAction('changeDoneAll', function(e) {
             e.module.applyOnItems(function(item) {
                 var checked =  e.target.checked;
-                item.data('done', checked);
-                item.toggleClass('completed', checked);
+                item.data('completed', checked);
             });
         });
-        
+
         app.defineAction('add', function(e) {
             var textContent = e.target.value.trim();
             if (e.keyIdentifier === 'Enter' && textContent != '') {
-                //XXX controllare l'uso di add, forse serve fattorizzazione in List
-                e.module.add({ text: textContent, done: false });
+                e.module.add({ text: textContent, completed: false });
                 e.target.value = '';
 				e.target.blur();
             }
@@ -58,6 +58,10 @@ Refuel.define('TodoApp',{require: ['GenericModule']},
             }
         });
 
+        app.defineAction('toggleDeleteButton', function(e) {
+            e.module.toggleClass('show-delete');
+        });
+
         //XXX potremmo inserirla in GenericModule in qualche maniera figa?
         function selectFilter(target) {
             var els = document.querySelectorAll('#filters li a');
@@ -74,25 +78,11 @@ Refuel.define('TodoApp',{require: ['GenericModule']},
             selectFilter(document.querySelector('[href="#/"]'));
         });
         Path.map("#/active").to(function(){
-            app.items['todoList'].filterBy('done', true);
+            app.items['todoList'].applyFilterBy('completed', true);
             selectFilter(document.querySelector('[href="#/active"]'));
         });
         Path.map("#/completed").to(function(){
-            app.items['todoList'].filterBy('done'); 
+            app.items['todoList'].applyFilterBy('completed'); 
             selectFilter(document.querySelector('[href="#/completed"]'));
-        });
-        
-
-        app.defineAction('toggleDeleteButton', function(e) {
-			e.preventDefault();
-            var el = e.currentTarget.querySelector('.destroy');
-            if (el.style.display === 'block') {
-                el.style.display = 'none';
-            }
-            else {
-                el.style.display = 'block';
-            }
-        });
-    
-        
+        });    
 });
