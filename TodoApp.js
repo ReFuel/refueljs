@@ -57,6 +57,7 @@ Refuel.define('TodoApp',{require: ['GenericModule']},
             if (e.keyIdentifier === 'Enter' && textContent != '') {
                 e.module.add({ text: textContent, completed: false });
                 e.target.value = '';
+				e.target.blur();
             }
         });
 
@@ -109,6 +110,4 @@ Refuel.define('TodoApp',{require: ['GenericModule']},
             app.items['todoList'].applyFilterBy('completed'); 
             selectFilter(document.querySelector('[href="#/completed"]'));
         });    
-    
-        
 });

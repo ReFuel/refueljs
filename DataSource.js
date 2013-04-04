@@ -66,21 +66,17 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax', 'localstorage
 				 else if (options.key){
 					facade = {
 						"get": function() {
-							localstorage.get(options.key);
+							return localstorage.get(options.key);
 						},
 						"set": function(dataObj) {
 							localstorage.set(options.key, dataObj);
-							self.setData(dataObj);
 						},
 						"update": function(dataObj) {
-							localstorage.update(options.key, body);
-							self.setData(dataObj);
+							localstorage.update(options.key, dataObj);
 						},
 						"remove": function() {
 							localstorage.remove(options.key);
-							self.setData({});
-						},
-						"getData": self.getData
+						}
 					}
 				}
 			}
