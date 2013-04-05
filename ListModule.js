@@ -34,6 +34,11 @@ Refuel.define('ListModule',{inherits: 'BasicModule', require:'ListItemModule'},
         this.removeAt = function(index) {
             this.dataSource.getData()[label].splice(index, 1);    
         }
+        this.update = function(objData) {
+            var obj = {};
+            obj[label] = objData;
+            this.dataSource.setData(obj);
+        }
 
         function oa_update(e) {
             switch(e.action) {
@@ -94,12 +99,13 @@ Refuel.define('ListModule',{inherits: 'BasicModule', require:'ListItemModule'},
             return null;
         }
 
-        this.applyFilterBy = function(prop, negated) {
+        this.applyFilterBy = function(prop, negated, permanent) {
             this.dataSource.getData()[label].applyFilter(function(item, index, array) {
                 var value = Refuel.resolveChain(prop, item);
                 if (negated) value = !value;
                 return value;
-            });            
+            });
+            if (permanent) this.dataSource.getData()[label].consolidate();
         }
 
         this.filterBy = function(prop, negated) {

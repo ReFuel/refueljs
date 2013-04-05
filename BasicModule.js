@@ -8,7 +8,7 @@ Refuel.define('BasicModule', {require: ['Template', 'DataSource'], inherits: 'Up
 
         this.init = function(myConfig) {
             this.config = Refuel.mix(this.config, myConfig);
-            this.dataSource = Refuel.createInstance('DataSource');  
+            this.dataSource = Refuel.createInstance('DataSource');
             this.template = Refuel.createInstance('Template', {root: this.config.root});
             
             this.defineUpdateManager(oa_update);
@@ -35,7 +35,7 @@ Refuel.define('BasicModule', {require: ['Template', 'DataSource'], inherits: 'Up
         **/
         function autoupdateOnSymbol(e) {
             self.enableAutoUpdate(self.dataSource.getData());
-            //console.log('autoupdateOnSymbol', e.symbol.linkedTo);
+            //console.log('autoupdateOnSymbol', e.symbol.linkedTo,'-->',self.dataSource.getData() );
             //console.log('setting as observable',e.symbol.linkedTo, e.symbol );
             //self.notify('observableChange', {'observable': e.symbol}, true);
             var obs = self.observe(e.symbol.linkedTo, e.symbol, 
@@ -45,7 +45,7 @@ Refuel.define('BasicModule', {require: ['Template', 'DataSource'], inherits: 'Up
                     //console.log('observableChange',observable);
                 }
             );
-            if (e.symbol.linkedTo == 'remainingLength') console.log(obs);
+           // if (e.symbol.linkedTo == 'remainingLength') console.log(obs);
             //forzare un ricalcolo dopo l'inizializzazione?
 
         }
@@ -69,6 +69,7 @@ Refuel.define('BasicModule', {require: ['Template', 'DataSource'], inherits: 'Up
 
         this.draw = function(data) {
             data = data || this.dataSource.getData();
+            //console.log('rendering with', data);
 			this.template.render(data);
         }
 
@@ -97,6 +98,15 @@ Refuel.define('BasicModule', {require: ['Template', 'DataSource'], inherits: 'Up
 
         }
 
+        this.saveData = function() {
+            if (this.parent) {
+                this.parent.saveData();
+            }
+            else {
+                this.dataSource.saveData();
+            }
+        }
+
         this.data = function(prop, value) {
             if (!prop && !value) {
                 console.error('No parameters in '+this+'.data');
@@ -115,5 +125,6 @@ Refuel.define('BasicModule', {require: ['Template', 'DataSource'], inherits: 'Up
                 this.dataSource.getData()[prop] = value;
             }
         }
+
 
 });

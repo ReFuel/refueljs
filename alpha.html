@@ -24,22 +24,22 @@
 					<li data-rf-template="todoTemplate" data-rf-action-swipe="toggleDeleteButton" > 
 						<div class="view">
 							<input class="toggle" type="checkbox" data-rf-action="changeDone" checked="{{autoupdate:completed}}">
-							<label data-rf-action-dblclick="edit">{{autoupdate:text}}</label>
+							<label data-rf-action-dblclick="edit">{{autoupdate:title}}</label>
 							<button class="destroy" data-rf-action="delete"></button>
 						</div>
-						<input class="edit" data-rf-action-keydown="save" data-rf-action-focusout="save" value="{{autoupdate:text}}">
+						<input class="edit" data-rf-action-keydown="save" data-rf-action-focusout="save" value="{{autoupdate:title}}">
 					</li>
 				</ul>
 			</section>
-			<footer id="footer" data-rf-visibility="autoupdate:todoList.length">
-				<span id="todo-count" ><strong>{{autoupdate:remainingLength}}</strong> item left</span> 
+			<footer id="footer">
+				<span id="todo-count"><strong>{{autoupdate:todoList.length}}</strong> item left</span> 
 				<!-- Remove this if you don't implement routing -->
 				<ul id="filters">
 					<li><a href="#/" class="selected">All</a>	</li>
 					<li><a href="#/active">Active</a>			</li>
 					<li><a href="#/completed">Completed</a>		</li>
 				</ul>
-				<button id="clear-completed">Clear completed ( {{autoupdate:completedLength}} )</button>
+				<button id="clear-completed" data-rf-action="todoList:clearComplete">Clear completed ( {{autoupdate:completedLength}} )</button>
 			</footer>
 		</section>
 		<footer id="info">

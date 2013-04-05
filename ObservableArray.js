@@ -64,8 +64,7 @@ Refuel.define('ObservableArray',{inherits: 'Events'},
     	});
 
     	this.__defineSetter__('length', function(val) {
-    		self.length = val;
-    		var e =  {action: 'update', data: val, prop: 'length'};
+    		var e =  {action: 'update', data: data.length, prop: 'length'};
 		  	self.notify('_oa_update',e);
     	});
 
@@ -130,6 +129,10 @@ Refuel.define('ObservableArray',{inherits: 'Events'},
 			resetWatchers();
 			var e =  {action: 'filterApply', index: null};
 			this.notify('_oa_update',e);
+		}
+
+		this.consolidate = function() {
+			unFilteredData = null;
 		}
 
 });

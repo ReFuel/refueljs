@@ -1,31 +1,34 @@
 var app;
+var list;
+var generic;
+var item;
+
 Refuel.define('TodoApp',{require: ['GenericModule']},
     function TodoApp() {    
         var root = document.querySelector("#todoapp"); 
-        
-        app = Refuel.createInstance('GenericModule', {'root': root});
-        //Main DataSource creation, will be replaced by the REAL DataSource
-        var numberOfElements = 3;
-        var appliedFilter;
+
+        app = Refuel.createInstance('GenericModule', {
+            'root': root
+            //,'localStorageKey': 'todos-refueljs'
+        });
 
         //TODO sostituire con data from remote
+        var numberOfElements = 3;
         var todoList = [];
         for (var i = 0; i < numberOfElements; i++) {
-            todoList.push({ text: 'my text '+i, completed: false });
+            todoList.push({ title: 'my text '+i, completed: false });
         };
-        app.dataSource.subscribe('dataAvailable', function(data) {
-            app.create();
-            app.draw();
+        app.dataSource.setData({
+            title:'ReFuel Todo App', 
+            'todoList': todoList, 
+            completedLength: 0, 
+            remainingLength: 0
         });
-        
-        //app.init({
-        //    root: document.querySelector("#todoapp"),
-        //    key: 'todos-refueljs'
-        //})
-        //app.init({dataUrl:  ''});
-        //app.data({key: 'todo_'});
-        //app.start()
 
+       //list = app.items['todoList'].dataSource;
+       //generic = app.dataSource;
+       //item =  app.items['todoList'].items[0].dataSource;
+        
         //TODO app.observe(['todoList.lenght','completed'], function() {})
         //sono  i nomi del simbolo nel markup
         app.subscribe('observableChange', function(e) {
@@ -37,6 +40,10 @@ Refuel.define('TodoApp',{require: ['GenericModule']},
                 app.data('completedLength', completed );
                 app.data('remainingLength', len-completed);
             }
+        });
+
+        app.defineAction('clearComplete', function(e) {
+            var res = e.module.applyFilterBy('completed', true, true);
         });
 
         app.defineAction('changeDone', function(e) {
@@ -55,9 +62,10 @@ Refuel.define('TodoApp',{require: ['GenericModule']},
         app.defineAction('add', function(e) {
             var textContent = e.target.value.trim();
             if (e.keyIdentifier === 'Enter' && textContent != '') {
-                e.module.add({ text: textContent, completed: false });
+                e.module.add({ title: textContent, completed: false });
                 e.target.value = '';
 				e.target.blur();
+                //app.saveData();
             }
         });
 
@@ -69,7 +77,7 @@ Refuel.define('TodoApp',{require: ['GenericModule']},
         app.defineAction('save', function(e) {
             var textContent = e.target.value.trim();
             if (e.keyIdentifier === 'Enter' || e.type === 'focusout') {
-                if (textContent != '') e.module.data('text', textContent);
+                if (textContent != '') e.module.data('title', textContent);
                 e.module.toggleClass('editing', false);
             }
         });
@@ -77,15 +85,6 @@ Refuel.define('TodoApp',{require: ['GenericModule']},
         app.defineAction('toggleDeleteButton', function(e) {
             e.module.toggleClass('show-delete');
         });
-
-        
-        app.dataSource.setData({
-            title:'ReFuel Todo App', 
-            'todoList': todoList, 
-            completedLength: 0, 
-            remainingLength: 0
-        });
-        
 
         //XXX potremmo inserirla in GenericModule in qualche maniera figa?
         function selectFilter(target) {

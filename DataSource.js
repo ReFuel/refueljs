@@ -1,22 +1,42 @@
 
-Refuel.define('DataSource', {inherits: 'Events', require: ['ajax', 'localstorage']}, 
-	function DataSource(options) {
-		var data = {};
+Refuel.define('DataSource', {inherits: 'Events', require: ['ajax']}, 
+	function DataSource() {
+		var data = null;
     	var self = this;
-		var facade = {};
+		var config = {};
     	//Core.implement(Events, this);    	
 		
+		this.init = function(myConfig) {
+            config = Refuel.mix(config, myConfig);
+           	loadData();
+        }	
+
 		this.setData = function(dataObj) {
 			data = dataObj;
+			this.saveData();
 			self.notify("dataAvailable", {'data': data});
 		}
-		
 		this.getData = function() {
 			return data;
 		}
 
-		this.setOptions = function(newopts) {
-			options = Refuel.mix(options, newopts);
+		function loadData() {
+			if (config.key) {
+				var storedData = localStorage.getItem(config.key);
+				var storedObject = JSON.parse(storedData);
+				if (storedObject) {
+            		data = storedObject;
+            		self.notify("dataAvailable", {'data': data});
+            		console.log('dataAvailable', data);
+            	}else {
+            		self.notify("dataAvailable", {'data': data});
+            		console.log('no-data', data);
+            	}
+            }
+		}
+
+		this.saveData = function () {
+			if (config.key) localStorage.setItem(config.key, JSON.stringify(data));
 		}
 
 		this.model =  function(dataObj, xhr) {
@@ -30,12 +50,12 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax', 'localstorage
 		}
 		
 		function koCallback(dataObj) {
-			//something gone wrong
-			console.error("datasource error:", options, dataObj);
+			console.error("datasource error:", config, dataObj);
 			self.notify("dataError", self.getData());
 		}
 		
 		function initialize(options) {
+			var facade = {};
 			if (options) {
 				if(!options.url || !options.key) {
 					self.setData(options);	//XXX why?
@@ -66,23 +86,22 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax', 'localstorage
 				 else if (options.key){
 					facade = {
 						"get": function() {
-							return localstorage.get(options.key);
+							return localStorage.getItem(options.key);
 						},
 						"set": function(dataObj) {
-							localstorage.set(options.key, dataObj);
+							localStorage.setItem(options.key, JSON.stringify(data));
+
+
 						},
-						"update": function(dataObj) {
-							localstorage.update(options.key, dataObj);
-						},
+						/*"update": function(dataObj) {
+							localstorage.update(options.options.key, dataObj);
+						},*/
 						"remove": function() {
-							localstorage.remove(options.key);
+							localStorage.removeItem(options.key);
 						}
 					}
 				}
 			}
-
-			facade = Refuel.mix(facade, self);
 			return facade;
 		}
-		return initialize(options);
     });

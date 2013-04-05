@@ -6,12 +6,17 @@ Refuel.define('GenericModule',{inherits: 'BasicModule', require:'ListModule'},
         this.init = function(myConfig) {
             this.config = Refuel.mix(this.config, myConfig);
             this.defineUpdateManager(oa_update);
+
+            this.dataSource.subscribe('dataAvailable', function(data) {
+                self.create();
+                self.draw();
+            });
+            if (this.config.localStorageKey) this.dataSource.init({key: this.config.localStorageKey});
         }
             
         this.create = function() {
             this.template.subscribe('_new_list', createList);
             this.template.setRoot(this.config.root);
-
         }
 
         function createList(e) {
@@ -24,9 +29,10 @@ Refuel.define('GenericModule',{inherits: 'BasicModule', require:'ListModule'},
                 });
 
                 var obj = {};
-                obj[label] = e.symbol.linkedData;
-                list.dataSource.setData(obj);
+                if (linkedData) obj[label] = linkedData;
+                else obj[label] = [];
 
+                list.dataSource.setData(obj);
                 self.addModule(list);
                 list.create();
                 list.draw();
