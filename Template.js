@@ -26,7 +26,6 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 		this.init = function(myConfig) {
             this.config = Refuel.mix(this.config, myConfig);
            	root = this.config.root;
-            //console.log('Template.init', this.config);
         }
 
 		function parseDOMElement(node, symbolTable, regExpToMatchName, regExpToMatchValue, refId,
@@ -175,7 +174,7 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 					//investigate inside, unless this particular node is the proper root of the current template.
 					if (loopSymbol) {
 						var tmplRoot = loopSymbol.domElement;
-						var child = tmplRoot.querySelector("[data-rf-template]"); 
+						var child = tmplRoot.querySelector('[data-rf-template]'); 
 						var tmpl = tmplRoot.removeChild(child);
 						loopSymbol.template = tmpl;
 						this.parse(tmpl, loopSymbol.symbolTable);
@@ -185,7 +184,7 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 					}
 					else if (listSymbol && isRoot) { 
 						var tmplRoot = listSymbol.domElement;
-						var child = tmplRoot.querySelector("[data-rf-template]"); 
+						var child = tmplRoot.querySelector('[data-rf-template]'); 
 						var tmpl = tmplRoot.removeChild(child);
 						listSymbol.template = tmpl;
 					}
@@ -274,14 +273,13 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 					var docFragment = document.createDocumentFragment();
 					for (var i = 0; i < linkedData.length; i++) {
 						var el = createListElement(linkedData[i], symbol);
-						el.setAttribute("data-rf-id", i);
+						el.setAttribute('data-rf-id', i);
 						docFragment.appendChild(el);
 					};
 					symbol.domElement.appendChild(docFragment);
 				break;
 				case 'list':
 					if (isRoot) {
-						//linkedData = Refuel.resolveChain('.', data) || '';
 						root.innerHTML = '';
 						for (var i = 0; i < linkedData.length; i++) {
 							self.notify('_new_listitem', {symbol:symbol, data:linkedData[i], index: i});
@@ -325,7 +323,7 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 
 		function markMissing(symbol, linkedData) {
 			if (self.markMissedRefs &&  typeof(linkedData) == 'undefined') {
-				symbol.domElement.style.border = "1px solid red";
+				symbol.domElement.style.border = '1px solid red';
 				console.warn('missing', symbol.linkedTo, typeof linkedData);
 			}
 		}

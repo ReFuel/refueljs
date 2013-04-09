@@ -1,13 +1,14 @@
 
-//TODO rename in Observer and option in "observe"
+//TODO rename in Observer and option in 'observe'
 
 Refuel.define('Updater',{require: ['ObservableArray'], inherits: 'Events'}, 
 	function Updater() {
     	if (this.observe) return;
-		var self = this;
 		var mountpoint, label;
 		var _map = {};
 		
+
+
 	    this.getObservers = function() {
 	        return _map;
 	    }
@@ -30,6 +31,8 @@ Refuel.define('Updater',{require: ['ObservableArray'], inherits: 'Events'},
 	        var propName = parent[parent.length-1];
 	        parent = parent.slice(0,parent.length-1).join('.');
 	        parent = Refuel.resolveChain(parent, mountpoint);
+	        
+	        //Observe an Array
 	        if (Refuel.isArray(value)) {
 		        /**
 					@param parent is often some data inside DataSource
@@ -38,16 +41,28 @@ Refuel.define('Updater',{require: ['ObservableArray'], inherits: 'Events'},
 				parent[propName] = Refuel.createInstance('ObservableArray', {'value': value});
 				parent[propName].subscribe('_oa_update', function(e) {
 					e.observer = _map[name];
-					self.notify('_oa_update', e);
-			   	});
+					this.notify('_oa_update', e);
+			   	}, this);
 
-			} 
+			}
+			//Observe (an already) ObservableArray
 			else if (value._refuelClassName && value._refuelClassName == 'ObservableArray') {
+
 				parent[propName].subscribe('_oa_update', function(e) {
 					e.observer = _map[name];
-					self.notify('_oa_update', e);
-			   	});
+					this.notify('_oa_update', e);
+			   	}, this);
 			}
+			else if (value._refuelClassName && value._refuelClassName == 'DataSource') {
+				parent[propName] = Refuel.createInstance('ObservableArray', {'value': value.getData()});
+				parent[propName].subscribe('_oa_update', function(e) {
+					e.observer = _map[name];
+					this.notify('_oa_update', e);
+			   	}, this);
+			}
+
+
+			//Observe an Object
 			else {
 				Object.defineProperty(parent, propName, {
 				    configurable: true,
@@ -80,7 +95,6 @@ Refuel.define('Updater',{require: ['ObservableArray'], inherits: 'Events'},
 	    *	this.observe(propName, data, callback);
 	    **/
 	    this.observe = function(name, data, callback) {
-	    	//if (name == 'text') console.log('observe',name, data);
 	    	var context = this;
 			if (!callback) {
 				callback = data;
@@ -92,8 +106,12 @@ Refuel.define('Updater',{require: ['ObservableArray'], inherits: 'Events'},
 	    	} 
 	    	var value = Refuel.resolveChain(name, mountpoint);
 	        if (Refuel.isUndefined(value)) return;
-	        var obj = makeObservable(name, value);      
-			
+	        
+	        var obj = _map[name];
+	        if (!obj)
+	        	obj = makeObservable.call(this, name, value);      
+
+	    	//console.log('observe',name, obj);
 			// Add Callback
 	        if (callback) {
 		        if (!obj.callbackList) {

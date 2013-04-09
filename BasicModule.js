@@ -2,7 +2,6 @@
 
 Refuel.define('BasicModule', {require: ['Template', 'DataSource'], inherits: 'Updater'}, 
     function BasicModule() {
-        var self = this;
         var actionMap = {};
         this.config = {};
 
@@ -10,15 +9,13 @@ Refuel.define('BasicModule', {require: ['Template', 'DataSource'], inherits: 'Up
             this.config = Refuel.mix(this.config, myConfig);
             this.dataSource = Refuel.createInstance('DataSource');
             this.template = Refuel.createInstance('Template', {root: this.config.root});
-            
-            this.defineUpdateManager(oa_update);
-            this.template.subscribe('genericBinderEvent', genericEventHandler);
-            this.template.subscribe('_set_autoupdate', autoupdateOnSymbol);
+            this.defineUpdateManager(oa_update.bind(this));
+            this.template.subscribe('genericBinderEvent', genericEventHandler, this);
+            this.template.subscribe('_set_autoupdate', autoupdateOnSymbol, this);
         }
-
         //TODO eventizzare
 
-        function genericEventHandler(e) {        
+        function genericEventHandler(e) {    
             var action = actionMap[e.linkedTo];
             if (action) {
                 var context = e.options ? action.context.items[e.options] : action.context;
@@ -26,7 +23,7 @@ Refuel.define('BasicModule', {require: ['Template', 'DataSource'], inherits: 'Up
                 action.callback.call(context, e);
             }
             else {
-            	self.notify('unhandledAction', e);
+            	this.notify('unhandledAction', e);
             }
         }
 
@@ -34,20 +31,13 @@ Refuel.define('BasicModule', {require: ['Template', 'DataSource'], inherits: 'Up
             called by the template (via event) when something has an option: autoupdate
         **/
         function autoupdateOnSymbol(e) {
-            self.enableAutoUpdate(self.dataSource.getData());
-            //console.log('autoupdateOnSymbol', e.symbol.linkedTo,'-->',self.dataSource.getData() );
-            //console.log('setting as observable',e.symbol.linkedTo, e.symbol );
-            //self.notify('observableChange', {'observable': e.symbol}, true);
-            var obs = self.observe(e.symbol.linkedTo, e.symbol, 
+            this.enableAutoUpdate(this.dataSource.getData());
+            var obs = this.observe(e.symbol.linkedTo, e.symbol, 
                 function(observable, tmplSymbol) {
-                    self.template.renderSymbol(tmplSymbol, self.dataSource.getData());
-                    self.notify('observableChange', {'observable': observable}, true);
-                    //console.log('observableChange',observable);
+                    this.template.renderSymbol(tmplSymbol, this.dataSource.getData());
+                    this.notify('observableChange', {'observable': observable}, true);
                 }
             );
-           // if (e.symbol.linkedTo == 'remainingLength') console.log(obs);
-            //forzare un ricalcolo dopo l'inizializzazione?
-
         }
 
         this.addModule = function(module) {
@@ -55,12 +45,12 @@ Refuel.define('BasicModule', {require: ['Template', 'DataSource'], inherits: 'Up
         	else 			 this.items.push(module);
 
             module.subscribe('observableChange', function(e) {
-                self.notify('observableChange', e);
-            });
+                this.notify('observableChange', e);
+            }, this);
             module.subscribe('unhandledAction', function(e) {
                 if (!e.module) e.module = module; //keeps only the original module inside the event data
-                genericEventHandler(e);
-            });
+                genericEventHandler.call(this, e);
+            }, this);
         }
         
         function oa_update(e) {
@@ -69,8 +59,7 @@ Refuel.define('BasicModule', {require: ['Template', 'DataSource'], inherits: 'Up
 
         this.draw = function(data) {
             data = data || this.dataSource.getData();
-            //console.log('rendering with', data);
-			this.template.render(data);
+            this.template.render(data);
         }
 
         this.defineUpdateManager = function(callback) {
@@ -125,6 +114,5 @@ Refuel.define('BasicModule', {require: ['Template', 'DataSource'], inherits: 'Up
                 this.dataSource.getData()[prop] = value;
             }
         }
-
 
 });

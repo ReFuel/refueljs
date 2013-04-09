@@ -7,19 +7,18 @@
 **/
 Refuel.define('ListModule',{inherits: 'BasicModule', require:'ListItemModule'}, 
     function ListModule() {
-        var self = this;
         var ENTER_KEY = 13;
         this.items = [];
         var label;   
 
         this.init = function(myConfig) {
             this.config = Refuel.mix(this.config, myConfig);
-            this.defineUpdateManager(oa_update);
+            this.defineUpdateManager(oa_update.bind(this));
             label = this.label = this.config.label;
         }
 
         this.create = function() {
-            this.template.subscribe('_new_listitem', addListItem);
+            this.template.subscribe('_new_listitem', addListItem, this);
             this.template.setRoot(this.config.root);
             this.enableAutoUpdate(this.dataSource.getData(), label);
         }
@@ -27,6 +26,7 @@ Refuel.define('ListModule',{inherits: 'BasicModule', require:'ListItemModule'},
         this.add = function(objData) {
             this.dataSource.getData()[label].push(objData);
         }
+
         this.remove = function(objData) {
             var index = this.getItemIndex(objData);
             this.dataSource.getData()[label].splice(index, 1);    
@@ -43,35 +43,35 @@ Refuel.define('ListModule',{inherits: 'BasicModule', require:'ListItemModule'},
         function oa_update(e) {
             switch(e.action) {
                 case 'add': 
-                    addListItem({data: e.data, index:e.index});
+                    addListItem.call(this,{data: e.data, index:e.index});
                 break;
                 case 'delete': 
-                    removeListItem({index: e.index});
+                    removeListItem.call(this, {index: e.index});
                 break;
                 break;
                 case 'filterApply': 
                 case 'filterClear': 
-                    self.draw(); 
+                    this.draw();
                 break;
             }
         }
 
         //Data change callbacks
         function removeListItem(e) {
-            self.items[e.index].template.remove();
-            self.items.splice(e.index, 1);
+            this.items[e.index].template.remove();
+            this.items.splice(e.index, 1);
         }
         function addListItem(obj) {
-            var rootSymbol = self.template.getSymbolByAction('list');
+            var rootSymbol = this.template.getSymbolByAction('list');
             var listItem = Refuel.createInstance('ListItemModule', { 
-                parentRoot: self.config.root, 
+                parentRoot: this.config.root, 
                 template: rootSymbol.template
             });
 
             //listItem.dataSource.setData(obj.data);
-            listItem.dataSource.setData(self.dataSource.getData()[label][obj.index]);
+            listItem.dataSource.setData(this.dataSource.getData()[label][obj.index]);
 
-            self.addModule(listItem);
+            this.addModule(listItem);
 
             listItem.create();
             listItem.draw();

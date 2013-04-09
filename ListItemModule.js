@@ -7,7 +7,6 @@
 
 Refuel.define('ListItemModule', {inherits: 'BasicModule'},  
     function ListItemModule() {
-        var self = this;
 
         this.init = function(myConfig) {
             this.config = Refuel.mix(this.config, myConfig);

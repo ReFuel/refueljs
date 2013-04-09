@@ -1,107 +1,176 @@
+/*
 
+	@param data direct set data
+	@param key  localStorage key
+	@param url  ajax call url
+*/
 Refuel.define('DataSource', {inherits: 'Events', require: ['ajax']}, 
 	function DataSource() {
-		var data = null;
-    	var self = this;
-		var config = {};
-    	//Core.implement(Events, this);    	
-		
+		var data = null,
+			config = {},
+			items = {},
+			extLoadingState = {
+				requested: 0,
+				completed: 0
+			};
+
 		this.init = function(myConfig) {
             config = Refuel.mix(config, myConfig);
-           	loadData();
-        }	
+            this.loadComplete = false;
+            refreshInterface.call(this);
+           	this.load();
+        }
 
 		this.setData = function(dataObj) {
 			data = dataObj;
-			this.saveData();
-			self.notify("dataAvailable", {'data': data});
+			extLoadingState.found = extLoadingState.requested = extLoadingState.completed = 0;
+			for(var key in data) {
+				var prop = data[key];
+				/*
+				(function(context, name) {
+					Object.defineProperty(context, name, {
+					    configurable: true,
+						get: function() {
+					        return data[name];
+					    }
+					});
+				})(this, key);
+				*/
+
+				if (prop._refuelClassName && prop._refuelClassName === 'DataSource') {
+					extLoadingState.found++;
+					if (prop.loadComplete) {
+						checkLoadingState.call(this);
+					}
+					else {
+						extLoadingState.requested++;
+						prop.subscribe('dataAvailable', function() {
+							extLoadingState.completed++;
+							checkLoadingState.call(this);
+						}, this);
+					}
+				}
+			}
+			if (!extLoadingState.found) checkLoadingState.call(this);
 		}
+
+		function checkLoadingState() {
+			//item is not required
+			if (extLoadingState.requested == extLoadingState.completed) {
+				this.loadComplete = true;
+				this.notify('dataAvailable', {'data': data});
+			}
+			else {
+				//console.log(config.name+'.checkLoadingState','NOT loadComplete');
+			}
+		}
+
 		this.getData = function() {
 			return data;
 		}
 
-		function loadData() {
-			if (config.key) {
+		this.save = function() {
+			//save dei dati del ds
+			for(var key in data) {
+				var prop = data[key];
+				if (prop._refuelClassName && prop._refuelClassName == 'DataSource') {
+					prop.save();
+				}	
+			}
+		}
+
+		this.load = function() {
+			if (config.data) {
+				this.setData(config.data);
+			} 
+			else if (config.key) {
 				var storedData = localStorage.getItem(config.key);
 				var storedObject = JSON.parse(storedData);
 				if (storedObject) {
-            		data = storedObject;
-            		self.notify("dataAvailable", {'data': data});
-            		console.log('dataAvailable', data);
-            	}else {
-            		self.notify("dataAvailable", {'data': data});
-            		console.log('no-data', data);
+            		this.setData(storedObject);
+            	}
+            	else {
+            		this.setData(null);
             	}
             }
+            else if (config.url) {
+            	console.error('Ajax call not yet implemented');
+            }
+
+            for(var key in data) {
+				var prop = data[key];
+				if (prop._refuelClassName && prop._refuelClassName == 'DataSource') {
+					prop.load();
+				}	
+			}
 		}
 
-		this.saveData = function () {
-			if (config.key) localStorage.setItem(config.key, JSON.stringify(data));
-		}
-
-		this.model =  function(dataObj, xhr) {
-			//specificare qui il modello dei dati???
-			//se non è specificato la mappatura è 1 a 1
-			return dataObj;
-		}
-		
 		function okCallback(dataObj) {
-			self.setData(self.model(dataObj));
+			//this.setData(this.model(dataObj));
 		}
 		
 		function koCallback(dataObj) {
 			console.error("datasource error:", config, dataObj);
-			self.notify("dataError", self.getData());
+			this.notify("dataError", this.getData());
 		}
 		
-		function initialize(options) {
-			var facade = {};
-			if (options) {
-				if(!options.url || !options.key) {
-					self.setData(options);	//XXX why?
+		function refreshInterface() {
+			var facade = {},
+				url = config.url,
+				key = config.key;
+
+			if(!url || !key) {
+				this.setData(config);	//XXX why?
+			}
+			if (url) {
+				if (!config.ajaxOptions.ok) {
+					config.ajaxOptions.ok = okCallback.bind(this);
 				}
-				if (options.url) {
-					if (!options.ajaxOptions.ok) {
-						options.ajaxOptions.ok = okCallback;
-					}
-					if (!options.ajaxOptions.ko) { 
-						options.ajaxOptions.ko = koCallback;
-					}
-					facade = {
-						"get": function() {
-							ajax.get(options.url, options.ajaxOptions);
-						},
-						"post": function(body) {
-							ajax.post(options.url, body, options.ajaxOptions);
-						},
-						"put": function(body) {
-							ajax.put(options.url, body, options.ajaxOptions);
-						},
-						"delete": function() {
-							ajax.delete(options.url, options.ajaxOptions);
-						},
-						"getData": self.getData //è veramente da rendere pubblica??? potrebbe essere necessario 
-					}
-				 }
-				 else if (options.key){
-					facade = {
-						"get": function() {
-							return localStorage.getItem(options.key);
-						},
-						"set": function(dataObj) {
-							localStorage.setItem(options.key, JSON.stringify(data));
+				if (!config.ajaxOptions.ko) { 
+					config.ajaxOptions.ko = koCallback.bind(this);
+				}
+				facade = {
+					"get": function() {
+						ajax.get(url, config.ajaxOptions);
+					},
+					"post": function(body) {
+						ajax.post(url, body, config.ajaxOptions);
+					},
+					"put": function(body) {
+						ajax.put(url, body, config.ajaxOptions);
+					},
+					"delete": function() {
+						ajax.delete(url, config.ajaxOptions);
+					},
+					"getData": this.getData //è veramente da rendere pubblica??? potrebbe essere necessario 
+				}
+			 }
+			 else if (key) {
+				facade = {
+					"get": function() {
+						return localStorage.getItem(key);
+					},
+					"set": function(dataObj) {
+						localStorage.setItem(key, JSON.stringify(data));
 
 
-						},
-						/*"update": function(dataObj) {
-							localstorage.update(options.options.key, dataObj);
-						},*/
-						"remove": function() {
-							localStorage.removeItem(options.key);
-						}
+					},
+					/*"update": function(dataObj) {
+						localstorage.update(config.config.key, dataObj);
+					},*/
+					"remove": function() {
+						localStorage.removeItem(key);
 					}
+				}
+			}
+			
+			for (var key in facade) {
+				if (!this[key]) {
+					this[key] = facade[key];
 				}
 			}
 			return facade;
 		}
+
+
     });

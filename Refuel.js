@@ -57,13 +57,13 @@
 
 	Refuel.createInstance = function (className, initObj) {
 	    var cl = classMap[className];
-	    if(typeof cl === 'undefined') throw className+" not defined, please use Refuel.define";
+	    if(typeof cl === 'undefined') throw className+' not defined, please use Refuel.define';
 
 	    var instance;
 	    var F = cl.body;
 	    //console.log('createInstance', className, '<-', cl.inherits);
 	    if (cl.inherits) {
-	    	if (!classMap[cl.inherits]) throw cl.inherits+" not defined, please use Refuel.define"  
+	    	if (!classMap[cl.inherits]) throw cl.inherits+' not defined, please use Refuel.define'  
 	        F.prototype = Refuel.createInstance(cl.inherits, initObj);
 	    }
 	    instance = new F(initObj);    
@@ -77,7 +77,7 @@
 
 	Refuel.define = function(className, req, body) {
 	    if(classMap[className] !== undefined) {
-	        console.error(className," alredy defined!");
+	        console.error(className,' alredy defined!');
 	        return;
 	    }
 	    if(body === undefined) {
@@ -101,7 +101,7 @@
 	}
 	
 	var head = document.querySelector('head');
-	var script = head.querySelector("script[data-rf-startup]"); 
+	var script = head.querySelector('script[data-rf-startup]'); 
 	var node = document.createElement('script');
 	var startupModule = script.getAttribute('data-rf-startup');
     node.type = 'text/javascript';
@@ -116,10 +116,10 @@
 			console.log(node.src, 'loaded!');
 			e.target.parentNode.removeChild(e.target);
 			require.config({
-            	baseUrl: ".",
+            	baseUrl: '.',
             	paths: {
-            		"hammer.js": ".",
-            		"path.js": "."
+            		'hammer.js': '.',
+            		'path.js': '.'
             	}
           	});
           	startupRequirements = [startupModule, 'hammer.js', 'path.js'];
@@ -133,4 +133,40 @@
 
   	console.log('refuel.js loaded',script);
 
-})()
+  	Refuel.watch = function(target) {
+		if (!target.hasOwnProperty('watch')) {
+		    target.__proto__.watch = function (prop, handler) {
+		        var oldval = this[prop], newval = oldval,
+		        getter = function () {
+		            return newval;
+		        },
+		        setter = function (val) {
+		            oldval = newval;
+		            return newval = handler.call(this, prop, oldval, val);
+		        };
+		        if (delete this[prop]) { // can't watch constants
+		            if (target.defineProperty) // ECMAScript 5
+		                target.defineProperty(this, prop, {
+		                    get: getter,
+		                    set: setter
+		                });
+		            else if (target.__proto__.__defineGetter__ && target.__proto__.__defineSetter__) { // legacy
+		                target.__proto__.__defineGetter__.call(this, prop, getter);
+		                target.__proto__.__defineSetter__.call(this, prop, setter);
+		            }
+		        }
+		    }
+		}
+		
+
+		if (!target.hasOwnProperty('unwatch')) {
+			target.__proto__.unwatch = function (prop) {
+		        var val = this[prop];
+		        delete this[prop]; // remove accessors
+		        this[prop] = val;
+		    };
+		}
+	}
+
+})();
+

@@ -3,9 +3,9 @@ var list;
 var generic;
 var item;
 
-Refuel.define('TodoApp',{require: ['GenericModule']},
+Refuel.define('TodoApp',{require: ['GenericModule', 'DataSource']},
     function TodoApp() {    
-        var root = document.querySelector("#todoapp"); 
+        var root = document.querySelector('#todoapp'); 
 
         app = Refuel.createInstance('GenericModule', {
             'root': root
@@ -18,9 +18,10 @@ Refuel.define('TodoApp',{require: ['GenericModule']},
         for (var i = 0; i < numberOfElements; i++) {
             todoList.push({ title: 'my text '+i, completed: false });
         };
+        
         app.dataSource.setData({
-            title:'ReFuel Todo App', 
-            'todoList': todoList, 
+            title:'ReFuel Todo App',
+            'todoList': Refuel.createInstance('DataSource', {data: todoList, name: 'ListModule'}),
             completedLength: 0, 
             remainingLength: 0
         });
@@ -95,18 +96,20 @@ Refuel.define('TodoApp',{require: ['GenericModule']},
             target.classList.add('selected');
         }
 
-        Path.root("#/");
+        Path.root('#/');
         //TODO FILTER BY OBJECT {completed: false}
-        Path.map("#/").to(function() {
+        Path.map('#/').to(function() {
             app.items['todoList'].filterClear();
             selectFilter(document.querySelector('[href="#/"]'));
         });
-        Path.map("#/active").to(function(){
+        Path.map('#/active').to(function(){
             app.items['todoList'].applyFilterBy('completed', true);
             selectFilter(document.querySelector('[href="#/active"]'));
         });
-        Path.map("#/completed").to(function(){
+        Path.map('#/completed').to(function(){
             app.items['todoList'].applyFilterBy('completed'); 
             selectFilter(document.querySelector('[href="#/completed"]'));
         });    
 });
+
+
