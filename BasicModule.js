@@ -92,15 +92,9 @@ Refuel.define('BasicModule', {require: ['Template', 'DataSource'], inherits: 'Up
                 if (value) root.classList.add(classname);
                 else root.classList.remove(classname);
             }
-        }
-
+        } 
         this.saveData = function() {
-            if (this.parent) {
-                this.parent.saveData();
-            }
-            else {
-                this.dataSource.saveData();
-            }
+            this.dataSource.save();
         }
 
         this.data = function(prop, value) {

@@ -51,36 +51,25 @@ Refuel.define('Updater',{require: ['ObservableArray'], inherits: 'Events'},
 			//Observe data inside a DataSource
 			//Observe an Object
 			else {
-				//console.log('> makeObservable',name,'is Object', value, parent);
-				//if (!parent.__lookupGetter__(propName) &&  !parent.__lookupSetter__(propName) ) {
-
-					Object.defineProperty(parent, propName, {
-					    configurable: true,
-						set: function(val) {
-				            //_map[name].propName = propName; //??
-				            _map[name].value = val;
-				            debugger;
-				            //console.log('Object.set', val, _map[name]);
-				            notifyChange(_map[name]);
-					    }
-					    ,
-						get: function() {
-					        return _map[name].value;
-					    }
-					    
-					});
-				//}
+				Object.defineProperty(parent, propName, {
+				    configurable: true,
+					set: function(val) {
+			            _map[name].value = val;
+			            notifyChange(_map[name]);
+				    },
+					get: function() {
+				        return _map[name].value;
+				    }
+				    
+				});
 			}
 
-			
 	        _map[name] = {
 	            'name': name
 	            ,'value': value
 	            ,'owner': parent
 	        }
-
-			////console.log(name,parent, parent[propName] ,'-->', value,'-->',_map[name].value);
-	       	return _map[name];
+			return _map[name];
 	    }
 
 	    function notifyChange(obs) {

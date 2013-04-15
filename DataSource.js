@@ -46,8 +46,7 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax']},
 		this.init = function(myConfig) {
             config = Refuel.mix(config, myConfig);
             refreshInterface.call(this);
-           	
-           	//console.log('DataSource.init');
+
             if (config.autoload && !this.loadComplete){ 
             	this.load();
             }
@@ -62,7 +61,6 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax']},
 		this.setData = function(dataObj) {		
 			this.setLoadProgress();
 
-			//console.log('setData', dataObj, config);
 			if (Refuel.isArray(dataObj) && config.dataLabel) {
 				data[config.dataLabel] = dataObj;
 			}
@@ -74,7 +72,7 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax']},
 			for(var key in data) {
 				var prop = data[key];
 
-				if (prop._refuelClassName && prop._refuelClassName === 'DataSource') {
+				if (Refuel.refuelClass(prop) == 'DataSource') {
 					extLoadingState.found++;
 					if (prop.loadComplete) {
 						checkLoadingState.call(this);
@@ -106,10 +104,18 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax']},
 			return data;
 		}
 
+		function filterLSData(key, value) {
+			if (Refuel.refuelClass(value) == 'ObservableArray') {
+				return value.data;
+			}
+			else {
+				return value;
+			}
+		}
+
 		this.save = function() {
-			//console.log('save', data, config.key);
 			if (config.key) {
-				localStorage.setItem(config.key, JSON.stringify(data));
+				localStorage.setItem(config.key, JSON.stringify(data, filterLSData));
             }
             else if (config.url) {
             	console.error('Ajax call not yet implemented');
@@ -117,7 +123,7 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax']},
 
 			for(var key in data) {
 				var prop = data[key];
-				if (prop._refuelClassName && prop._refuelClassName == 'DataSource') {
+				if (Refuel.refuelClass(prop) == 'DataSource') {
 					prop.save();
 				}	
 			}
@@ -125,8 +131,6 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax']},
 
 		this.load = function() {
 			this.setLoadProgress();
-			//TODO check must be an object
-			//console.log('... loading',this.getData())
 			if (config.data) {
 				this.setData(config.data);
 			} 
@@ -147,7 +151,7 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax']},
 
             for(var key in data) {
 				var prop = data[key];
-				if (prop._refuelClassName && prop._refuelClassName == 'DataSource') {
+				if (Refuel.refuelClass(prop) == 'DataSource') {
 					prop.load();
 				}	
 			}

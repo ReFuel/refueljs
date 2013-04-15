@@ -1,8 +1,4 @@
 var app;
-var list;
-var generic;
-var item;
-
 Refuel.define('TodoApp',{require: ['GenericModule', 'DataSource']},
     function TodoApp() {    
         var root = document.querySelector('#todoapp'); 
@@ -17,17 +13,12 @@ Refuel.define('TodoApp',{require: ['GenericModule', 'DataSource']},
         
         app.dataSource.setData({
             'title':'ReFuel Todo App',
-            //'todoList': Refuel.createInstance('DataSource', {data: todoList}),
             'todoList': Refuel.createInstance('DataSource', {key: 'todos-refuel', defaultDataType: 'Array'}),
             'completedLength': 0, 
             'remainingLength': 0
         });
-        //FIXME set in module.data
 
-       //list = app.items['todoList'].dataSource;
-       //generic = app.dataSource;
-       //item =  app.items['todoList'].items[0].dataSource;
-        
+        //FIXME set in module.data
         //TODO app.observe(['todoList.lenght','completed'], function() {})
         //sono  i nomi del simbolo nel markup
         app.subscribe('observableChange', function(e) {
@@ -43,11 +34,13 @@ Refuel.define('TodoApp',{require: ['GenericModule', 'DataSource']},
 
         app.defineAction('clearComplete', function(e) {
             var res = e.module.applyFilterBy({'completed': false}, true);
+            app.saveData();
         });
 
         app.defineAction('changeDone', function(e) {
             var checked =  e.target.checked;
             e.module.data('completed', checked);
+            app.saveData();
         });
 
         //TODO selezione del tasto changeDoneAll, dipendente praticamente dal filterBy:completed .lenght
@@ -55,6 +48,7 @@ Refuel.define('TodoApp',{require: ['GenericModule', 'DataSource']},
             e.module.applyOnItems(function(item) {
                 var checked =  e.target.checked;
                 item.data('completed', checked);
+                app.saveData();
             });
         });
 
@@ -64,7 +58,7 @@ Refuel.define('TodoApp',{require: ['GenericModule', 'DataSource']},
                 e.module.add({ title: textContent, completed: false });
                 e.target.value = '';
 				e.target.blur();
-                //app.dataSource.save();
+                app.saveData();
             }
         });
 
@@ -78,6 +72,7 @@ Refuel.define('TodoApp',{require: ['GenericModule', 'DataSource']},
             if (e.keyIdentifier === 'Enter' || e.type === 'focusout') {
                 if (textContent != '') e.module.data('title', textContent);
                 e.module.toggleClass('editing', false);
+                app.saveData();
             }
         });
 

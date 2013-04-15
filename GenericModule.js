@@ -21,6 +21,7 @@ Refuel.define('GenericModule',{inherits: 'BasicModule', require:'ListModule'},
             this.template.subscribe('_new_list', createList, this);
             this.template.setRoot(config.root);
         }
+       
 
         function createList(e) {
             var label = e.symbol.linkedTo;
