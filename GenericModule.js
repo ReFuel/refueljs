@@ -8,7 +8,6 @@ Refuel.define('GenericModule',{inherits: 'BasicModule', require:'ListModule'},
             this.defineUpdateManager(oa_update);
 
             this.dataSource.subscribe('dataAvailable', function(data) {
-                console.log('GenericModule::dataAvailable');
                 this.create();
                 this.draw();
             }, this);
@@ -17,7 +16,6 @@ Refuel.define('GenericModule',{inherits: 'BasicModule', require:'ListModule'},
         }
             
         this.create = function() {
-            //console.log('GenericModule.create');
             this.template.subscribe('_new_list', createList, this);
             this.template.setRoot(config.root);
         }

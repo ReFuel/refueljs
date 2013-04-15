@@ -1,6 +1,5 @@
 
 //TODO rename in Observer and option in 'observe'
-//XXX capire quando viene usato il value registrato nell'oggetto
 Refuel.define('Updater',{require: ['ObservableArray'], inherits: 'Events'}, 
 	function Updater() {
     	if (this.observe) return;

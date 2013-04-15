@@ -17,10 +17,7 @@ Refuel.define('ListModule',{inherits: 'BasicModule', require:'ListItemModule'},
             this.defineUpdateManager(oa_update.bind(this));
             this.dataLabel = config.dataLabel;
 
-            //console.log('ListModule.init (listen data)', config, this.dataSource.loadComplete);
-           
             this.dataSource.subscribe('dataAvailable', function(data) {
-               // console.log('ListModule::dataAvailable');
                 this.create();
                 this.draw();
             }, this);
@@ -29,14 +26,12 @@ Refuel.define('ListModule',{inherits: 'BasicModule', require:'ListItemModule'},
         }
 
         this.create = function() {
-            //console.log('create', this.data);
             this.template.subscribe('_new_listitem', addListItem, this);
             this.template.setRoot(config.root);
             this.enableAutoUpdate(this.dataSource.getData(), config.dataLabel);
         }
 
         this.add = function(objData) {
-        //    console.log('ListModule.add',this.data,'add',objData);
             this.data.push(objData);
         }
 
@@ -113,7 +108,6 @@ Refuel.define('ListModule',{inherits: 'BasicModule', require:'ListItemModule'},
 
         this.applyFilterBy = function(filterObj, permanent) {
             this.data.applyFilter(function(item, index, array) {
-                //console.log('applyFilterBy', arguments);
                 var result = true;
                 for (var key in filterObj) {
                     result = result && filterObj[key] == Refuel.resolveChain(key, item);
@@ -125,7 +119,6 @@ Refuel.define('ListModule',{inherits: 'BasicModule', require:'ListItemModule'},
 
         this.filterBy = function(filterObj) {
             return this.data.filter(function(item, index, array) {
-                //console.log('filterBy', arguments);
                 var result = true;
                 for (var key in filterObj) {
                     result = result && filterObj[key] == Refuel.resolveChain(key, item);
@@ -137,7 +130,6 @@ Refuel.define('ListModule',{inherits: 'BasicModule', require:'ListItemModule'},
         this.filterClear = function() {
             this.data.filterClear();
         }
-
        
         Object.defineProperty(this, 'data', {
             get: function() {

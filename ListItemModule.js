@@ -14,28 +14,21 @@ Refuel.define('ListItemModule', {inherits: 'BasicModule'},
             this.enableAutoUpdate(this.dataSource.getData());
             
             this.dataSource.subscribe('dataAvailable', function(data) {
-         
-                //console.log('ListItemModule::dataAvailable');
                 this.create();
                 this.draw();
             }, this);
 
             this.dataSource.init(config);
         }
-
-        /*
+        
         function oa_update(e) {
             //console.log('ListItemModule.oa_update', e);
         }
-        */
 
         this.create = function() {
         }
 
-        //serve anche sapere quando il tmpl ha finito di parsare? automatizzare il processo!
-        //in callback del datasource, probabilmente automatizzando
         this.draw = function() {
-            //console.log('ListItemModule.draw',this.dataSource.getData().title);
             this.template.create(config.parentRoot, config.template, this.dataSource.getData());
         }
 });

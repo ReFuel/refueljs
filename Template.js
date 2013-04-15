@@ -249,8 +249,6 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 					switch(symbol.attributeName) {
 						case 'checked':
 						case 'selected':
-							/*linkedData ? symbol.domElement.setAttribute(symbol.attributeName, 'true') : 
-										 symbol.domElement.removeAttribute(symbol.attributeName)*/
 							symbol.domElement[symbol.attributeName] = linkedData == true;
 						break;
 						default:
@@ -301,7 +299,6 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 			
 		**/
 		this.create = function(rootElement, template, data) {
-			//console.log('TMPL.create', data);
 			root = template.cloneNode(true);
 			this.render(data);
 			rootElement.appendChild(root);
@@ -338,7 +335,6 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 			};
 		}
 
-		//TODO getter and setter?
 		this.setRoot = function(r) {
 			root = r;
 		}

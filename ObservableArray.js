@@ -11,7 +11,7 @@ Refuel.define('ObservableArray',{inherits: 'Events'},
 	function ObservableArray() {
 		this.config = {};
 		var index = 0;
-		var data, unFilteredData;
+		var data, unFilteredData, lastAppliedFilter;
 
 		this.init = function(myConfig) {
 			this.config = Refuel.mix(this.config, myConfig);
@@ -25,21 +25,15 @@ Refuel.define('ObservableArray',{inherits: 'Events'},
 		}
 
 		function refreshLength() {
-			//console.log('set length');
             var e =  {action: 'update', data: data.length, prop: 'length'};
 	  		this.notify('_oa_update',e);
 		}
 
-
-
 		function handleChange(methodName) {
 		  	this[methodName] = function () {
-				//TODO fattorizzare len.
-				//XXX c'è un setter pubblico per la len.. sicuri?
 				if (unFilteredData) {
   					filterClear.call(this);
-  				} 
-				//var oldData = data;
+  				}
 		  		var r = data[methodName].apply(data, arguments);
 		  		switch(methodName) {
 		  			case 'push': 
@@ -57,16 +51,14 @@ Refuel.define('ObservableArray',{inherits: 'Events'},
 		  				this.notify('_oa_update',e);
 		  			break;  			
 		  		}
+		  		this.applyFilter(lastAppliedFilter);
 		  		return r;
 		    };
 		}
-		
-
 
 		this.__defineGetter__('data', function() {
     		return data;
     	});
-		
 		
 		Object.defineProperty(this, 'length', {
 		    configurable: true,
@@ -79,7 +71,6 @@ Refuel.define('ObservableArray',{inherits: 'Events'},
 				return data.length;
 		    }
 		});
-		
 
     	function watchElement(index) {
     		if(!this.__lookupGetter__(index)) {
@@ -87,11 +78,9 @@ Refuel.define('ObservableArray',{inherits: 'Events'},
 		    		Object.defineProperty(context, thisIndex, {
 					    configurable: true,
 						set: function(val) {
-				            console.log('set element', thisIndex);
 				            context.setElementAt(thisIndex, val);
 					    },
 						get: function() {
-							//console.log('set element', index);
 					        return context.getElementAt(thisIndex);
 					    }
 					});
@@ -149,6 +138,7 @@ Refuel.define('ObservableArray',{inherits: 'Events'},
 			@param callback The function that will filter the objects inside the data-array, returning a boolean
 		**/
 		this.applyFilter = function(callback) {
+			lastAppliedFilter = callback;
 			filterClear();
 			var filteredData = this.filter(callback);
 			unFilteredData = data;
@@ -161,6 +151,5 @@ Refuel.define('ObservableArray',{inherits: 'Events'},
 		this.consolidate = function() {
 			unFilteredData = null;
 		}
-
-		
+	
 });

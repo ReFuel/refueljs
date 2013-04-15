@@ -8,7 +8,6 @@ Refuel.define('BasicModule', {require: ['Template', 'DataSource'], inherits: 'Up
         this.init = function(myConfig) {
             config = Refuel.mix(config, myConfig);
             this.items = [];
-            //console.log('BasicModule.init (set data)');
             this.dataSource = config.dataSource || Refuel.createInstance('DataSource');
             this.template = Refuel.createInstance('Template', {root: config.root});
             this.defineUpdateManager(oa_update.bind(this));
@@ -36,11 +35,9 @@ Refuel.define('BasicModule', {require: ['Template', 'DataSource'], inherits: 'Up
         **/
         function observeTemplateSymbol(e) {
             this.enableAutoUpdate(this.dataSource.getData()); //FIXME not generic
-            //console.log('observeTemplateSymbol',e.symbol.linkedTo);
             //TODO levare i parametri passati all'observe
             var obs = this.observe(e.symbol.linkedTo, e.symbol, 
                 function(observable, tmplSymbol) {
-                    //console.log(this,observable);
                     this.template.renderSymbol(tmplSymbol, this.dataSource.getData());
                     this.notify('observableChange', {'observable': observable}, true);
                 }

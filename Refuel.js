@@ -72,7 +72,6 @@
 
 	    var instance;
 	    var F = cl.body;
-	    //console.log('createInstance', className, '<-', cl.inherits);
 	    if (cl.inherits) {
 	    	if (!classMap[cl.inherits]) throw cl.inherits+' not defined, please use Refuel.define'  
 	        F.prototype = Refuel.createInstance(cl.inherits, initObj);
@@ -94,7 +93,6 @@
 	    if(body === undefined) {
 	        body = req;
 	    }
-	    //console.log( 'defineClass',className, req);
 	    var requirements = [];
 	    requirements = requirements.concat(req.require, req.inherits);
 	    requirements = requirements.filter(function(c){
@@ -103,7 +101,6 @@
 	    });
 
 	    define(className, requirements, function() {
-	        //console.log('defineClass.define', className,'->', require);
 	        classMap[className] = {
 	            body: body,
 	            inherits: req.inherits
@@ -124,7 +121,7 @@
 
 	function onScriptLoad(e) {
 		if(e.type === 'load') {
-			console.log(node.src, 'loaded!');
+			//console.log(node.src, 'loaded!');
 			e.target.parentNode.removeChild(e.target);
 			require.config({
             	baseUrl: '.',
