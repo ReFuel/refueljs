@@ -24,12 +24,6 @@
 	Refuel.isArray = function(target) {
 		return toString.call(target) === '[object Array]';
 	}
-	Refuel.isObject = function(target) {
-		return toString.call(target) === '[object Object]';
-	}
-	Refuel.isFunction = function(target) {
-		return toString.call(target) === '[object Function]';
-	}
 	Refuel.isUndefined = function(target) {
 		return typeof(target) === 'undefined';
 	}
@@ -43,16 +37,33 @@
 		}
 		return obj;
 	}
+
+	Refuel.refuelClass = function(obj) {
+		var res = undefined;
+		if (obj && obj._refuelClassName) {
+			res = obj._refuelClassName
+		}
+		return res;
+			
+	}
 	
-	Refuel.resolveChain = function(path, data) {
-		var extractedData = data;
+	Refuel.resolveChain = function(path, data, getParent) {
+		var extData = data;
 		if (path && path != '.' && path != '') {
 			var dataPath = path.split('.');
-			for (var c in dataPath) {
-				extractedData = extractedData[dataPath[c]];
+			var parent;
+			for (var i=0, item; item = dataPath[i]; i++) {
+				parent = extData;
+				extData = extData[item];
+				
+				while (Refuel.refuelClass(extData) == 'DataSource') {
+					parent = extData;
+					extData = extData.getData()[item];
+				}
 			}
 		}
-		return extractedData;
+		if (getParent) return {'value': extData, 'parent': parent}
+		else return extData;
 	}
 
 	Refuel.createInstance = function (className, initObj) {
@@ -131,42 +142,6 @@
 
 	}
 
-  	console.log('refuel.js loaded',script);
-
-  	Refuel.watch = function(target) {
-		if (!target.hasOwnProperty('watch')) {
-		    target.__proto__.watch = function (prop, handler) {
-		        var oldval = this[prop], newval = oldval,
-		        getter = function () {
-		            return newval;
-		        },
-		        setter = function (val) {
-		            oldval = newval;
-		            return newval = handler.call(this, prop, oldval, val);
-		        };
-		        if (delete this[prop]) { // can't watch constants
-		            if (target.defineProperty) // ECMAScript 5
-		                target.defineProperty(this, prop, {
-		                    get: getter,
-		                    set: setter
-		                });
-		            else if (target.__proto__.__defineGetter__ && target.__proto__.__defineSetter__) { // legacy
-		                target.__proto__.__defineGetter__.call(this, prop, getter);
-		                target.__proto__.__defineSetter__.call(this, prop, setter);
-		            }
-		        }
-		    }
-		}
-		
-
-		if (!target.hasOwnProperty('unwatch')) {
-			target.__proto__.unwatch = function (prop) {
-		        var val = this[prop];
-		        delete this[prop]; // remove accessors
-		        this[prop] = val;
-		    };
-		}
-	}
 
 })();
 

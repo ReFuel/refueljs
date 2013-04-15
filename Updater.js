@@ -1,14 +1,12 @@
 
 //TODO rename in Observer and option in 'observe'
-
+//XXX capire quando viene usato il value registrato nell'oggetto
 Refuel.define('Updater',{require: ['ObservableArray'], inherits: 'Events'}, 
 	function Updater() {
     	if (this.observe) return;
 		var mountpoint, label;
 		var _map = {};
 		
-
-
 	    this.getObservers = function() {
 	        return _map;
 	    }
@@ -17,66 +15,71 @@ Refuel.define('Updater',{require: ['ObservableArray'], inherits: 'Events'},
 	    	label = moduleLabel;
 	    }
 
-	    function makeObservable(name, value) {  
+	    function makeObservable(name, value, parent) {  
 	        // Create object in map
-	        if (!_map[name]) {
-		        _map[name] = {
-		            'name': name,
-		            'owner': mountpoint, 
-		            'value': value
-		        }
+        	var path = name.split('.');
+	        var propName = path[path.length-1];
+
+	        if (!parent) {
+		        path = path.slice(0,path.length-1).join('.');
 	        }
+	      
+	        var resolvedData = Refuel.resolveChain(name, mountpoint, true);
+	        value = resolvedData.value;
+	        parent = resolvedData.parent;
+			if (Refuel.refuelClass(parent) == 'DataSource') {
+				parent =  parent.getData();
+			}
 
-	        var parent = name.split('.');
-	        var propName = parent[parent.length-1];
-	        parent = parent.slice(0,parent.length-1).join('.');
-	        parent = Refuel.resolveChain(parent, mountpoint);
-	        
 	        //Observe an Array
+	        /**
+				@param parent is often some data inside DataSource
+				@param propName is the name of the property to bind inside the parent
+			**/			
 	        if (Refuel.isArray(value)) {
-		        /**
-					@param parent is often some data inside DataSource
-					@param propName is the name of the property to bind inside the parent
-				**/
-				parent[propName] = Refuel.createInstance('ObservableArray', {'value': value});
-				parent[propName].subscribe('_oa_update', function(e) {
-					e.observer = _map[name];
-					this.notify('_oa_update', e);
-			   	}, this);
-
+				parent[propName] =  value = Refuel.createInstance('ObservableArray', {'value': value});
+				makeObservable.call(this, name);
 			}
 			//Observe (an already) ObservableArray
-			else if (value._refuelClassName && value._refuelClassName == 'ObservableArray') {
-
+			else if (Refuel.refuelClass(value) == 'ObservableArray') {
 				parent[propName].subscribe('_oa_update', function(e) {
 					e.observer = _map[name];
 					this.notify('_oa_update', e);
 			   	}, this);
 			}
-			else if (value._refuelClassName && value._refuelClassName == 'DataSource') {
-				parent[propName] = Refuel.createInstance('ObservableArray', {'value': value.getData()});
-				parent[propName].subscribe('_oa_update', function(e) {
-					e.observer = _map[name];
-					this.notify('_oa_update', e);
-			   	}, this);
-			}
-
-
+			
+			//Observe data inside a DataSource
 			//Observe an Object
 			else {
-				Object.defineProperty(parent, propName, {
-				    configurable: true,
-					set: function(val) {
-			            var obj = _map[name];
-			            obj.propName = propName;
-			            obj.value = val;
-			            notifyChange(obj);
-				    },
-					get: function() {
-				        return _map[name].value;
-				    }
-				});
+				//console.log('> makeObservable',name,'is Object', value, parent);
+				//if (!parent.__lookupGetter__(propName) &&  !parent.__lookupSetter__(propName) ) {
+
+					Object.defineProperty(parent, propName, {
+					    configurable: true,
+						set: function(val) {
+				            //_map[name].propName = propName; //??
+				            _map[name].value = val;
+				            debugger;
+				            //console.log('Object.set', val, _map[name]);
+				            notifyChange(_map[name]);
+					    }
+					    ,
+						get: function() {
+					        return _map[name].value;
+					    }
+					    
+					});
+				//}
 			}
+
+			
+	        _map[name] = {
+	            'name': name
+	            ,'value': value
+	            ,'owner': parent
+	        }
+
+			////console.log(name,parent, parent[propName] ,'-->', value,'-->',_map[name].value);
 	       	return _map[name];
 	    }
 
@@ -89,7 +92,7 @@ Refuel.define('Updater',{require: ['ObservableArray'], inherits: 'Events'},
             	}
             }
 		}
-
+ 
 	    /**
 	    *	this.observe(propName, callback);
 	    *	this.observe(propName, data, callback);
@@ -104,19 +107,12 @@ Refuel.define('Updater',{require: ['ObservableArray'], inherits: 'Events'},
 	    		console.error('Before making',name,'observable you should enableAutoUpdate on',name,'or it\'s parent');
 	    		return;
 	    	} 
-	    	var value = Refuel.resolveChain(name, mountpoint);
-	        if (Refuel.isUndefined(value)) return;
-	        
 	        var obj = _map[name];
-	        if (!obj)
-	        	obj = makeObservable.call(this, name, value);      
+	        if (!obj) obj = makeObservable.call(this, name);
 
-	    	//console.log('observe',name, obj);
 			// Add Callback
 	        if (callback) {
-		        if (!obj.callbackList) {
-		        	obj.callbackList = [];
-		       	}
+	        	if(!obj.callbackList) obj.callbackList = [];
 		        obj.callbackList.push({
 		        	'callback': callback,
 		        	'context' : this,

@@ -9,34 +9,47 @@ Refuel.define('ListModule',{inherits: 'BasicModule', require:'ListItemModule'},
     function ListModule() {
         var ENTER_KEY = 13;
         this.items = [];
-        var label;   
-
+        var config = {};
         this.init = function(myConfig) {
-            this.config = Refuel.mix(this.config, myConfig);
+            config = Refuel.mix(config, myConfig);
+            //debugger;
+            this.dataSource.setConfig({defaultDataType: 'Array'});
             this.defineUpdateManager(oa_update.bind(this));
-            label = this.label = this.config.label;
+            this.dataLabel = config.dataLabel;
+
+            //console.log('ListModule.init (listen data)', config, this.dataSource.loadComplete);
+           
+            this.dataSource.subscribe('dataAvailable', function(data) {
+               // console.log('ListModule::dataAvailable');
+                this.create();
+                this.draw();
+            }, this);
+
+            this.dataSource.init(config);
         }
 
         this.create = function() {
+            //console.log('create', this.data);
             this.template.subscribe('_new_listitem', addListItem, this);
-            this.template.setRoot(this.config.root);
-            this.enableAutoUpdate(this.dataSource.getData(), label);
+            this.template.setRoot(config.root);
+            this.enableAutoUpdate(this.dataSource.getData(), config.dataLabel);
         }
 
         this.add = function(objData) {
-            this.dataSource.getData()[label].push(objData);
+        //    console.log('ListModule.add',this.data,'add',objData);
+            this.data.push(objData);
         }
 
         this.remove = function(objData) {
             var index = this.getItemIndex(objData);
-            this.dataSource.getData()[label].splice(index, 1);    
+            this.data.splice(index, 1);    
         }
         this.removeAt = function(index) {
-            this.dataSource.getData()[label].splice(index, 1);    
+            this.data.splice(index, 1);    
         }
         this.update = function(objData) {
             var obj = {};
-            obj[label] = objData;
+            obj[config.dataLabel] = objData;
             this.dataSource.setData(obj);
         }
 
@@ -50,8 +63,11 @@ Refuel.define('ListModule',{inherits: 'BasicModule', require:'ListItemModule'},
                 break;
                 break;
                 case 'filterApply': 
-                case 'filterClear': 
+                case 'filterClear':
                     this.draw();
+                break;
+                case 'update': 
+
                 break;
             }
         }
@@ -64,17 +80,13 @@ Refuel.define('ListModule',{inherits: 'BasicModule', require:'ListItemModule'},
         function addListItem(obj) {
             var rootSymbol = this.template.getSymbolByAction('list');
             var listItem = Refuel.createInstance('ListItemModule', { 
-                parentRoot: this.config.root, 
-                template: rootSymbol.template
+                parentRoot: config.root, 
+                template: rootSymbol.template,
+                autoload: true,
+                data: this.data[obj.index]
             });
 
-            //listItem.dataSource.setData(obj.data);
-            listItem.dataSource.setData(this.dataSource.getData()[label][obj.index]);
-
             this.addModule(listItem);
-
-            listItem.create();
-            listItem.draw();
         }
 
         //TODO defineAction('add') ?
@@ -100,16 +112,16 @@ Refuel.define('ListModule',{inherits: 'BasicModule', require:'ListItemModule'},
         }
 
         this.applyFilterBy = function(prop, negated, permanent) {
-            this.dataSource.getData()[label].applyFilter(function(item, index, array) {
+            this.data.applyFilter(function(item, index, array) {
                 var value = Refuel.resolveChain(prop, item);
                 if (negated) value = !value;
                 return value;
             });
-            if (permanent) this.dataSource.getData()[label].consolidate();
+            if (permanent) this.data.consolidate();
         }
 
         this.filterBy = function(prop, negated) {
-            return this.dataSource.getData()[label].filter(function(item, index, array) {
+            return this.data.filter(function(item, index, array) {
                 var value = Refuel.resolveChain(prop, item);
                 if (negated) value = !value;
                 return value;
@@ -117,7 +129,15 @@ Refuel.define('ListModule',{inherits: 'BasicModule', require:'ListItemModule'},
         }
 
         this.filterClear = function() {
-            this.dataSource.getData()[label].filterClear();
+            this.data.filterClear();
         }
+
+       
+        Object.defineProperty(this, 'data', {
+            get: function() {
+                return this.dataSource.getData()[config.dataLabel];
+            }
+        });
+
 
 });

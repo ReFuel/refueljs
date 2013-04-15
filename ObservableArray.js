@@ -21,8 +21,16 @@ Refuel.define('ObservableArray',{inherits: 'Events'},
 	            	watchElement.call(this, index);
 	                index++;  
 	        };
-			['pop', 'push', 'reverse', 'shift', 'sort', 'splice', 'unshift', 'filter'].forEach(handleChange.bind(this));
+			['pop', 'push', 'reverse', 'shift', 'sort', 'splice', 'unshift'].forEach(handleChange.bind(this));
 		}
+
+		function refreshLength() {
+			//console.log('set length');
+            var e =  {action: 'update', data: data.length, prop: 'length'};
+	  		this.notify('_oa_update',e);
+		}
+
+
 
 		function handleChange(methodName) {
 		  	this[methodName] = function () {
@@ -35,12 +43,11 @@ Refuel.define('ObservableArray',{inherits: 'Events'},
 		  		var r = data[methodName].apply(data, arguments);
 		  		switch(methodName) {
 		  			case 'push': 
-		  				var index = this.length;
+		  				var index = data.length-1;
 		  				watchElement.call(this, index);
 		  				this.length = data.length;
 		  				var e =  {action: 'add', index: index, data: this[index]};
 		  				this.notify('_oa_update',e);
-		  			
 		  			break;
 		  			case 'splice': 
 		  				var index = arguments[0];
@@ -48,29 +55,31 @@ Refuel.define('ObservableArray',{inherits: 'Events'},
 		  				unWatchElement.call(this, index);
 		  				var e =  {action: 'delete', index: index};
 		  				this.notify('_oa_update',e);
-		  			
-		  			break;
-		  			case 'filter': 
-		  				//r = Refuel.createInstance('ObservableArray', {'value': r});
-		  			break;			  			
+		  			break;  			
 		  		}
 		  		return r;
 		    };
 		}
 		
+
+
 		this.__defineGetter__('data', function() {
     		return data;
     	});
-
-    	this.__defineSetter__('length', function(val) {
-  			//console.log('OA set length', val);
-    		var e =  {action: 'update', data: data.length, prop: 'length'};
-		  	this.notify('_oa_update',e);
-    	});
-
-    	this.__defineGetter__('length', function() {
-    		return data.length;
-    	});
+		
+		
+		Object.defineProperty(this, 'length', {
+		    configurable: true,
+			set: function(val) {
+				var e =  {action: 'update', data: data.length, prop: 'length'};
+	  			this.notify('_oa_update',e);
+	           
+		    },
+			get: function() {
+				return data.length;
+		    }
+		});
+		
 
     	function watchElement(index) {
     		if(!this.__lookupGetter__(index)) {
@@ -108,10 +117,12 @@ Refuel.define('ObservableArray',{inherits: 'Events'},
 			return data[index];
 		}
 		function filterClear() {
-			data = unFilteredData;
-			unFilteredData = null;
-			resetWatchers.call(this);
-			this.length = data.length;
+			if (unFilteredData) {
+				data = unFilteredData;
+				unFilteredData = null;
+				resetWatchers.call(this);
+				this.length = data.length;
+			}
 		}
 
 		this.filterClear = function() {
@@ -121,8 +132,25 @@ Refuel.define('ObservableArray',{inherits: 'Events'},
 				this.notify('_oa_update',e);	
 			}
 		}
-		this.applyFilter = function() {
-			var filteredData = this.filter(arguments[0]);
+
+		this.filter = function(callback) {
+			if (unFilteredData) 
+				return unFilteredData.filter(callback);
+			else 
+				return data.filter(callback);
+		}
+		/**
+			This method filters the data contained by the ObservableArray and modify the contained data to reflect 
+			this filter, the length of the array could be modified as well by this method.
+			You can revert changes calling filterClear() method.
+			You can make these changes permanent by calling the consolidate() method.
+			Each time you apply a different filter the previous one is cleared.
+
+			@param callback The function that will filter the objects inside the data-array, returning a boolean
+		**/
+		this.applyFilter = function(callback) {
+			filterClear();
+			var filteredData = this.filter(callback);
 			unFilteredData = data;
 			data = filteredData;
 			this.length = data.length;
@@ -130,9 +158,9 @@ Refuel.define('ObservableArray',{inherits: 'Events'},
 			var e =  {action: 'filterApply', index: null};
 			this.notify('_oa_update',e);
 		}
-
 		this.consolidate = function() {
 			unFilteredData = null;
 		}
 
+		
 });

@@ -3,15 +3,19 @@
 Refuel.define('BasicModule', {require: ['Template', 'DataSource'], inherits: 'Updater'}, 
     function BasicModule() {
         var actionMap = {};
-        this.config = {};
+        var config = {};
 
         this.init = function(myConfig) {
-            this.config = Refuel.mix(this.config, myConfig);
-            this.dataSource = Refuel.createInstance('DataSource');
-            this.template = Refuel.createInstance('Template', {root: this.config.root});
+            config = Refuel.mix(config, myConfig);
+            this.items = [];
+            //console.log('BasicModule.init (set data)');
+            this.dataSource = config.dataSource || Refuel.createInstance('DataSource');
+            this.template = Refuel.createInstance('Template', {root: config.root});
             this.defineUpdateManager(oa_update.bind(this));
             this.template.subscribe('genericBinderEvent', genericEventHandler, this);
-            this.template.subscribe('_set_autoupdate', autoupdateOnSymbol, this);
+            this.template.subscribe('_set_autoupdate', observeTemplateSymbol, this);
+
+            
         }
         //TODO eventizzare
 
@@ -30,10 +34,13 @@ Refuel.define('BasicModule', {require: ['Template', 'DataSource'], inherits: 'Up
         /**
             called by the template (via event) when something has an option: autoupdate
         **/
-        function autoupdateOnSymbol(e) {
-            this.enableAutoUpdate(this.dataSource.getData());
+        function observeTemplateSymbol(e) {
+            this.enableAutoUpdate(this.dataSource.getData()); //FIXME not generic
+            //console.log('observeTemplateSymbol',e.symbol.linkedTo);
+            //TODO levare i parametri passati all'observe
             var obs = this.observe(e.symbol.linkedTo, e.symbol, 
                 function(observable, tmplSymbol) {
+                    //console.log(this,observable);
                     this.template.renderSymbol(tmplSymbol, this.dataSource.getData());
                     this.notify('observableChange', {'observable': observable}, true);
                 }
@@ -41,12 +48,13 @@ Refuel.define('BasicModule', {require: ['Template', 'DataSource'], inherits: 'Up
         }
 
         this.addModule = function(module) {
-        	if (module.label) this.items[module.label] = module;
+        	if (module.dataLabel) this.items[module.dataLabel] = module;
         	else 			 this.items.push(module);
 
             module.subscribe('observableChange', function(e) {
                 this.notify('observableChange', e);
             }, this);
+
             module.subscribe('unhandledAction', function(e) {
                 if (!e.module) e.module = module; //keeps only the original module inside the event data
                 genericEventHandler.call(this, e);
@@ -54,7 +62,7 @@ Refuel.define('BasicModule', {require: ['Template', 'DataSource'], inherits: 'Up
         }
         
         function oa_update(e) {
-            console.log('BasicModule','update ->',e);      
+            //console.log('BasicModule','update ->',e);      
         }
 
         this.draw = function(data) {
@@ -84,7 +92,6 @@ Refuel.define('BasicModule', {require: ['Template', 'DataSource'], inherits: 'Up
                 if (value) root.classList.add(classname);
                 else root.classList.remove(classname);
             }
-
         }
 
         this.saveData = function() {

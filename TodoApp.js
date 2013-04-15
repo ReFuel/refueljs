@@ -6,11 +6,7 @@ var item;
 Refuel.define('TodoApp',{require: ['GenericModule', 'DataSource']},
     function TodoApp() {    
         var root = document.querySelector('#todoapp'); 
-
-        app = Refuel.createInstance('GenericModule', {
-            'root': root
-            //,'localStorageKey': 'todos-refueljs'
-        });
+        app = Refuel.createInstance('GenericModule', { 'root': root });
 
         //TODO sostituire con data from remote
         var numberOfElements = 3;
@@ -20,11 +16,13 @@ Refuel.define('TodoApp',{require: ['GenericModule', 'DataSource']},
         };
         
         app.dataSource.setData({
-            title:'ReFuel Todo App',
-            'todoList': Refuel.createInstance('DataSource', {data: todoList, name: 'ListModule'}),
-            completedLength: 0, 
-            remainingLength: 0
+            'title':'ReFuel Todo App',
+            //'todoList': Refuel.createInstance('DataSource', {data: todoList}),
+            'todoList': Refuel.createInstance('DataSource', {key: 'todos-refuel', defaultDataType: 'Array'}),
+            'completedLength': 0, 
+            'remainingLength': 0
         });
+        //FIXME set in module.data
 
        //list = app.items['todoList'].dataSource;
        //generic = app.dataSource;
@@ -34,7 +32,7 @@ Refuel.define('TodoApp',{require: ['GenericModule', 'DataSource']},
         //sono  i nomi del simbolo nel markup
         app.subscribe('observableChange', function(e) {
             var name = e.observable.name;
-            if (name == 'todoList.lenght' ||  name == 'completed') {
+            if (name == 'todoList.length' ||  name == 'completed') {
                 var len = app.data('todoList').length;
                 var completed = app.items['todoList'].filterBy('completed').length;
 
@@ -66,7 +64,7 @@ Refuel.define('TodoApp',{require: ['GenericModule', 'DataSource']},
                 e.module.add({ title: textContent, completed: false });
                 e.target.value = '';
 				e.target.blur();
-                //app.saveData();
+                //app.dataSource.save();
             }
         });
 

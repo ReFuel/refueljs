@@ -234,13 +234,10 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 			//if(profiler.enabled) console.log('Template.profiler[render]',root.id, profiler.timestop - profiler.timestart);
 		}
 
-		
-
-
 		this.renderSymbol = function(symbol, data) {
 			var isRoot = symbol.domElement === root;
 			var linkedData = Refuel.resolveChain(symbol.linkedTo, data);
-			//console.log('renderSymbol',symbol,data,linkedData);
+			//console.log('renderSymbol',linkedData);
 			switch(symbol.action) {
 				case 'replaceText': 
 					markMissing(symbol, linkedData);
@@ -281,6 +278,8 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 				case 'list':
 					if (isRoot) {
 						root.innerHTML = '';
+						
+						//linkedData = data; ///??
 						for (var i = 0; i < linkedData.length; i++) {
 							self.notify('_new_listitem', {symbol:symbol, data:linkedData[i], index: i});
 						}
@@ -302,6 +301,7 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 			
 		**/
 		this.create = function(rootElement, template, data) {
+			//console.log('TMPL.create', data);
 			root = template.cloneNode(true);
 			this.render(data);
 			rootElement.appendChild(root);

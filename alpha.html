@@ -16,7 +16,7 @@
 				<input id="new-todo" placeholder="What needs to be done?" data-rf-action-keydown="todoList:add" autofocus>
 			</header>
 			<!-- This section should be hidden by default and shown when there are todos -->
-			<section id="main" data-rf-visibility="autoupdate:todoList.length">
+			<section id="main" >
 				<input id="toggle-all" data-rf-action="todoList:changeDoneAll" type="checkbox">
 				<label for="toggle-all">Mark all as complete</label>
 				<ul id="todo-list" data-rf-list="autoupdate:todoList" >
