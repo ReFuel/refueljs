@@ -34,7 +34,7 @@ Refuel.define('TodoApp',{require: ['GenericModule', 'DataSource']},
             var name = e.observable.name;
             if (name == 'todoList.length' ||  name == 'completed') {
                 var len = app.data('todoList').length;
-                var completed = app.items['todoList'].filterBy('completed').length;
+                var completed = app.items['todoList'].filterBy({'completed': true}).length;
 
                 app.data('completedLength', completed );
                 app.data('remainingLength', len-completed);
@@ -42,7 +42,7 @@ Refuel.define('TodoApp',{require: ['GenericModule', 'DataSource']},
         });
 
         app.defineAction('clearComplete', function(e) {
-            var res = e.module.applyFilterBy('completed', true, true);
+            var res = e.module.applyFilterBy({'completed': false}, true);
         });
 
         app.defineAction('changeDone', function(e) {
@@ -95,17 +95,16 @@ Refuel.define('TodoApp',{require: ['GenericModule', 'DataSource']},
         }
 
         Path.root('#/');
-        //TODO FILTER BY OBJECT {completed: false}
         Path.map('#/').to(function() {
             app.items['todoList'].filterClear();
             selectFilter(document.querySelector('[href="#/"]'));
         });
         Path.map('#/active').to(function(){
-            app.items['todoList'].applyFilterBy('completed', true);
+            app.items['todoList'].applyFilterBy({'completed': false});
             selectFilter(document.querySelector('[href="#/active"]'));
         });
         Path.map('#/completed').to(function(){
-            app.items['todoList'].applyFilterBy('completed'); 
+            app.items['todoList'].applyFilterBy({'completed': true}); 
             selectFilter(document.querySelector('[href="#/completed"]'));
         });    
 });

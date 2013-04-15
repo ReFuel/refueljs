@@ -111,20 +111,26 @@ Refuel.define('ListModule',{inherits: 'BasicModule', require:'ListItemModule'},
             return null;
         }
 
-        this.applyFilterBy = function(prop, negated, permanent) {
+        this.applyFilterBy = function(filterObj, permanent) {
             this.data.applyFilter(function(item, index, array) {
-                var value = Refuel.resolveChain(prop, item);
-                if (negated) value = !value;
-                return value;
+                //console.log('applyFilterBy', arguments);
+                var result = true;
+                for (var key in filterObj) {
+                    result = result && filterObj[key] == Refuel.resolveChain(key, item);
+                }
+                return result;
             });
             if (permanent) this.data.consolidate();
         }
 
-        this.filterBy = function(prop, negated) {
+        this.filterBy = function(filterObj) {
             return this.data.filter(function(item, index, array) {
-                var value = Refuel.resolveChain(prop, item);
-                if (negated) value = !value;
-                return value;
+                //console.log('filterBy', arguments);
+                var result = true;
+                for (var key in filterObj) {
+                    result = result && filterObj[key] == Refuel.resolveChain(key, item);
+                }
+                return result;
             });
         }
 
