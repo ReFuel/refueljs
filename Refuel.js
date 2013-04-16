@@ -1,8 +1,7 @@
 (function() {
 	window.Refuel = {};
 	var classMap = {};
-	var startModuleName = null;
-
+	
 	Refuel.classMap = classMap;
 	  
 	function argumentsToArray(args){
@@ -96,7 +95,6 @@
 	        body = req;
 	    }
 
-	    if (!Object.keys(classMap).length) startModuleName = className; 
 	    var requirements = [];
 	    requirements = requirements.concat(req.require, req.inherits);
 	    requirements = requirements.filter(function(c){
@@ -104,13 +102,12 @@
 	        else return false;
 	    });
 
-        classMap[className] = {
-            body: body,
-            inherits: req.inherits
-        };
-	    
-	    define(className, requirements, function() {});
-
+	    define(className, requirements, function() {
+	        classMap[className] = {
+	            body: body,
+	            inherits: req.inherits
+	        };
+	    });
 	}
 
 	Refuel.static = function(className, body) {
@@ -137,23 +134,16 @@
 			console.log(node.src, 'loaded!');
 			e.target.parentNode.removeChild(e.target);
 			
-			require.config({
-            	baseUrl: path,
-            	paths: {
-            		//'hammer': path+'/hammer',
-            		//'path' : path+'/path'
-            	}
-          	});
-			
-          	startupRequirements = [startupModule, 'hammer', 'path'];
+			var baseConfig = {
+            	baseUrl: path
+          	};
+          	var mixedconf = Refuel.mix(baseConfig, Refuel.config || {});
+          	require.config(mixedconf);
+          	
+			startupRequirements = [startupModule, 'hammer', 'path', 'config'];
           	require(startupRequirements, function() {
 				Path.listen();
-				try {
-					classMap[startModuleName].body();
-				}
-				catch(e) {
-					throw 'Refuel startup failed - Cannot find \'Refuel.define\' declaration in '+startModuleName;
-				}
+				classMap[startupModule].body();
 			});
 		}
 	}
