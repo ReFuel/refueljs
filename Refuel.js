@@ -100,11 +100,12 @@
 	        else return false;
 	    });
 
+        classMap[className] = {
+            body: body,
+            inherits: req.inherits
+        };
 	    define(className, requirements, function() {
-	        classMap[className] = {
-	            body: body,
-	            inherits: req.inherits
-	        };
+	   		console.log('define', className);
 	    });
 	}
 
@@ -119,6 +120,7 @@
 	var path = script.getAttribute('src').split('/');
 	path = path.slice(0,path.length-1).join('/') || '.';
 
+
     node.type = 'text/javascript';
     node.charset = 'utf-8';
     node.async = true;
@@ -126,27 +128,35 @@
 	node.src = path+'/require.js';
 	head.appendChild(node);
 
+
+	//Il nome del file linkato è con JS in modo da rendere chiaro il riferimento al path ./
+	//ma se il nome del file è quello poi noi lo cerchiamo così nella startupModule
 	function onScriptLoad(e) {
 		if(e.type === 'load') {
 			console.log(node.src, 'loaded!');
 			e.target.parentNode.removeChild(e.target);
-			//move something to external || lib  path?
+			
 			require.config({
             	baseUrl: path,
             	paths: {
-            		'hammer.js': path,
-            		'path.js': path
+            		//'hammer': path+'/hammer',
+            		//'path' : path+'/path'
             	}
           	});
+			
           	startupRequirements = [startupModule, 'hammer', 'path'];
-			require(startupRequirements, function(start) {
+          	require(startupRequirements, function(start) {
 				Path.listen();
-				try {
-					classMap[startupModule].body();
+				//At this phase there will always be only one module defined: the startup one
+				for (var cl in classMap) {
+					try {
+						classMap[cl].body();
+					}
+					catch(e) {
+						throw 'Refuel startup failed - Cannot find \'Refuel.define\' declaration in '+cl;
+					}
 				}
-				catch(e) {
-					throw 'Refuel startup failed - Cannot find \'Refuel.define\' declaration in '+startupModule;
-				}
+			
 			});
 		}
 
