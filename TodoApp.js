@@ -1,8 +1,9 @@
 var app;
-Refuel.define('TodoApp',{require: ['GenericModule', 'DataSource']},
+Refuel.define('TodoApp',{require: ['GenericModule', 'DataSource', 'ajax']},
     function TodoApp() {    
-        var root = document.querySelector('#todoapp'); 
+        var root = document.querySelector('#todoapp');
         app = Refuel.createInstance('GenericModule', { 'root': root });
+        app.ajax = Refuel.ajax;
 
         //TODO sostituire con data from remote
         var numberOfElements = 3;
@@ -11,6 +12,7 @@ Refuel.define('TodoApp',{require: ['GenericModule', 'DataSource']},
             todoList.push({ title: 'my text '+i, completed: false });
         };
         
+        //TODO set in module.data
         app.dataSource.setData({
             'title':'ReFuel Todo App',
             'todoList': Refuel.createInstance('DataSource', {key: 'todos-refuel', defaultDataType: 'Array'}),
@@ -18,7 +20,6 @@ Refuel.define('TodoApp',{require: ['GenericModule', 'DataSource']},
             'remainingLength': 0
         });
 
-        //FIXME set in module.data
         //TODO app.observe(['todoList.lenght','completed'], function() {})
         //sono  i nomi del simbolo nel markup
         app.subscribe('observableChange', function(e) {

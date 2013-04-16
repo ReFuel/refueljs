@@ -4,7 +4,7 @@
 	@param key  localStorage key
 	@param url  ajax call url
 */
-Refuel.define('DataSource', {inherits: 'Events', require: ['ajax']}, 
+Refuel.define('DataSource', {inherits: 'Events'}, 
 	function DataSource() {
 
 		var data = {},
@@ -158,7 +158,7 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax']},
 		}
 
 		function okCallback(dataObj) {
-			
+			this.setData(e.responseJSON);
 		}
 		
 		function koCallback(dataObj) {

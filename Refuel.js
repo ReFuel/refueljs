@@ -107,33 +107,46 @@
 	        };
 	    });
 	}
+
+	Refuel.static = function(className, body) {
+		Refuel[className] = body();
+	}
 	
 	var head = document.querySelector('head');
 	var script = head.querySelector('script[data-rf-startup]'); 
 	var node = document.createElement('script');
 	var startupModule = script.getAttribute('data-rf-startup');
+	var path = script.getAttribute('src').split('/');
+	path = path.slice(0,path.length-1).join('/') || '.';
+
     node.type = 'text/javascript';
     node.charset = 'utf-8';
     node.async = true;
 	node.addEventListener('load', onScriptLoad, false);
-	node.src = 'require.js';
+	node.src = path+'/require.js';
 	head.appendChild(node);
 
 	function onScriptLoad(e) {
 		if(e.type === 'load') {
-			//console.log(node.src, 'loaded!');
+			console.log(node.src, 'loaded!');
 			e.target.parentNode.removeChild(e.target);
+			//move something to external || lib  path?
 			require.config({
-            	baseUrl: '.',
+            	baseUrl: path,
             	paths: {
-            		'hammer.js': '.',
-            		'path.js': '.'
+            		'hammer.js': path,
+            		'path.js': path
             	}
           	});
-          	startupRequirements = [startupModule, 'hammer.js', 'path.js'];
+          	startupRequirements = [startupModule, 'hammer', 'path'];
 			require(startupRequirements, function(start) {
 				Path.listen();
-				classMap[startupModule].body();
+				try {
+					classMap[startupModule].body();
+				}
+				catch(e) {
+					throw 'Refuel startup failed - Cannot find \'Refuel.define\' declaration in '+startupModule;
+				}
 			});
 		}
 
