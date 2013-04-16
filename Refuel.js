@@ -1,6 +1,7 @@
 (function() {
 	window.Refuel = {};
 	var classMap = {};
+	var startModuleName = null;
 
 	Refuel.classMap = classMap;
 	  
@@ -86,6 +87,7 @@
 	}
 
 	Refuel.define = function(className, req, body) {
+	   	//console.log('define', className);
 	    if(classMap[className] !== undefined) {
 	        console.error(className,' alredy defined!');
 	        return;
@@ -93,6 +95,8 @@
 	    if(body === undefined) {
 	        body = req;
 	    }
+
+	    if (!Object.keys(classMap).length) startModuleName = className; 
 	    var requirements = [];
 	    requirements = requirements.concat(req.require, req.inherits);
 	    requirements = requirements.filter(function(c){
@@ -104,9 +108,9 @@
             body: body,
             inherits: req.inherits
         };
-	    define(className, requirements, function() {
-	   		console.log('define', className);
-	    });
+	    
+	    define(className, requirements, function() {});
+
 	}
 
 	Refuel.static = function(className, body) {
@@ -128,9 +132,6 @@
 	node.src = path+'/require.js';
 	head.appendChild(node);
 
-
-	//Il nome del file linkato è con JS in modo da rendere chiaro il riferimento al path ./
-	//ma se il nome del file è quello poi noi lo cerchiamo così nella startupModule
 	function onScriptLoad(e) {
 		if(e.type === 'load') {
 			console.log(node.src, 'loaded!');
@@ -145,21 +146,16 @@
           	});
 			
           	startupRequirements = [startupModule, 'hammer', 'path'];
-          	require(startupRequirements, function(start) {
+          	require(startupRequirements, function() {
 				Path.listen();
-				//At this phase there will always be only one module defined: the startup one
-				for (var cl in classMap) {
-					try {
-						classMap[cl].body();
-					}
-					catch(e) {
-						throw 'Refuel startup failed - Cannot find \'Refuel.define\' declaration in '+cl;
-					}
+				try {
+					classMap[startModuleName].body();
 				}
-			
+				catch(e) {
+					throw 'Refuel startup failed - Cannot find \'Refuel.define\' declaration in '+startModuleName;
+				}
 			});
 		}
-
 	}
 
 
