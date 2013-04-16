@@ -100,9 +100,9 @@ Refuel.static('ajax',
 						resp.responseJSON = JSON.parse(resp.responseText) || {};
 					}
 					if (status >= 200 && status < 400 || status === 1224){
-						options.ok(resp, status, xhr);
+						options.successCallback(resp, status, xhr);
 					} else if (status >= 400){
-						options.ko(resp, status, xhr);
+						options.errorCallback(resp, status, xhr);
 					}
 				}
 			};

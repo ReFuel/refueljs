@@ -4,14 +4,16 @@
 	@param key  localStorage key
 	@param url  ajax call url
 */
-Refuel.define('DataSource', {inherits: 'Events'}, 
+Refuel.define('DataSource', {inherits: 'Events', require: ['ajax']}, 
 	function DataSource() {
 
 		var data = {},
 			_loadStatus = 'idle'
 
 		var config = {
-				defaultDataType: 'Object'
+				'defaultDataType': 'Object',
+				'successCallback': successCallback.bind(this),
+				'errorCallback': errorCallback.bind(this)
 			},
 			extLoadingState = {
 				requested: 0,
@@ -58,9 +60,10 @@ Refuel.define('DataSource', {inherits: 'Events'},
         	config = Refuel.mix(config, myConfig);
         }	
 
-		this.setData = function(dataObj) {		
+		this.setData = function(dataObj) {
+			//console.log('setData', dataObj, config);
 			this.setLoadProgress();
-
+			//Refuel.isArray(dataObj) && 
 			if (Refuel.isArray(dataObj) && config.dataLabel) {
 				data[config.dataLabel] = dataObj;
 			}
@@ -84,7 +87,7 @@ Refuel.define('DataSource', {inherits: 'Events'},
 							checkLoadingState.call(this);
 						}, this);
 						if (!prop.loadProgress) {
-							prop.setConfig({'dataLabel': key});
+							//prop.setConfig({'dataLabel': key})//;
 							prop.load();
 						}
 					}
@@ -146,22 +149,23 @@ Refuel.define('DataSource', {inherits: 'Events'},
             	}
             }
             else if (config.url) {
-            	console.error('Ajax call not yet implemented');
+            	Refuel.ajax.get(config.url, config);
             }
 
             for(var key in data) {
 				var prop = data[key];
 				if (Refuel.refuelClass(prop) == 'DataSource') {
+					//prop.setConfig({'dataLabel': key});
 					prop.load();
 				}	
 			}
 		}
 
-		function okCallback(dataObj) {
-			this.setData(e.responseJSON);
+		function successCallback(dataObj) {
+			this.setData(dataObj.responseJSON);
 		}
 		
-		function koCallback(dataObj) {
+		function errorCallback(dataObj) {
 			console.error("datasource error:", config, dataObj);
 			this.notify("dataError", this.getData());
 		}
@@ -172,24 +176,18 @@ Refuel.define('DataSource', {inherits: 'Events'},
 				key = config.key;
 
 			if (url) {
-				if (!config.ajaxOptions.ok) {
-					config.ajaxOptions.ok = okCallback.bind(this);
-				}
-				if (!config.ajaxOptions.ko) { 
-					config.ajaxOptions.ko = koCallback.bind(this);
-				}
 				facade = {
 					"get": function() {
-						ajax.get(url, config.ajaxOptions);
+						Refuel.ajax.get(url, config);
 					},
 					"post": function(body) {
-						ajax.post(url, body, config.ajaxOptions);
+						Refuel.ajax.post(url, body, config);
 					},
 					"put": function(body) {
-						ajax.put(url, body, config.ajaxOptions);
+						Refuel.ajax.put(url, body, config);
 					},
 					"delete": function() {
-						ajax.delete(url, config.ajaxOptions);
+						Refuel.ajax.delete(url, config);
 					},
 					"getData": this.getData //è veramente da rendere pubblica??? potrebbe essere necessario 
 				}

@@ -51,7 +51,7 @@ Refuel.define('ObservableArray',{inherits: 'Events'},
 		  				this.notify('_oa_update',e);
 		  			break;  			
 		  		}
-		  		this.applyFilter(lastAppliedFilter);
+		  		if (lastAppliedFilter) this.applyFilter(lastAppliedFilter);
 		  		return r;
 		    };
 		}

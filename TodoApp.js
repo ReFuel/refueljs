@@ -29,6 +29,7 @@ Refuel.define('TodoApp',{require: ['GenericModule', 'DataSource', 'ajax']},
 
                 app.data('completedLength', completed );
                 app.data('remainingLength', len-completed);
+                app.saveData();
             }
         });
 
@@ -40,7 +41,6 @@ Refuel.define('TodoApp',{require: ['GenericModule', 'DataSource', 'ajax']},
         app.defineAction('changeDone', function(e) {
             var checked =  e.target.checked;
             e.module.data('completed', checked);
-            app.saveData();
         });
 
         //TODO selezione del tasto changeDoneAll, dipendente praticamente dal filterBy:completed .lenght
@@ -48,7 +48,6 @@ Refuel.define('TodoApp',{require: ['GenericModule', 'DataSource', 'ajax']},
             e.module.applyOnItems(function(item) {
                 var checked =  e.target.checked;
                 item.data('completed', checked);
-                app.saveData();
             });
         });
 
@@ -58,7 +57,6 @@ Refuel.define('TodoApp',{require: ['GenericModule', 'DataSource', 'ajax']},
                 e.module.add({ title: textContent, completed: false });
                 e.target.value = '';
 				e.target.blur();
-                app.saveData();
             }
         });
 

@@ -84,6 +84,9 @@
 	    return instance;
 
 	}
+	Refuel.newModule = function (className, initObj) {
+		return Refuel.createInstance(className, initObj);
+	}
 
 	Refuel.define = function(className, req, body) {
 	   	//console.log('define', className);
