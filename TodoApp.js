@@ -4,7 +4,7 @@ Refuel.define('TodoApp',{require: ['GenericModule', 'DataSource', 'ajax']},
         var root = document.querySelector('#todoapp');
 
         //TODO sostituire con data from remote
-        var numberOfElements = 3;
+        var numberOfElements = 1;
         var todoList = [];
         for (var i = 0; i < numberOfElements; i++) {
             todoList.push({ title: 'my text '+i, completed: false });
@@ -14,7 +14,7 @@ Refuel.define('TodoApp',{require: ['GenericModule', 'DataSource', 'ajax']},
         //TODO set in module.data
         app.dataSource.setData({
             'title':'ReFuel Todo App',
-            'todoList': Refuel.createInstance('DataSource', {key: 'todos-refuel', defaultDataType: 'Array'}),
+            'todoList': Refuel.createInstance('DataSource', {key: 'todos-refuel', autoload: true}),
             'completedLength': 0, 
             'remainingLength': 0
         });

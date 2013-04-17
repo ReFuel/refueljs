@@ -143,7 +143,7 @@
           	var mixedconf = Refuel.mix(baseConfig, Refuel.config || {});
           	require.config(mixedconf);
           	
-			startupRequirements = [startupModule, 'hammer', 'path', 'config'];
+			startupRequirements = [startupModule, 'hammer.min', 'path.min', 'config'];
           	require(startupRequirements, function() {
 				Path.listen();
 				classMap[startupModule].body();
