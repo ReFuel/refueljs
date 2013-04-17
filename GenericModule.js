@@ -20,20 +20,14 @@ Refuel.define('GenericModule',{inherits: 'BasicModule', require:'ListModule'},
             this.template.setRoot(config.root);
         }
        
-
         function createList(e) {
             var label = e.symbol.linkedTo;
             if (typeof this.items[label] === 'undefined') {
-                var linkedData = Refuel.resolveChain(label, this.dataSource.getData()) || '';
-                var obj = {};
-                obj[label] = linkedData || [];
-
-                var list = Refuel.createInstance('ListModule', { 
+                var list = Refuel.newModule('ListModule', {
+                    data: this.data(label),  
                     root: e.symbol.domElement,
-                    dataLabel: label,
-                    dataSource: this.data(label)
+                    dataLabel: label
                 });
-
                 this.addModule(list);
             }
         }

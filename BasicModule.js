@@ -8,8 +8,11 @@ Refuel.define('BasicModule', {require: ['Template', 'DataSource'], inherits: 'Up
         this.init = function(myConfig) {
             config = Refuel.mix(config, myConfig);
             this.items = [];
-            this.dataSource = config.dataSource || Refuel.createInstance('DataSource');
-            this.template = Refuel.createInstance('Template', {root: config.root});
+
+            this.dataSource = Refuel.refuelClass(config.data) == 'DataSource' ? config.data : 
+                              Refuel.newModule('DataSource');
+                              
+            this.template = Refuel.newModule('Template', {root: config.root});
             this.defineUpdateManager(oa_update.bind(this));
             this.template.subscribe('genericBinderEvent', genericEventHandler, this);
             this.template.subscribe('_set_autoupdate', observeTemplateSymbol, this);

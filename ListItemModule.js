@@ -14,7 +14,6 @@ Refuel.define('ListItemModule', {inherits: 'BasicModule'},
             this.enableAutoUpdate(this.dataSource.getData());
             
             this.dataSource.subscribe('dataAvailable', function(data) {
-                this.create();
                 this.draw();
             }, this);
 
@@ -23,9 +22,6 @@ Refuel.define('ListItemModule', {inherits: 'BasicModule'},
         
         function oa_update(e) {
             //console.log('ListItemModule.oa_update', e);
-        }
-
-        this.create = function() {
         }
 
         this.draw = function() {

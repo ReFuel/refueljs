@@ -12,6 +12,7 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax']},
 
 		var config = {
 				'defaultDataType': 'Object',
+				'dataPath': null,
 				'successCallback': successCallback.bind(this),
 				'errorCallback': errorCallback.bind(this)
 			},
@@ -46,14 +47,15 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax']},
 		});
 
 		this.init = function(myConfig) {
+			if (!myConfig) return;
             config = Refuel.mix(config, myConfig);
-            refreshInterface.call(this);
+			refreshInterface.call(this);
 
-            if (config.autoload && !this.loadComplete){ 
-            	this.load();
-            }
-           	else if (this.loadComplete) {
+			if (this.loadComplete) {
            		this.notify('dataAvailable', {'data': data});
+           	}
+           	else {
+           		this.load();
            	}
         }
         this.setConfig = function (myConfig) {
@@ -61,10 +63,8 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax']},
         }	
 
 		this.setData = function(dataObj) {
-			//console.log('setData', dataObj, config);
 			this.setLoadProgress();
-			//Refuel.isArray(dataObj) && 
-			if (Refuel.isArray(dataObj) && config.dataLabel) {
+			if (config.dataLabel) {
 				data[config.dataLabel] = dataObj;
 			}
 			else {
@@ -87,7 +87,7 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax']},
 							checkLoadingState.call(this);
 						}, this);
 						if (!prop.loadProgress) {
-							//prop.setConfig({'dataLabel': key})//;
+							//prop.setConfig({'dataLabel': key});
 							prop.load();
 						}
 					}
@@ -137,7 +137,7 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax']},
 			if (config.data) {
 				this.setData(config.data);
 			} 
-			else if (config.key) {
+			else if (config.key && config.autoload) {
 				var storedData = localStorage.getItem(config.key);
 				var storedObject = JSON.parse(storedData);
 				if (storedObject) {
@@ -148,17 +148,18 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax']},
             		this.setData(defaultEmptyData);
             	}
             }
-            else if (config.url) {
+            else if (config.url && config.autoload) {
             	Refuel.ajax.get(config.url, config);
             }
 
             for(var key in data) {
 				var prop = data[key];
 				if (Refuel.refuelClass(prop) == 'DataSource') {
-					//prop.setConfig({'dataLabel': key});
 					prop.load();
 				}	
 			}
+
+
 		}
 
 		function successCallback(dataObj) {
