@@ -4,7 +4,7 @@ Refuel.define('TodoApp',{require: ['GenericModule', 'DataSource', 'ajax']},
         var root = document.querySelector('#todoapp');
 
         //TODO sostituire con data from remote
-        var numberOfElements = 1;
+        var numberOfElements = 1000;
         var todoList = [];
         for (var i = 0; i < numberOfElements; i++) {
             todoList.push({ title: 'my text '+i, completed: false });

@@ -124,31 +124,38 @@
 	var path = script.getAttribute('src').split('/');
 	path = path.slice(0,path.length-1).join('/') || '.';
 
-
-    node.type = 'text/javascript';
-    node.charset = 'utf-8';
-    node.async = true;
-	node.addEventListener('load', onScriptLoad, false);
-	node.src = path+'/require.js';
-	head.appendChild(node);
+	if (typeof define == 'undefined') {
+    	node.type = 'text/javascript';
+    	node.charset = 'utf-8';
+    	node.async = true;
+		node.addEventListener('load', onScriptLoad, false);
+		node.src = path+'/require.js';
+		head.appendChild(node);
+	}
+	else {
+		startApplication();
+	}
 
 	function onScriptLoad(e) {
-		if(e.type === 'load') {
+		if(e && e.type === 'load') {
 			console.log(node.src, 'loaded!');
 			e.target.parentNode.removeChild(e.target);
-			
-			var baseConfig = {
-            	baseUrl: path
-          	};
-          	var mixedconf = Refuel.mix(baseConfig, Refuel.config || {});
-          	require.config(mixedconf);
-          	
-			startupRequirements = [startupModule, 'hammer.min', 'path.min', 'config'];
-          	require(startupRequirements, function() {
-				Path.listen();
-				classMap[startupModule].body();
-			});
+			startApplication();
 		}
+	}
+
+	function startApplication() {
+		var baseConfig = {
+           	baseUrl: path
+        };
+      	var mixedconf = Refuel.mix(baseConfig, Refuel.config || {});
+      	require.config(mixedconf);
+      	
+		startupRequirements = [startupModule, 'hammer.min', 'path.min', 'config'];
+      	require(startupRequirements, function() {
+			Path.listen();
+			classMap[startupModule].body();
+		});
 	}
 
 
