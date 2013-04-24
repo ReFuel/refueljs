@@ -21,7 +21,7 @@ Refuel.define('BasicModule', {require: ['Template', 'DataSource'], inherits: 'Up
             this.template.subscribe('genericBinderEvent', genericEventHandler, this);
             this.template.subscribe('_set_autoupdate', observeTemplateSymbol, this);
         }
-        
+
         //TODO eventizzare
         function genericEventHandler(e) {    
             var action = actionMap[e.linkedTo];
@@ -100,27 +100,16 @@ Refuel.define('BasicModule', {require: ['Template', 'DataSource'], inherits: 'Up
             this.dataSource.save();
         }
 
+
         Object.defineProperty(this, 'data', {
             configurable: true,            
-            get: function(prop) {
+            get: function() {
                 return this.dataSource.data;
+            },
+            set: function(value) {
+                this['data'] = value; 
             }
         });
         
-        this.data = function(prop, value) {
-            var data = this.dataSource.data;
-            prop = prop || '';
-            if (typeof(value) === 'undefined') {
-                return Refuel.resolveChain(prop, data);
-            }
-            else {
-                if (Refuel.isArray(data)) {
-                    console.error('Setting an Array in '+this+'.data');
-                    return undefined;
-                }
-                else {
-                    data[prop] = value;
-                }
-            }
-        }
+        
 });
