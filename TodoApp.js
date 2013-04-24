@@ -10,13 +10,15 @@ Refuel.define('TodoApp',{require: ['GenericModule', 'DataSource', 'ajax']},
             todoList.push({ title: 'my text '+i, completed: false });
         };
         
-        app = Refuel.createInstance('GenericModule', { 'root': root });
-        //TODO set in module.data
-        app.dataSource.setData({
-            'title':'ReFuel Todo App',
-            'todoList': Refuel.createInstance('DataSource', {key: 'todos-refuel', autoload: true}),
-            'completedLength': 0, 
-            'remainingLength': 0
+        app = Refuel.createInstance('GenericModule', { 
+            'root': root, 
+            autoload: true,
+            data: {
+                'title':'ReFuel Todo App',
+                'todoList': Refuel.createInstance('DataSource', {key: 'todos-refuel', defaultDataType: 'Array'}),
+                'completedLength': 0, 
+                'remainingLength': 0
+            } 
         });
 
         //TODO app.observe(['todoList.lenght','completed'], function() {})

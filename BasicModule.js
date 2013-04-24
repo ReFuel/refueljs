@@ -3,24 +3,26 @@
 Refuel.define('BasicModule', {require: ['Template', 'DataSource'], inherits: 'Updater'}, 
     function BasicModule() {
         var actionMap = {};
-        var config = {};
+        var config = {
+            dataPath: '.'
+        };
 
         this.init = function(myConfig) {
             config = Refuel.mix(config, myConfig);
             this.items = [];
-
-            this.dataSource = Refuel.refuelClass(config.data) == 'DataSource' ? config.data : 
-                              Refuel.newModule('DataSource');
-                              
-            this.template = Refuel.newModule('Template', {root: config.root});
+            if ( Refuel.refuelClass(config.data) == 'DataSource') {
+                this.dataSource = config.data; 
+            }else {
+                this.dataSource = Refuel.newModule('DataSource');
+            }
+             
+            this.template = Refuel.newModule('Template', config);
             this.defineUpdateManager(oa_update.bind(this));
             this.template.subscribe('genericBinderEvent', genericEventHandler, this);
             this.template.subscribe('_set_autoupdate', observeTemplateSymbol, this);
-
-            
         }
+        
         //TODO eventizzare
-
         function genericEventHandler(e) {    
             var action = actionMap[e.linkedTo];
             if (action) {
@@ -37,9 +39,10 @@ Refuel.define('BasicModule', {require: ['Template', 'DataSource'], inherits: 'Up
             called by the template (via event) when something has an option: autoupdate
         **/
         function observeTemplateSymbol(e) {
-            this.enableAutoUpdate(this.dataSource.getData()); //FIXME not generic
+            this.enableAutoUpdate(this.dataSource.getData(), config.dataLabel); //FIXME not generic
             //TODO levare i parametri passati all'observe
-            var obs = this.observe(e.symbol.linkedTo, e.symbol, 
+            var path = e.linkedTo;
+            var obs = this.observe(path, e.symbol, 
                 function(observable, tmplSymbol) {
                     this.template.renderSymbol(tmplSymbol, this.dataSource.getData());
                     this.notify('observableChange', {'observable': observable}, true);
@@ -48,8 +51,8 @@ Refuel.define('BasicModule', {require: ['Template', 'DataSource'], inherits: 'Up
         }
 
         this.addModule = function(module) {
-        	if (module.dataLabel) this.items[module.dataLabel] = module;
-        	else 			 this.items.push(module);
+            if (module.dataLabel) this.items[module.dataLabel] = module;
+            else             this.items.push(module);
 
             module.subscribe('observableChange', function(e) {
                 this.notify('observableChange', e);
@@ -97,23 +100,27 @@ Refuel.define('BasicModule', {require: ['Template', 'DataSource'], inherits: 'Up
             this.dataSource.save();
         }
 
-        this.data = function(prop, value) {
-            if (!prop && !value) {
-                console.error('No parameters in '+this+'.data');
-                return undefined;
+        Object.defineProperty(this, 'data', {
+            configurable: true,            
+            get: function(prop) {
+                return this.dataSource.data;
             }
-            var data = this.dataSource.getData()[prop];
-            
+        });
+        
+        this.data = function(prop, value) {
+            var data = this.dataSource.data;
+            prop = prop || '';
             if (typeof(value) === 'undefined') {
-                return data;
+                return Refuel.resolveChain(prop, data);
             }
             else {
                 if (Refuel.isArray(data)) {
                     console.error('Setting an Array in '+this+'.data');
                     return undefined;
                 }
-                this.dataSource.getData()[prop] = value;
+                else {
+                    data[prop] = value;
+                }
             }
         }
-
 });

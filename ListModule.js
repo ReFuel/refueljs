@@ -12,27 +12,26 @@ Refuel.define('ListModule',{inherits: 'BasicModule', require:'ListItemModule'},
         var config = {};
         this.init = function(myConfig) {
             config = Refuel.mix(config, myConfig);
-            //debugger;
+            this.dataLabel = config.dataLabel;
+           
             this.dataSource.setConfig({defaultDataType: 'Array'});
             this.defineUpdateManager(oa_update.bind(this));
-            this.dataLabel = config.dataLabel;
-
+            this.template.subscribe('_new_listitem', addListItem, this);
+            this.template.setRoot(config.root);
+            
             this.dataSource.subscribe('dataAvailable', function(data) {
                 this.create();
                 this.draw();
             }, this);
-
-            this.dataSource.init(config);
+            this.dataSource.init(config);   
         }
 
         this.create = function() {
-            this.template.subscribe('_new_listitem', addListItem, this);
-            this.template.setRoot(config.root);
             this.enableAutoUpdate(this.dataSource.getData(), config.dataLabel);
         }
 
         this.add = function(objData) {
-            this.data.push(objData);
+            this.dataSource.data.push(objData);
         }
 
         this.remove = function(objData) {
@@ -77,10 +76,9 @@ Refuel.define('ListModule',{inherits: 'BasicModule', require:'ListItemModule'},
             var listItem = Refuel.createInstance('ListItemModule', { 
                 parentRoot: config.root, 
                 template: rootSymbol.template,
-                autoload: true,
-                data: this.data[obj.index]
+                autoload: false,
+                data: obj.data
             });
-
             this.addModule(listItem);
         }
 
@@ -131,11 +129,4 @@ Refuel.define('ListModule',{inherits: 'BasicModule', require:'ListItemModule'},
             this.data.filterClear();
         }
        
-        Object.defineProperty(this, 'data', {
-            get: function() {
-                return this.dataSource.getData()[config.dataLabel];
-            }
-        });
-
-
 });

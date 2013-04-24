@@ -8,7 +8,7 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax']},
 	function DataSource() {
 
 		var data = {},
-			_loadStatus = 'idle'
+			_loadStatus = 'idle';
 
 		var config = {
 				'defaultDataType': 'Object',
@@ -45,32 +45,41 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax']},
 		        return _loadStatus == 'idle';
 		    }
 		});
+		Object.defineProperty(this, 'data', {
+			configurable: true,
+					
+			get: function() {
+		        return data;
+		    },
+		    set: function(val) {
+		    	data = val;
+		    }
+		});
 
 		this.init = function(myConfig) {
-			if (!myConfig) return;
-            config = Refuel.mix(config, myConfig);
+			config = Refuel.mix(config, myConfig);
 			refreshInterface.call(this);
 
 			if (this.loadComplete) {
            		this.notify('dataAvailable', {'data': data});
            	}
-           	else {
+           	else if (config.data) {
+				this.setData(config.data);
+           		config.data = null;
+			} 
+           	else if (config.autoload) {
            		this.load();
            	}
         }
+
         this.setConfig = function (myConfig) {
         	config = Refuel.mix(config, myConfig);
         }	
 
 		this.setData = function(dataObj) {
 			this.setLoadProgress();
-			if (config.dataLabel) {
-				data[config.dataLabel] = dataObj;
-			}
-			else {
-				data = dataObj;
-			}
-
+			data = dataObj;
+			
 			extLoadingState.found = extLoadingState.requested = extLoadingState.completed = 0;
 			for(var key in data) {
 				var prop = data[key];
@@ -80,16 +89,14 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax']},
 					if (prop.loadComplete) {
 						checkLoadingState.call(this);
 					}
-					else {
+					else if (!prop.loadProgress || !prop.loadComplete) {
 						extLoadingState.requested++;
 						prop.subscribe('dataAvailable', function() {
 							extLoadingState.completed++;
 							checkLoadingState.call(this);
 						}, this);
-						if (!prop.loadProgress) {
-							//prop.setConfig({'dataLabel': key});
-							prop.load();
-						}
+						prop.setConfig({autoload: config.autoload})
+						prop.init();
 					}
 				}
 			}
@@ -134,35 +141,32 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax']},
 
 		this.load = function() {
 			this.setLoadProgress();
-			if (config.data) {
-				this.setData(config.data);
-			} 
-			else if (config.key && config.autoload) {
+			if (config.key) {
 				var storedData = localStorage.getItem(config.key);
 				var storedObject = JSON.parse(storedData);
 				if (storedObject) {
             		this.setData(storedObject);
             	}
             	else {
+            		
             		var defaultEmptyData = config.defaultDataType == 'Array' ? [] : {};
             		this.setData(defaultEmptyData);
             	}
             }
-            else if (config.url && config.autoload) {
+            else if (config.url) {
             	Refuel.ajax.get(config.url, config);
             }
 
             for(var key in data) {
 				var prop = data[key];
 				if (Refuel.refuelClass(prop) == 'DataSource') {
-					prop.load();
+					if (!prop.loadComplete || !prop.loadProgress) prop.load();
 				}	
 			}
-
-
 		}
 
 		function successCallback(dataObj) {
+			//console.log('successCallback',dataObj);
 			this.setData(dataObj.responseJSON);
 		}
 		
@@ -177,6 +181,7 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax']},
 				key = config.key;
 
 			if (url) {
+
 				facade = {
 					"get": function() {
 						Refuel.ajax.get(url, config);
