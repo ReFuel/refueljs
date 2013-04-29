@@ -1,12 +1,9 @@
 /**
-    @event _oa_update = {
-        symbol: ObservableArray corresponding template-symbol,
-        action: performed action by the ObservableArray (add|move|remove),
-        index: ObservableArray's index involved in the action,
-        data: ObservableArray's involved item
-    }
-
+*   @class ObservableArray
+*	@fires _oa_update ObservableArray change event
+*	@author Stefano Sergio
 */
+
 Refuel.define('ObservableArray',{inherits: 'Events'}, 
 	function ObservableArray() {
 		this.config = {};

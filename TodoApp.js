@@ -10,13 +10,15 @@ Refuel.define('TodoApp',{require: ['GenericModule', 'DataSource', 'ajax']},
             todoList.push({ title: 'my text '+i, completed: false });
         };
         
-        app = Refuel.createInstance('GenericModule', { 'root': root });
-        //TODO set in module.data
-        app.dataSource.setData({
-            'title':'ReFuel Todo App',
-            'todoList': Refuel.createInstance('DataSource', {key: 'todos-refuel', autoload: true}),
-            'completedLength': 0, 
-            'remainingLength': 0
+        app = Refuel.createInstance('GenericModule', { 
+            'root': root, 
+            autoload: true,
+            data: {
+                'title':'ReFuel Todo App',
+                'todoList': Refuel.createInstance('DataSource', {key: 'todos-refuel', defaultDataType: 'Array'}),
+                'completedLength': 0, 
+                'remainingLength': 0
+            } 
         });
 
         //TODO app.observe(['todoList.lenght','completed'], function() {})
@@ -24,11 +26,11 @@ Refuel.define('TodoApp',{require: ['GenericModule', 'DataSource', 'ajax']},
         app.subscribe('observableChange', function(e) {
             var name = e.observable.name;
             if (name == 'todoList.length' ||  name == 'completed') {
-                var len = app.data('todoList').length;
+                var len = app.data['todoList'].length;
                 var completed = app.items['todoList'].filterBy({'completed': true}).length;
 
-                app.data('completedLength', completed );
-                app.data('remainingLength', len-completed);
+                app.data['completedLength'] = completed;
+                app.data['remainingLength'] = len-completed;
                 app.saveData();
             }
         });
@@ -40,14 +42,14 @@ Refuel.define('TodoApp',{require: ['GenericModule', 'DataSource', 'ajax']},
 
         app.defineAction('changeDone', function(e) {
             var checked =  e.target.checked;
-            e.module.data('completed', checked);
+            e.module.data['completed'] = checked;
         });
 
         //TODO selezione del tasto changeDoneAll, dipendente praticamente dal filterBy:completed .lenght
         app.defineAction('changeDoneAll', function(e) {
             e.module.applyOnItems(function(item) {
                 var checked =  e.target.checked;
-                item.data('completed', checked);
+                item.data['completed'] = checked;
             });
         });
 
@@ -68,7 +70,7 @@ Refuel.define('TodoApp',{require: ['GenericModule', 'DataSource', 'ajax']},
         app.defineAction('save', function(e) {
             var textContent = e.target.value.trim();
             if (e.keyIdentifier === 'Enter' || e.type === 'focusout') {
-                if (textContent != '') e.module.data('title', textContent);
+                if (textContent != '') e.module.data['title'] = textContent;
                 e.module.toggleClass('editing', false);
                 app.saveData();
             }

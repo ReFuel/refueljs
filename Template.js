@@ -1,19 +1,21 @@
 /**
-Symbol-Structure = {
-	action: replaceText|replaceAttributeValue|loop|action
-	attribute: [DOM Reference to an Attribute if symbol is inside an attribute]
-	attributeName: [if attribute is present]
-	originalContent: original content of the symbol, not resolved
-	linkedTo: The name of the property the symbol is linked to
-}
+*   @class Template
+*	@fires genericBinderEvent An event bound on the markup has been triggered
+*	@fires _observe Notifies the module to observe some data marked as "observe" in the template
+*	@fires _new_list Notifies the module to create a new List as per rf-list in template
+*	@fires _new_listitem Notifies the module to create a new ListItem 
+*
+*   @author Matteo Burgassi, Stefano Sergio
 */
 
 Refuel.define('Template',{inherits: 'Events'}, function Template() {
-		var self = this;
-		var root;
-		var profiler = {};
-		var bindingTable = {};
-		var symbolTable = [];
+		var self = this; //FIXME levare self
+		var root, 
+			config = {},
+			profiler = {},
+			bindingTable = {},
+			symbolTable = [];
+			
 
 		this.markMissedRefs = false;
 		this.bindingsProxy = null;
@@ -24,8 +26,9 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 		var datasetRegExp = new RegExp('rfAction', 'i');
 		
 		this.init = function(myConfig) {
-            this.config = Refuel.mix(this.config, myConfig);
-           	root = this.config.root;
+            config = Refuel.mix(config, myConfig);
+           	root = config.root;
+			//console.log('TEMPLATE.init',config.dataLabel);
         }
 
 		function parseDOMElement(node, symbolTable, regExpToMatchName, regExpToMatchValue, refId,
@@ -84,6 +87,12 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 			return symbol;
 		}
 
+		function normalizePath(path) {
+			path = path.replace(config.dataLabel, '');
+			if (path.charAt(0) == '.') path = path.substr(1);
+			return path;
+		}
+
 		function hasDataAction(element, type) {
 			for (var i in element.dataset) {
 				var action = i.replace(datasetRegExp, '');
@@ -139,17 +148,11 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 						bindingTable[eventType] = true;
 					}
 				}
-				/*
-				if (symbol.action == 'list' && !isRoot) {
-					//symbol.linkedData = linkedData;
-					self.notify('_new_list', {symbol: symbol});
-				}
-				else 
-				*/
-				if (symbol.options && symbol.options === 'autoupdate') {
-					self.notify('_set_autoupdate', {symbol: symbol});
-				}
 
+				if (symbol.options && symbol.options === 'autoupdate') {
+					var path = normalizePath(symbol.linkedTo);
+					self.notify('_observe', {'linkedTo': path, 'symbol': symbol});
+				}
 			}
 		}
 
@@ -236,8 +239,11 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 
 		this.renderSymbol = function(symbol, data) {
 			var isRoot = symbol.domElement === root;
-			var linkedData = Refuel.resolveChain(symbol.linkedTo, data);
-			//console.log('renderSymbol',linkedData);
+
+			var path = normalizePath(symbol.linkedTo);
+			var linkedData = Refuel.resolveChain(path, data);
+
+			//console.log('renderSymbol',path,symbol.linkedTo, linkedData);
 			switch(symbol.action) {
 				case 'replaceText': 
 					markMissing(symbol, linkedData);

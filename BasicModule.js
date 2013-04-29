@@ -1,25 +1,36 @@
-//TODO distinguere componenti implementabili da componenti istanziabili
-
+    /**
+    *   @class BasicModule
+    *   @fires _unhandledAction Fired when an Action is requested on this module but is not defined
+    *   @fires observableChange Fired when some data observed by this module changes
+    *
+    *   @author Stefano Sergio
+    */
 Refuel.define('BasicModule', {require: ['Template', 'DataSource'], inherits: 'Updater'}, 
     function BasicModule() {
         var actionMap = {};
-        var config = {};
+        /**
+        * @type {object}
+        * @property {string} dataPath 
+        *
+        */
+        var config = {
+            dataPath: '.'
+        };
 
         this.init = function(myConfig) {
             config = Refuel.mix(config, myConfig);
             this.items = [];
-
-            this.dataSource = Refuel.refuelClass(config.data) == 'DataSource' ? config.data : 
-                              Refuel.newModule('DataSource');
-                              
-            this.template = Refuel.newModule('Template', {root: config.root});
+            if ( Refuel.refuelClass(config.data) == 'DataSource') {
+                this.dataSource = config.data; 
+            }else {
+                this.dataSource = Refuel.newModule('DataSource');
+            }
+             
+            this.template = Refuel.newModule('Template', config);
             this.defineUpdateManager(oa_update.bind(this));
             this.template.subscribe('genericBinderEvent', genericEventHandler, this);
-            this.template.subscribe('_set_autoupdate', observeTemplateSymbol, this);
-
-            
+            this.template.subscribe('_observe', observeTemplateSymbol, this);
         }
-        //TODO eventizzare
 
         function genericEventHandler(e) {    
             var action = actionMap[e.linkedTo];
@@ -29,7 +40,7 @@ Refuel.define('BasicModule', {require: ['Template', 'DataSource'], inherits: 'Up
                 action.callback.call(context, e);
             }
             else {
-            	this.notify('unhandledAction', e);
+                this.notify('_unhandledAction', e);
             }
         }
 
@@ -37,9 +48,10 @@ Refuel.define('BasicModule', {require: ['Template', 'DataSource'], inherits: 'Up
             called by the template (via event) when something has an option: autoupdate
         **/
         function observeTemplateSymbol(e) {
-            this.enableAutoUpdate(this.dataSource.getData()); //FIXME not generic
+            this.enableAutoUpdate(this.dataSource.getData(), config.dataLabel); //FIXME not generic
             //TODO levare i parametri passati all'observe
-            var obs = this.observe(e.symbol.linkedTo, e.symbol, 
+            var path = e.linkedTo;
+            var obs = this.observe(path, e.symbol, 
                 function(observable, tmplSymbol) {
                     this.template.renderSymbol(tmplSymbol, this.dataSource.getData());
                     this.notify('observableChange', {'observable': observable}, true);
@@ -47,15 +59,20 @@ Refuel.define('BasicModule', {require: ['Template', 'DataSource'], inherits: 'Up
             );
         }
 
+        /**
+        *   @memberof BasicModule#addModule
+        *   Add a child module. Child module is added in the 'items' collection under the name specified in the template if any.
+        *   Otherwise is pushed as array element inside the 'items' collection.
+        */ 
         this.addModule = function(module) {
-        	if (module.dataLabel) this.items[module.dataLabel] = module;
-        	else 			 this.items.push(module);
+            if (module.dataLabel) this.items[module.dataLabel] = module;
+            else             this.items.push(module);
 
             module.subscribe('observableChange', function(e) {
                 this.notify('observableChange', e);
             }, this);
 
-            module.subscribe('unhandledAction', function(e) {
+            module.subscribe('_unhandledAction', function(e) {
                 if (!e.module) e.module = module; //keeps only the original module inside the event data
                 genericEventHandler.call(this, e);
             }, this);
@@ -65,20 +82,33 @@ Refuel.define('BasicModule', {require: ['Template', 'DataSource'], inherits: 'Up
             //console.log('BasicModule','update ->',e);      
         }
 
+        /**
+        *   @method BasicModule#draw
+        *   Begin the render of the part of template owned by this module
+        *   @param data The data to populate the template with, define this if data are different from the dataSource's data    
+        */
         this.draw = function(data) {
             data = data || this.dataSource.getData();
             this.template.render(data);
         }
 
+        /**
+        * @method BasicModule#defineUpdateManager
+        * @param callback The function that will manage _oa_update event
+        */        
         this.defineUpdateManager = function(callback) {
             this.unsubscribe('_oa_update');
             this.subscribe('_oa_update', callback);  
         }
-
+        /**
+        * @method BasicModule#defineAction
+        */
         this.defineAction = function(name, callback) {
             actionMap[name] = {context: this, callback: callback};
         }
-
+        /**
+        * @method BasicModule#querySelector
+        */
         this.querySelector = function(query) {
             return this.template.getRoot().querySelector(query);
         } 
@@ -97,23 +127,16 @@ Refuel.define('BasicModule', {require: ['Template', 'DataSource'], inherits: 'Up
             this.dataSource.save();
         }
 
-        this.data = function(prop, value) {
-            if (!prop && !value) {
-                console.error('No parameters in '+this+'.data');
-                return undefined;
-            }
-            var data = this.dataSource.getData()[prop];
-            
-            if (typeof(value) === 'undefined') {
-                return data;
-            }
-            else {
-                if (Refuel.isArray(data)) {
-                    console.error('Setting an Array in '+this+'.data');
-                    return undefined;
-                }
-                this.dataSource.getData()[prop] = value;
-            }
-        }
 
+        Object.defineProperty(this, 'data', {
+            configurable: true,            
+            get: function() {
+                return this.dataSource.data;
+            },
+            set: function(value) {
+                this['data'] = value; 
+            }
+        });
+        
+        
 });

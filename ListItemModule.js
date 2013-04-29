@@ -1,8 +1,9 @@
-/** 
-    Every config param can be set in the Module
-    
-    @param parentRoot: HTMLElement
-    @param template: Refuel.Template instance
+/**
+*   @class ListItemModule
+*
+*   @param parentRoot: HTMLElement
+*   @param template: Refuel.Template instance
+*   @author Stefano Sergio
 **/
 
 Refuel.define('ListItemModule', {inherits: 'BasicModule'},  
@@ -11,6 +12,7 @@ Refuel.define('ListItemModule', {inherits: 'BasicModule'},
         this.init = function(myConfig) {
             config = Refuel.mix(config, myConfig);
             //this.defineUpdateManager(oa_update);
+            this.dataSource.name = this.template.name = 'ListItemModule';
             this.enableAutoUpdate(this.dataSource.getData());
             
             this.dataSource.subscribe('dataAvailable', function(data) {

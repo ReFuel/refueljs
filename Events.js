@@ -1,3 +1,8 @@
+/**
+*   @class Events
+*
+*   @author Matteo Burgassi
+*/
 /*
 	onGoingNotification {
 		'event_name01': [

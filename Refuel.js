@@ -57,12 +57,14 @@
 			var parent;
 			for (var i=0, item; item = dataPath[i]; i++) {
 				parent = extData;
+				//if (item == 'results') debugger;
 				extData = extData[item];
 				
 				while (Refuel.refuelClass(extData) == 'DataSource') {
 					parent = extData;
-					extData = extData.getData()[item];
+					extData = extData.getData();//[item];
 				}
+
 			}
 		}
 		if (getParent) return {'value': extData, 'parent': parent}
