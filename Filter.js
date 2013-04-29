@@ -1,3 +1,9 @@
+/**
+*   @class Filter
+*
+*   @author Matteo Burgassi
+*/
+
 Refuel.define('Filter',
     function Filter() {
         var self = this;

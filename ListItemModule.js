@@ -1,8 +1,9 @@
-/** 
-    Every config param can be set in the Module
-    
-    @param parentRoot: HTMLElement
-    @param template: Refuel.Template instance
+/**
+*   @class ListItemModule
+*
+*   @param parentRoot: HTMLElement
+*   @param template: Refuel.Template instance
+*   @author Stefano Sergio
 **/
 
 Refuel.define('ListItemModule', {inherits: 'BasicModule'},  

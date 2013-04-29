@@ -1,8 +1,12 @@
-/*
-
-	@param data direct set data
-	@param key  localStorage key
-	@param url  ajax call url
+/**
+*	@class DataSource
+*	@param data direct set data
+*	@param key  localStorage key
+*	@param url  ajax call url
+*   
+*	@fires dataAvaiable The class has loaded its data and is ready
+*	@fires dataError Some error is occurred during data loading
+*	@author Stefano Sergio
 */
 Refuel.define('DataSource', {inherits: 'Events', require: ['ajax']}, 
 	function DataSource() {

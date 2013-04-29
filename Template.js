@@ -1,11 +1,11 @@
 /**
-Symbol-Structure = {
-	action: replaceText|replaceAttributeValue|loop|action
-	attribute: [DOM Reference to an Attribute if symbol is inside an attribute]
-	attributeName: [if attribute is present]
-	originalContent: original content of the symbol, not resolved
-	linkedTo: The name of the property the symbol is linked to
-}
+*   @class Template
+*	@fires genericBinderEvent An event bound on the markup has been triggered
+*	@fires _observe Notifies the module to observe some data marked as "observe" in the template
+*	@fires _new_list Notifies the module to create a new List as per rf-list in template
+*	@fires _new_listitem Notifies the module to create a new ListItem 
+*
+*   @author Matteo Burgassi, Stefano Sergio
 */
 
 Refuel.define('Template',{inherits: 'Events'}, function Template() {
@@ -151,7 +151,7 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 
 				if (symbol.options && symbol.options === 'autoupdate') {
 					var path = normalizePath(symbol.linkedTo);
-					self.notify('_set_autoupdate', {'linkedTo': path, 'symbol': symbol});
+					self.notify('_observe', {'linkedTo': path, 'symbol': symbol});
 				}
 			}
 		}

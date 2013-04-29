@@ -1,9 +1,10 @@
 /**
-    @param root: HTMLElement,
-    @param symbol: Parsed template symbol, if this symbol exists, this Module's Template has been already parsed
-    
-    @param items Array of ListItemModule [read only]
-
+*   @class ListModule
+*   @param root: HTMLElement,
+*   @param symbol: Parsed template symbol, if this symbol exists, this Module's Template has been already parsed 
+*   @param items Array of ListItemModule [read only]
+*
+*   @author Stefano Sergio
 **/
 Refuel.define('ListModule',{inherits: 'BasicModule', require:'ListItemModule'}, 
     function ListModule() {

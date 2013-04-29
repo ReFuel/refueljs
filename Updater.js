@@ -1,4 +1,9 @@
-
+/**
+*   @class Updater
+*
+*	@fires _oa_update ObservableArray change event
+*   @author Stefano Sergio
+*/
 //TODO rename in Observer and option in 'observe'
 Refuel.define('Updater',{require: ['ObservableArray'], inherits: 'Events'}, 
 	function Updater() {

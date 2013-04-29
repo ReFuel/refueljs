@@ -1,3 +1,8 @@
+/**
+*   @class GenericModule
+*
+*   @author Stefano Sergio
+*/
 Refuel.define('GenericModule',{inherits: 'BasicModule', require:'ListModule'}, 
     function GenericModule() {
         var config = {};
