@@ -1939,7 +1939,6 @@ var requirejs, require, define;
      */
     define = function (name, deps, callback) {
         var node, context;
-
         //Allow for anonymous modules
         if (typeof name !== 'string') {
             //Adjust args appropriately
