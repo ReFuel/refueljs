@@ -2,6 +2,7 @@ var app;
 Refuel.define('TodoApp',{require: ['GenericModule', 'DataSource', 'ajax']},
     function TodoApp() {    
         var root = document.querySelector('#todoapp');
+        document.location.hash = '';
 
         //TODO sostituire con data from remote
         var numberOfElements = 1000;
@@ -28,10 +29,8 @@ Refuel.define('TodoApp',{require: ['GenericModule', 'DataSource', 'ajax']},
             if (name == 'todoList.length' ||  name == 'completed') {
                 var len = app.data['todoList'].length;
                 var completed = app.items['todoList'].filterBy({'completed': true}).length;
-
                 app.data['completedLength'] = completed;
                 app.data['remainingLength'] = len-completed;
-                app.saveData();
             }
         });
 
@@ -43,6 +42,7 @@ Refuel.define('TodoApp',{require: ['GenericModule', 'DataSource', 'ajax']},
         app.defineAction('changeDone', function(e) {
             var checked =  e.target.checked;
             e.module.data['completed'] = checked;
+            app.saveData();
         });
 
         //TODO selezione del tasto changeDoneAll, dipendente praticamente dal filterBy:completed .lenght
@@ -51,6 +51,7 @@ Refuel.define('TodoApp',{require: ['GenericModule', 'DataSource', 'ajax']},
                 var checked =  e.target.checked;
                 item.data['completed'] = checked;
             });
+            app.saveData();
         });
 
         app.defineAction('add', function(e) {
@@ -59,6 +60,7 @@ Refuel.define('TodoApp',{require: ['GenericModule', 'DataSource', 'ajax']},
                 e.module.add({ title: textContent, completed: false });
                 e.target.value = '';
 				e.target.blur();
+                app.saveData();
             }
         });
 

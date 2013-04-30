@@ -20,7 +20,7 @@ Refuel.define('Updater',{require: ['ObservableArray'], inherits: 'Events'},
 	    }
 
 	    function makeObservable(name, value, parent) {  
-	        if (name) {
+	        if (name && name != '.') {
 				var path = name.split('.');
 				var propName = path[path.length-1];
 				var resolvedData = Refuel.resolveChain(name, mountpoint, true);

@@ -90,7 +90,7 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 		function normalizePath(path) {
 			path = path.replace(config.dataLabel, '');
 			if (path.charAt(0) == '.') path = path.substr(1);
-			return path;
+			return path || '.';
 		}
 
 		function hasDataAction(element, type) {
