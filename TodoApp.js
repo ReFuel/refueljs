@@ -23,6 +23,7 @@ Refuel.define('TodoApp',{require: ['GenericModule', 'DataSource']},
 
         //sono  i nomi del simbolo nel markup
         app.subscribe('observableChange', function(e) {
+            //console.log('observableChange',e, this);
             var name = e.observable.name;
             if (name == 'todoList.length' ||  name == 'completed') {
                 var len = app.data['todoList'].data.length;
@@ -37,7 +38,7 @@ Refuel.define('TodoApp',{require: ['GenericModule', 'DataSource']},
         });
 
         app.defineAction('clearComplete', function(e) {
-            var res = e.module.applyFilterBy({'completed': false}, true);
+            var res = e.module.applyFilter({'completed': false}, true);
             app.saveData();
         });
 
@@ -64,6 +65,11 @@ Refuel.define('TodoApp',{require: ['GenericModule', 'DataSource']},
 				e.target.blur();
                 app.saveData();
             }
+        });
+
+        app.defineAction('delete', function(e) {
+            app.items['todoList'].remove(e.module);
+            app.saveData();
         });
 
         app.defineAction('edit', function(e) {
@@ -99,11 +105,11 @@ Refuel.define('TodoApp',{require: ['GenericModule', 'DataSource']},
             selectFilter(document.querySelector('[href="#/"]'));
         });
         Path.map('#/active').to(function(){
-            app.items['todoList'].applyFilterBy({'completed': false});
+            app.items['todoList'].applyFilter({'completed': false});
             selectFilter(document.querySelector('[href="#/active"]'));
         });
         Path.map('#/completed').to(function(){
-            app.items['todoList'].applyFilterBy({'completed': true}); 
+            app.items['todoList'].applyFilter({'completed': true}); 
             selectFilter(document.querySelector('[href="#/completed"]'));
         });    
 });

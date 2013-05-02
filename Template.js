@@ -102,6 +102,7 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 		}
 
 		function notifyEvent(e) {
+			e.stopPropagation();
 			self.bindingsProxy = self.bindingsProxy || self;
 			if (bindingTable[e.type] && hasDataAction(e.target, e.type)) {
 				e.action = (e.type === 'click'? 

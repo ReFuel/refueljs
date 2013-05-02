@@ -14,9 +14,8 @@ Refuel.define('Updater',{require: ['ObservableArray'], inherits: 'Events'},
 	    this.getObservers = function() {
 	        return _map;
 	    }
-	    this.enableAutoUpdate = function(mpDataSource, moduleLabel) {
+	    this.enableAutoUpdate = function(mpDataSource) {
 	    	mountpoint = mpDataSource;
-	    	label = moduleLabel;
 	    }
 
 	    function makeObservable(name, value, parent) {  
@@ -33,10 +32,10 @@ Refuel.define('Updater',{require: ['ObservableArray'], inherits: 'Events'},
 			
 			if (Refuel.refuelClass(parent) == 'DataSource') {
 				value = parent.data;
-				name = propName = 'data';
+				propName = 'data';
 			}
 			
-			//console.log('makeObservable resolved',name, parent, value);
+			//console.log('makeObservable(resolved):',name);
 			//Observe an Array
 	        if (Refuel.isArray(value)) {
 				parent[propName] = Refuel.createInstance('ObservableArray', {'value': value});
@@ -55,8 +54,10 @@ Refuel.define('Updater',{require: ['ObservableArray'], inherits: 'Events'},
 				Object.defineProperty(parent, propName, {
 				    configurable: true,
 					set: function(val) {
-			            _map[name].value = val;
-			            notifyChange(_map[name]);
+						if (_map[name].value !== val) {
+				            _map[name].value = val;
+				            notifyChange(_map[name]);
+						}
 				    },
 					get: function() {
 				        return _map[name].value;

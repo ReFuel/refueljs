@@ -37,7 +37,7 @@ Refuel.define('ListModule',{inherits: 'BasicModule', require:'ListItemModule'},
 
         this.remove = function(objData) {
             var index = this.getItemIndex(objData);
-            this.data.splice(index, 1);    
+            this.removeAt(index);
         }
         this.removeAt = function(index) {
             this.data.splice(index, 1);    
@@ -82,13 +82,7 @@ Refuel.define('ListModule',{inherits: 'BasicModule', require:'ListItemModule'},
             });
             this.addModule(listItem);
         }
-
-        //TODO defineAction('add') ?
-
-        this.defineAction('delete', function(e) {
-            this.remove(e.module)
-        });
-
+       
         this.applyOnItems = function(callback, args) {
             var data = this.items;
             for(var i = 0, item; item = data[i]; i++) {
@@ -105,7 +99,7 @@ Refuel.define('ListModule',{inherits: 'BasicModule', require:'ListItemModule'},
             return null;
         }
 
-        this.applyFilterBy = function(filterObj, permanent) {
+        this.applyFilter = function(filterObj, permanent) {
             this.data.applyFilter(function(item, index, array) {
                 var result = true;
                 for (var key in filterObj) {
@@ -129,5 +123,4 @@ Refuel.define('ListModule',{inherits: 'BasicModule', require:'ListItemModule'},
         this.filterClear = function() {
             this.data.filterClear();
         }
-       
 });
