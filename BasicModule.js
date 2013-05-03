@@ -5,7 +5,7 @@
     *
     *   @author Stefano Sergio
     */
-Refuel.define('BasicModule', {require: ['Template', 'DataSource'], inherits: 'Updater'}, 
+Refuel.define('BasicModule', {require: ['Template', 'DataSource'], inherits: 'Observer'}, 
     function BasicModule() {
         var actionMap = {};
         /**
@@ -45,7 +45,7 @@ Refuel.define('BasicModule', {require: ['Template', 'DataSource'], inherits: 'Up
         }
 
         /**
-            called by the template (via event) when something has an option: autoupdate
+            called by the template (via event) when something has an option: observe
         **/
         function observeTemplateSymbol(e) {
             this.enableAutoUpdate(this.dataSource.getData(), config.dataLabel); //FIXME not generic

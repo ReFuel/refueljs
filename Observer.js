@@ -1,12 +1,12 @@
 /**
-*   @class Updater
+*   @class Observer
 *
 *	@fires _oa_update ObservableArray change event
 *   @author Stefano Sergio
 */
 //TODO rename in Observer and option in 'observe'
-Refuel.define('Updater',{require: ['ObservableArray'], inherits: 'Events'}, 
-	function Updater() {
+Refuel.define('Observer',{require: ['ObservableArray'], inherits: 'Events'}, 
+	function Observer() {
     	if (this.observe) return;
 		var mountpoint, label;
 		var _map = {};

@@ -60,7 +60,7 @@ Refuel.define('ObservableArray',{inherits: 'Events'},
     	});
 		
 
-		//XXX Quando viene osservata questi get/set vengono sovrascritti da Updater
+		//XXX Quando viene osservata questi get/set vengono sovrascritti da Observer
 		Object.defineProperty(this, 'length', {
 		    configurable: true,
 			set: function(val) {

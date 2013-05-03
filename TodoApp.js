@@ -23,7 +23,6 @@ Refuel.define('TodoApp',{require: ['GenericModule', 'DataSource']},
 
         //sono  i nomi del simbolo nel markup
         app.subscribe('observableChange', function(e) {
-            //console.log('observableChange',e, this);
             var name = e.observable.name;
             if (name == 'todoList.length' ||  name == 'completed') {
                 var len = app.data['todoList'].data.length;
