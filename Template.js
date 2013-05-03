@@ -81,16 +81,32 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 		}
 
 		function splitOptions(symbol, data) {
-			var opts = data.split(':');			
-			symbol.linkedTo = opts.length > 1 ? opts[1] : opts[0];
-			if (opts.length > 1) symbol.options = opts[0];
+			if (data.indexOf('?') != -1) {
+				var opts = data.split('?');
+				symbol.linkedTo = opts[0];
+				symbol.expression = opts[1];
+			} else {
+				var opts = data.split(':');			
+				symbol.linkedTo = opts.length > 1 ? opts[1] : opts[0];
+				if (opts.length > 1) symbol.options = opts[0];	
+			}
+			symbol.linkedTo = symbol.linkedTo.trim();
+			if (symbol.options) symbol.options = symbol.options.trim();
+			if (symbol.expression) symbol.expression = symbol.expression.trim();
 			return symbol;
+		}
+
+		//TODO in beta version no eval will be allowed
+		function evalExpression(exp, data) {
+			var res = exp.split(':');
+			res = data ? res[0] : res[1];
+			return eval(res.trim());
 		}
 
 		function normalizePath(path) {
 			path = path.replace(config.dataLabel, '');
 			if (path.charAt(0) == '.') path = path.substr(1);
-			return path;
+			return path || '.';
 		}
 
 		function hasDataAction(element, type) {
@@ -102,6 +118,7 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 		}
 
 		function notifyEvent(e) {
+			e.stopPropagation();
 			self.bindingsProxy = self.bindingsProxy || self;
 			if (bindingTable[e.type] && hasDataAction(e.target, e.type)) {
 				e.action = (e.type === 'click'? 
@@ -149,7 +166,8 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 					}
 				}
 
-				if (symbol.options && symbol.options === 'autoupdate') {
+				//if (symbol.options && symbol.options === 'observe') {
+				if (symbol.action != 'action') {
 					var path = normalizePath(symbol.linkedTo);
 					self.notify('_observe', {'linkedTo': path, 'symbol': symbol});
 				}
@@ -242,7 +260,7 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 
 			var path = normalizePath(symbol.linkedTo);
 			var linkedData = Refuel.resolveChain(path, data);
-
+			if (symbol.expression) linkedData = evalExpression(symbol.expression, linkedData);
 			//console.log('renderSymbol',path,symbol.linkedTo, linkedData);
 			switch(symbol.action) {
 				case 'replaceText': 
@@ -282,8 +300,6 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 				case 'list':
 					if (isRoot) {
 						root.innerHTML = '';
-						
-						//linkedData = data; ///??
 						for (var i = 0; i < linkedData.length; i++) {
 							self.notify('_new_listitem', {symbol:symbol, data:linkedData[i], index: i});
 						}

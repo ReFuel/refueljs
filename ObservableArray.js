@@ -13,6 +13,7 @@ Refuel.define('ObservableArray',{inherits: 'Events'},
 		this.init = function(myConfig) {
 			this.config = Refuel.mix(this.config, myConfig);
 			data = this.config.value;
+			this.length = this.unfilteredLength = data.length;
 			this.subscribe('change', function(e){console.log(e.type, e)});
 	        for (var i = 0, prop; prop = data[i]; i++) {
 	            	watchElement.call(this, index);
@@ -48,6 +49,7 @@ Refuel.define('ObservableArray',{inherits: 'Events'},
 		  				this.notify('_oa_update',e);
 		  			break;  			
 		  		}
+		  		this.unfilteredLength = this.length;
 		  		if (lastAppliedFilter) this.applyFilter(lastAppliedFilter);
 		  		return r;
 		    };
@@ -57,6 +59,8 @@ Refuel.define('ObservableArray',{inherits: 'Events'},
     		return data;
     	});
 		
+
+		//XXX Quando viene osservata questi get/set vengono sovrascritti da Observer
 		Object.defineProperty(this, 'length', {
 		    configurable: true,
 			set: function(val) {
@@ -68,6 +72,8 @@ Refuel.define('ObservableArray',{inherits: 'Events'},
 				return data.length;
 		    }
 		});
+
+
 
     	function watchElement(index) {
     		if(!this.__lookupGetter__(index)) {

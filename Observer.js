@@ -1,12 +1,12 @@
 /**
-*   @class Updater
+*   @class Observer
 *
 *	@fires _oa_update ObservableArray change event
 *   @author Stefano Sergio
 */
 //TODO rename in Observer and option in 'observe'
-Refuel.define('Updater',{require: ['ObservableArray'], inherits: 'Events'}, 
-	function Updater() {
+Refuel.define('Observer',{require: ['ObservableArray'], inherits: 'Events'}, 
+	function Observer() {
     	if (this.observe) return;
 		var mountpoint, label;
 		var _map = {};
@@ -14,13 +14,12 @@ Refuel.define('Updater',{require: ['ObservableArray'], inherits: 'Events'},
 	    this.getObservers = function() {
 	        return _map;
 	    }
-	    this.enableAutoUpdate = function(mpDataSource, moduleLabel) {
+	    this.enableAutoUpdate = function(mpDataSource) {
 	    	mountpoint = mpDataSource;
-	    	label = moduleLabel;
 	    }
 
 	    function makeObservable(name, value, parent) {  
-	        if (name) {
+	        if (name && name != '.') {
 				var path = name.split('.');
 				var propName = path[path.length-1];
 				var resolvedData = Refuel.resolveChain(name, mountpoint, true);
@@ -33,10 +32,10 @@ Refuel.define('Updater',{require: ['ObservableArray'], inherits: 'Events'},
 			
 			if (Refuel.refuelClass(parent) == 'DataSource') {
 				value = parent.data;
-				name = propName = 'data';
+				propName = 'data';
 			}
 			
-			//console.log('makeObservable resolved',name, parent, value);
+			//console.log('makeObservable(resolved):',name);
 			//Observe an Array
 	        if (Refuel.isArray(value)) {
 				parent[propName] = Refuel.createInstance('ObservableArray', {'value': value});
@@ -55,8 +54,10 @@ Refuel.define('Updater',{require: ['ObservableArray'], inherits: 'Events'},
 				Object.defineProperty(parent, propName, {
 				    configurable: true,
 					set: function(val) {
-			            _map[name].value = val;
-			            notifyChange(_map[name]);
+						if (_map[name].value !== val) {
+				            _map[name].value = val;
+				            notifyChange(_map[name]);
+						}
 				    },
 					get: function() {
 				        return _map[name].value;

@@ -147,6 +147,7 @@ body {
 	position: relative;
 	z-index: 2;
 	border-top: 1px dotted #adadad;
+	display: none;
 }
 
 label[for='toggle-all'] {
