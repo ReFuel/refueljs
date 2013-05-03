@@ -20,6 +20,7 @@ Refuel.define('ObservableArray',{inherits: 'Events'},
 	                index++;  
 	        };
 			['pop', 'push', 'reverse', 'shift', 'sort', 'splice', 'unshift'].forEach(handleChange.bind(this));
+			this.notify('_oa_update',{action: 'set'});
 		}
 
 		function refreshLength() {
@@ -131,6 +132,8 @@ Refuel.define('ObservableArray',{inherits: 'Events'},
 			else 
 				return data.filter(callback);
 		}
+		
+
 		/**
 			This method filters the data contained by the ObservableArray and modify the contained data to reflect 
 			this filter, the length of the array could be modified as well by this method.
@@ -140,15 +143,17 @@ Refuel.define('ObservableArray',{inherits: 'Events'},
 
 			@param callback The function that will filter the objects inside the data-array, returning a boolean
 		**/
-		this.applyFilter = function(callback) {
+		this.applyFilter = function(callback, consolidate) {
 			lastAppliedFilter = callback;
 			filterClear();
 			var filteredData = this.filter(callback);
 			unFilteredData = data;
 			data = filteredData;
-			this.length = data.length;
 			resetWatchers.call(this);
+			 
+			if (consolidate) this.consolidate();
 			var e =  {action: 'filterApply', index: null};
+			this.length = data.length;
 			this.notify('_oa_update',e);
 		}
 		this.consolidate = function() {

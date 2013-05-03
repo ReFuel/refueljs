@@ -21,18 +21,27 @@ Refuel.define('TodoApp',{require: ['GenericModule', 'DataSource']},
             } 
         });
 
+        var todoListModule = app.getModule('todoList');
+
         //sono  i nomi del simbolo nel markup
+             
         app.subscribe('observableChange', function(e) {
             var name = e.observable.name;
             if (name == 'todoList.length' ||  name == 'completed') {
-                var len = app.data['todoList'].data.length;
-                var completed = app.items['todoList'].filterBy({'completed': true}).length;
-                app.data['completedLength'] = completed;
-                app.data['activeLength'] = len-completed;
+                var data = app.data['todoList'].data;
+                var curLength = data.length;
+                var completedLength = todoListModule.filterBy({'completed': true}).length;
 
-                if (app.data['activeLength'] === 0) {
+                app.data['completedLength'] = completedLength;
+                app.data['activeLength'] = curLength-completedLength;
+                //console.log(curLength, completedLength);
+                /*
+                if (curLength == completedLength) {
                     document.querySelector("#toggle-all").checked = true;
-                }
+                }else {
+                    document.querySelector("#toggle-all").checked = false;
+                } 
+                */
             }
         });
 
@@ -67,7 +76,8 @@ Refuel.define('TodoApp',{require: ['GenericModule', 'DataSource']},
         });
 
         app.defineAction('delete', function(e) {
-            app.items['todoList'].remove(e.module);
+            console.log('delete',e.module);
+            todoListModule.remove(e.module);
             app.saveData();
         });
 
@@ -100,15 +110,16 @@ Refuel.define('TodoApp',{require: ['GenericModule', 'DataSource']},
 
         Path.root('#/');
         Path.map('#/').to(function() {
-            app.items['todoList'].filterClear();
+            todoListModule.filterClear();
             selectFilter(document.querySelector('[href="#/"]'));
         });
         Path.map('#/active').to(function(){
-            app.items['todoList'].applyFilter({'completed': false});
+            todoListModule.applyFilter({'completed': false});
             selectFilter(document.querySelector('[href="#/active"]'));
+            //document.querySelector("#toggle-all").checked = false;
         });
         Path.map('#/completed').to(function(){
-            app.items['todoList'].applyFilter({'completed': true}); 
+            todoListModule.applyFilter({'completed': true}); 
             selectFilter(document.querySelector('[href="#/completed"]'));
         });    
 });

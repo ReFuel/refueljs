@@ -131,7 +131,7 @@
     	node.charset = 'utf-8';
     	node.async = true;
 		node.addEventListener('load', onScriptLoad, false);
-		node.src = path+'/require.js';
+		node.src = path+'/require.min.js';
 		head.appendChild(node);
 	}
 	else {

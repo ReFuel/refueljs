@@ -19,7 +19,6 @@ Refuel.define('Events',
 	function Events() {
 		if(this.notify && this.subscribe) return;
 		var onGoingNotification = {};
-		this.eventTable = onGoingNotification;
 		this.notify = function(name, data, bubble){
 			if (!name || typeof(name)!=='string'){
 				throw new TypeError('Invalid event name ' + name);

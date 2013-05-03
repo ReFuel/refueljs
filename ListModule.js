@@ -14,15 +14,16 @@ Refuel.define('ListModule',{inherits: 'BasicModule', require:'ListItemModule'},
         this.init = function(myConfig) {
             config = Refuel.mix(config, myConfig);
             this.dataLabel = config.dataLabel;
-           
+            this.template.name= 'ListModule:Template'
             this.dataSource.setConfig({defaultDataType: 'Array'});
             this.defineUpdateManager(oa_update.bind(this));
-            this.template.subscribe('_new_listitem', addListItem, this);
+            //this.template.subscribe('_new_listitem', addListItem, this);
             this.template.setRoot(config.root);
             
-            this.dataSource.subscribe('dataAvailable', function(data) {
+            this.dataSource.subscribe('dataAvailable', function(e) {
                 this.create();
                 this.draw();
+                set.call(this);
             }, this);
             this.dataSource.init(config);   
         }
@@ -50,26 +51,37 @@ Refuel.define('ListModule',{inherits: 'BasicModule', require:'ListItemModule'},
 
         function oa_update(e) {
             switch(e.action) {
+                case 'set':
+                    set.call(this);
+                break;
                 case 'add': 
                     addListItem.call(this,{data: e.data, index:e.index});
                 break;
-                case 'delete': 
+                case 'delete':
                     removeListItem.call(this, {index: e.index});
                 break;
                 break;
                 case 'filterApply': 
                 case 'filterClear':
-                    this.draw();
+                    set.call(this);
                 break;
                 case 'update': 
 
                 break;
             }
         }
+        function set() {
+            var listData = Refuel.resolveChain(this.template.rootSymbol, this.data);
+            this.items = [];
+            this.template.clear();
+            for (var i = 0, item; item = listData[i]; i++) {
+                addListItem.call(this,{'data': item, 'index':i});
+            }
+        }
 
         //Data change callbacks
         function removeListItem(e) {
-            this.items[e.index].template.remove();
+            this.items[e.index].destroy();
             this.items.splice(e.index, 1);
         }
         function addListItem(obj) {
@@ -106,8 +118,7 @@ Refuel.define('ListModule',{inherits: 'BasicModule', require:'ListItemModule'},
                     result = result && filterObj[key] == Refuel.resolveChain(key, item);
                 }
                 return result;
-            });
-            if (permanent) this.data.consolidate();
+            }, permanent);
         }
 
         this.filterBy = function(filterObj) {
