@@ -129,24 +129,24 @@
 		Refuel[className] = body();
 	}
 	
-	var head = document.querySelector('head');
-	var script = head.querySelector('script[data-rf-startup]'); 
-	var node = document.createElement('script');
-	var startupModule = script.getAttribute('data-rf-startup');
-	var path = script.getAttribute('src').split('/');
-	path = path.slice(0,path.length-1).join('/') || '.';
-
-	if (typeof define == 'undefined') {
-    	node.type = 'text/javascript';
-    	node.charset = 'utf-8';
-    	node.async = true;
-		node.addEventListener('load', onScriptLoad, false);
-		node.src = path+'/require.min.js';
-		head.appendChild(node);
-	}
-	else {
-		startApplication();
-	}
+// 	var head = document.querySelector('head');
+// 	var script = head.querySelector('script[data-rf-startup]'); 
+// 	var node = document.createElement('script');
+// 	var startupModule = script.getAttribute('data-rf-startup');
+// 	var path = script.getAttribute('src').split('/');
+// 	path = path.slice(0,path.length-1).join('/') || '.';
+// 
+// 	if (typeof define == 'undefined') {
+//     	node.type = 'text/javascript';
+//     	node.charset = 'utf-8';
+//     	node.async = true;
+// 		node.addEventListener('load', onScriptLoad, false);
+// 		node.src = path+'/require.min.js';
+// 		head.appendChild(node);
+// 	}
+// 	else {
+// 		startApplication();
+// 	}
 
 
 	function onScriptLoad(e) {
