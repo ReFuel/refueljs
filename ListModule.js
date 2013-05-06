@@ -56,17 +56,10 @@ Refuel.define('ListModule',{inherits: 'BasicModule', require:'ListItemModule'},
                 break;
                 case 'add': 
                     addListItem.call(this,{data: e.data, index:e.index});
+                    if(filterApplied) this.filterApply(filterApplied);
                 break;
                 case 'delete':
                     removeListItem.call(this, {index: e.index});
-                break;
-                break;
-                case 'filterApply': 
-                case 'filterClear':
-                    set.call(this);
-                break;
-                case 'update': 
-
                 break;
             }
         }

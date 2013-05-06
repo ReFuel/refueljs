@@ -22,17 +22,21 @@ Refuel.define('TodoApp',{require: ['GenericModule', 'DataSource']},
         });
 
         var todoListModule = app.getModule('todoList');       
+        checkCounters();
         app.subscribe('observableChange', function(e) {
             var name = e.observable.name;
             if (name == 'todoList.length' ||  name == 'completed') {
-                var curLength = todoListModule.data.length;
-                var completedLength = todoListModule.filterBy({'completed': true}).length;
-                app.data['completedLength'] = completedLength;
-                app.data['activeLength'] = curLength-completedLength;
-                
-                document.querySelector("#toggle-all").checked = curLength == completedLength
+                checkCounters();
             }
         });
+        function checkCounters() {
+            var curLength = todoListModule.data.length;
+            var completedLength = todoListModule.filterBy({'completed': true}).length;
+            app.data['completedLength'] = completedLength;
+            app.data['activeLength'] = curLength-completedLength;
+            
+            document.querySelector("#toggle-all").checked = curLength == completedLength;
+        }
 
         app.defineAction('clearComplete', function(e) {
             var res = e.module.filterApply({'completed': false}, true);
