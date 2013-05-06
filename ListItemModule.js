@@ -8,7 +8,7 @@
 
 Refuel.define('ListItemModule', {inherits: 'BasicModule'},  
     function ListItemModule() {
-        var config;
+        var config = {};
         this.init = function(myConfig) {
             config = Refuel.mix(config, myConfig);
             //this.defineUpdateManager(oa_update);
