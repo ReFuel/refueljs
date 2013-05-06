@@ -23,10 +23,10 @@ Refuel.define('Events',
 		this.notify = function(name, data, bubble){
 			if (!name || typeof(name)!=='string'){
 				throw new TypeError('Invalid event name ' + name);
-			}	
+			}
 			data = data || {};
 			data.type = name;
-
+			
 			if (onGoingNotification[name] instanceof Array) {
 				var handlers = [].concat(onGoingNotification[name]);
 				for (var i = 0, handler; handler = handlers[i]; i++) {

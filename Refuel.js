@@ -74,7 +74,6 @@
 	Refuel.createInstance = function (className, initObj) {
 	    var cl = classMap[className];
 	    if(typeof cl === 'undefined') {
-			console.log(JSON.stringify(classMap));
 			throw className + ' not defined, please use Refuel.define';
 		}
 	    var instance;
@@ -100,7 +99,7 @@
 	Refuel.define = function(className, req, body) {
 	   	//console.log('define', className);
 	    if(classMap[className] !== undefined) {
-	        console.error(className,' alredy defined!');
+			throw new TypeError(className + ' alredy defined!');
 	        return;
 	    }
 	    if(body === undefined) {
@@ -115,7 +114,6 @@
 	    });
 		try{
 			define(className, requirements, function() {
-				console.log("name: ", className);
 				classMap[className] = {
 					body: body,
 					inherits: req.inherits
