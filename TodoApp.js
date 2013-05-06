@@ -25,10 +25,8 @@ Refuel.define('TodoApp',{require: ['GenericModule', 'DataSource']},
         app.subscribe('observableChange', function(e) {
             var name = e.observable.name;
             if (name == 'todoList.length' ||  name == 'completed') {
-                var data = app.data['todoList'].data;
-                var curLength = data.length;
+                var curLength = todoListModule.data.length;
                 var completedLength = todoListModule.filterBy({'completed': true}).length;
-
                 app.data['completedLength'] = completedLength;
                 app.data['activeLength'] = curLength-completedLength;
                 
@@ -47,7 +45,6 @@ Refuel.define('TodoApp',{require: ['GenericModule', 'DataSource']},
             app.saveData();
         });
 
-        //TODO selezione del tasto changeDoneAll, dipendente praticamente dal filterBy:completed .lenght
         app.defineAction('changeDoneAll', function(e) {
             var checked =  e.target.checked;
             e.module.applyOnItems(function(item) {
@@ -90,7 +87,6 @@ Refuel.define('TodoApp',{require: ['GenericModule', 'DataSource']},
             e.module.toggleClass('show-delete');
         });
 
-        //XXX potremmo inserirla in GenericModule in qualche maniera figa?
         function selectFilter(target) {
             var els = document.querySelectorAll('#filters li a');
             for (var i=0, item; item = els[i]; i++) {

@@ -59,9 +59,7 @@ Refuel.define('Events',
 		this.unsubscribe = function(name) {
 			delete onGoingNotification[name];
 		}
-		this.unsubscribeAll = function() {
-			onGoingNotification = {};
-		}
+		
 });
 
 
