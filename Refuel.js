@@ -15,11 +15,11 @@
 		}
 		return res;
 	}
-
-	Refuel.implement = function(interface, target, options) {
-		target.constructor = target;
-		interface.apply(target);
-	}
+// not yet used
+// 	Refuel.implement = function(interface, target, options) {
+// 		target.constructor = target;
+// 		interface.apply(target);
+// 	}
 
 	Refuel.isArray = function(target) {
 		return toString.call(target) === '[object Array]';
@@ -28,14 +28,17 @@
 		return typeof(target) === 'undefined';
 	}
 	
-	Refuel.clone = function(old) {
-		var obj = {};
-		for (var i in old) {
-			if (old.hasOwnProperty(i)) {
-				obj[i] = old[i];
-			}
+	Refuel.clone = function(obj) {
+		if(obj === null || typeof(obj) !== 'object'){
+			return obj;
 		}
-		return obj;
+		
+		var temp = obj.constructor(); // changed
+		
+		for(var key in obj){
+			temp[key] = Refuel.clone(obj[key]);
+		}
+		return temp;
 	}
 
 	Refuel.refuelClass = function(obj) {
@@ -70,12 +73,15 @@
 
 	Refuel.createInstance = function (className, initObj) {
 	    var cl = classMap[className];
-	    if(typeof cl === 'undefined') throw className+' not defined, please use Refuel.define';
-
+	    if(typeof cl === 'undefined') {
+			throw className + ' not defined, please use Refuel.define';
+		}
 	    var instance;
 	    var F = cl.body;
 	    if (cl.inherits) {
-	    	if (!classMap[cl.inherits]) throw cl.inherits+' not defined, please use Refuel.define'  
+	    	if (!classMap[cl.inherits]) {
+				throw cl.inherits + ' not defined, please use Refuel.define'
+			}
 	        F.prototype = Refuel.createInstance(cl.inherits, initObj);
 	    }
 	    instance = new F(initObj);    
@@ -93,7 +99,7 @@
 	Refuel.define = function(className, req, body) {
 	   	//console.log('define', className);
 	    if(classMap[className] !== undefined) {
-	        console.error(className,' alredy defined!');
+			throw new TypeError(className + ' alredy defined!');
 	        return;
 	    }
 	    if(body === undefined) {
@@ -106,13 +112,17 @@
 	        if (c !== undefined) return true;
 	        else return false;
 	    });
-
-	    define(className, requirements, function() {
-	        classMap[className] = {
-	            body: body,
-	            inherits: req.inherits
-	        };
-	    });
+		try{
+			define(className, requirements, function() {
+				classMap[className] = {
+					body: body,
+					inherits: req.inherits
+				};
+			});
+		}
+		catch(e){
+			console.log(e)
+		}
 	}
 
 	Refuel.static = function(className, body) {
@@ -138,6 +148,7 @@
 		startApplication();
 	}
 
+
 	function onScriptLoad(e) {
 		if(e && e.type === 'load') {
 			console.log(node.src, 'loaded!');
@@ -147,6 +158,7 @@
 	}
 
 	function startApplication() {
+		
 		var baseConfig = {
            	baseUrl: path
         };
