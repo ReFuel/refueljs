@@ -51,6 +51,28 @@ define(["Refuel","Events"], function(){
 			refute.isTrue(t.isSubscribed("casuale"));
 			t.subscribe("isSubscribedEvent", function() {});
 			assert.isTrue(t.isSubscribed("isSubscribedEvent"));
+		},
+		unsubscribe: function() {
+			var t =  this.eventHandler;
+			assert.exception(function(){t.unsubscribe()});
+			assert.exception(function(){t.unsubscribe(3)});
+			assert.exception(function(){t.unsubscribe({a:3, b:6})});
+			assert.exception(function(){t.unsubscribe([a, b, c])});
+			refute.exception(function(){t.unsubscribe("evento")});
+			assert.exception(function(){t.unsubscribe("evento", {})});
+			refute.exception(function(){t.unsubscribe("evento", null)});
+			t.subscribe("unsubscriveEvent", function(){console.log(a)});
+			t.unsubscribe("unsubscriveEvent", function(){console.log(a)});
+			refute.isTrue(t.isSubscribed("unsubscriveEvent"));
+			t.subscribe("unsubscriveEvent1", function(){console.log(a)});
+			t.subscribe("unsubscriveEvent1", function(){console.log(b)});
+			t.unsubscribe("unsubscriveEvent1", function(){console.log(a)});
+			assert.isTrue(t.isSubscribed("unsubscriveEvent1"));
+			t.subscribe("unsubscriveEvent2", function(){console.log(a)});
+			t.subscribe("unsubscriveEvent2", function(){console.log(b)});
+			t.unsubscribe("unsubscriveEvent2");
+			refute.isTrue(t.isSubscribed("unsubscriveEvent2"));
 		}
+		
 	});
 })

@@ -55,15 +55,15 @@ Refuel.define('Events',
 		}
 
 		this.isSubscribed = function(name) {
-			return !Refuel.isUndefined(onGoingNotification[name]);
+			return !(Refuel.isUndefined(onGoingNotification[name]) || onGoingNotification[name].length===0);
 		}
 		this.unsubscribe = function(name, callback) {
-			if(!name || (callback && typeof callback !== "function")){
+			if(!name || typeof name !== "string" || (callback && typeof callback !== "function")){
 				throw new TypeError("name is not defined or wrong callback");
 			}
 			if (callback) {
 				for (var i=0, l=onGoingNotification[name].length;  i<l; i++) {
-					if(onGoingNotification[name][i]===callback){
+					if(onGoingNotification[name][i].callback.toString() === callback.toString()){
 						onGoingNotification[name].splice(i, 1);
 						return;
 					}
