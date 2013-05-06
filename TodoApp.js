@@ -21,10 +21,7 @@ Refuel.define('TodoApp',{require: ['GenericModule', 'DataSource']},
             } 
         });
 
-        var todoListModule = app.getModule('todoList');
-
-        //sono  i nomi del simbolo nel markup
-             
+        var todoListModule = app.getModule('todoList');       
         app.subscribe('observableChange', function(e) {
             var name = e.observable.name;
             if (name == 'todoList.length' ||  name == 'completed') {
@@ -34,32 +31,26 @@ Refuel.define('TodoApp',{require: ['GenericModule', 'DataSource']},
 
                 app.data['completedLength'] = completedLength;
                 app.data['activeLength'] = curLength-completedLength;
-                //console.log(curLength, completedLength);
-                /*
-                if (curLength == completedLength) {
-                    document.querySelector("#toggle-all").checked = true;
-                }else {
-                    document.querySelector("#toggle-all").checked = false;
-                } 
-                */
+                
+                document.querySelector("#toggle-all").checked = curLength == completedLength
             }
         });
 
         app.defineAction('clearComplete', function(e) {
-            var res = e.module.applyFilter({'completed': false}, true);
+            var res = e.module.filterApply({'completed': false}, true);
             app.saveData();
         });
 
         app.defineAction('changeDone', function(e) {
-            var checked =  e.target.checked;
+            var checked =  e.target.checked; 
             e.module.data['completed'] = checked;
             app.saveData();
         });
 
         //TODO selezione del tasto changeDoneAll, dipendente praticamente dal filterBy:completed .lenght
         app.defineAction('changeDoneAll', function(e) {
+            var checked =  e.target.checked;
             e.module.applyOnItems(function(item) {
-                var checked =  e.target.checked;
                 item.data['completed'] = checked;
             });
             app.saveData();
@@ -76,7 +67,7 @@ Refuel.define('TodoApp',{require: ['GenericModule', 'DataSource']},
         });
 
         app.defineAction('delete', function(e) {
-            console.log('delete',e.module);
+            console.log('delete',e.module.data.title,e.module.data.completed);
             todoListModule.remove(e.module);
             app.saveData();
         });
@@ -114,13 +105,14 @@ Refuel.define('TodoApp',{require: ['GenericModule', 'DataSource']},
             selectFilter(document.querySelector('[href="#/"]'));
         });
         Path.map('#/active').to(function(){
-            todoListModule.applyFilter({'completed': false});
+            todoListModule.filterApply({'completed': false});
             selectFilter(document.querySelector('[href="#/active"]'));
-            //document.querySelector("#toggle-all").checked = false;
+            document.querySelector("#toggle-all").checked = false;
         });
         Path.map('#/completed').to(function(){
-            todoListModule.applyFilter({'completed': true}); 
+            todoListModule.filterApply({'completed': true}); 
             selectFilter(document.querySelector('[href="#/completed"]'));
+            document.querySelector("#toggle-all").checked = true;
         });    
 });
 

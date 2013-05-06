@@ -11,13 +11,13 @@ Refuel.define('ListModule',{inherits: 'BasicModule', require:'ListItemModule'},
         var ENTER_KEY = 13;
         this.items = [];
         var config = {};
+        var filterApplied = null;
+
         this.init = function(myConfig) {
             config = Refuel.mix(config, myConfig);
             this.dataLabel = config.dataLabel;
-            this.template.name= 'ListModule:Template'
             this.dataSource.setConfig({defaultDataType: 'Array'});
             this.defineUpdateManager(oa_update.bind(this));
-            //this.template.subscribe('_new_listitem', addListItem, this);
             this.template.setRoot(config.root);
             
             this.dataSource.subscribe('dataAvailable', function(e) {
@@ -70,11 +70,13 @@ Refuel.define('ListModule',{inherits: 'BasicModule', require:'ListItemModule'},
                 break;
             }
         }
-        function set() {
-            var listData = Refuel.resolveChain(this.template.rootSymbol, this.data);
+        function set(dataToShow) {
+            dataToShow = dataToShow || this.data;
+            var listData = Refuel.resolveChain(this.template.rootSymbol, dataToShow);
             this.items = [];
             this.template.clear();
             for (var i = 0, item; item = listData[i]; i++) {
+                //item.title = 'entry '+i;
                 addListItem.call(this,{'data': item, 'index':i});
             }
         }
@@ -111,16 +113,6 @@ Refuel.define('ListModule',{inherits: 'BasicModule', require:'ListItemModule'},
             return null;
         }
 
-        this.applyFilter = function(filterObj, permanent) {
-            this.data.applyFilter(function(item, index, array) {
-                var result = true;
-                for (var key in filterObj) {
-                    result = result && filterObj[key] == Refuel.resolveChain(key, item);
-                }
-                return result;
-            }, permanent);
-        }
-
         this.filterBy = function(filterObj) {
             return this.data.filter(function(item, index, array) {
                 var result = true;
@@ -131,7 +123,15 @@ Refuel.define('ListModule',{inherits: 'BasicModule', require:'ListItemModule'},
             });
         }
 
-        this.filterClear = function() {
-            this.data.filterClear();
+        this.filterApply = function(filterObj) { 
+            filterApplied = filterObj;
+            var filtered = this.filterBy(filterObj);
+            set.call(this, filtered);
         }
+
+        this.filterClear = function() {
+            filterApplied = null;
+            set.call(this);
+        }
+
 });
