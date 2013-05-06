@@ -16,7 +16,7 @@
 				<input id="new-todo" placeholder="What needs to be done?" data-rf-action-keydown="todoList:add" autofocus>
 			</header>
 			<!-- This section should be hidden by default and shown when there are todos -->
-			<section id="main" data-rf-visibility="observe:todoList.unfilteredLength">
+			<section id="main" data-rf-visibility="observe:todoList.length">
 
 				<input id="toggle-all" data-rf-action="todoList:changeDoneAll" type="checkbox">
 				<label for="toggle-all">Mark all as complete</label>
@@ -33,7 +33,7 @@
 					</li>
 				</ul>
 			</section>
-			<footer id="footer" data-rf-visibility="observe:todoList.unfilteredLength">
+			<footer id="footer" data-rf-visibility="observe:todoList.length">
 				<span id="todo-count"><strong>{{observe:todoList.length}}</strong> item left</span> 
 				<!-- Remove this if you don't implement routing -->
 				<ul id="filters">

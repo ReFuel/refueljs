@@ -129,6 +129,7 @@
 		Refuel[className] = body();
 	}
 	
+<<<<<<< HEAD
 // 	var head = document.querySelector('head');
 // 	var script = head.querySelector('script[data-rf-startup]'); 
 // 	var node = document.createElement('script');
@@ -147,6 +148,26 @@
 // 	else {
 // 		startApplication();
 // 	}
+=======
+	var head = document.querySelector('head');
+	var script = head.querySelector('script[data-rf-startup]'); 
+	var node = document.createElement('script');
+	var startupModule = script.getAttribute('data-rf-startup');
+	var path = script.getAttribute('src').split('/');
+	path = path.slice(0,path.length-1).join('/') || '.';
+
+	if (typeof define == 'undefined') {
+    	node.type = 'text/javascript';
+    	node.charset = 'utf-8';
+    	node.async = true;
+		node.addEventListener('load', onScriptLoad, false);
+		node.src = path+'/require.min.js';
+		head.appendChild(node);
+	}
+	else {
+		startApplication();
+	}
+>>>>>>> a4e53240e0b76ddad5bf3984597dbbb8cfa68e9d
 
 	function onScriptLoad(e) {
 		if(e && e.type === 'load') {

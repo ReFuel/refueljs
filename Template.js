@@ -261,6 +261,7 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 			var path = normalizePath(symbol.linkedTo);
 			var linkedData = Refuel.resolveChain(path, data);
 			if (symbol.expression) linkedData = evalExpression(symbol.expression, linkedData);
+			if (isRoot) this.rootSymbol = path;
 			//console.log('renderSymbol',path,symbol.linkedTo, linkedData);
 			switch(symbol.action) {
 				case 'replaceText': 
@@ -298,13 +299,7 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 					symbol.domElement.appendChild(docFragment);
 				break;
 				case 'list':
-					if (isRoot) {
-						root.innerHTML = '';
-						for (var i = 0; i < linkedData.length; i++) {
-							self.notify('_new_listitem', {symbol:symbol, data:linkedData[i], index: i});
-						}
-					} 
-					else {
+					if (!isRoot) {
 						symbol.linkedData = linkedData;
 						self.notify('_new_list', {symbol: symbol});
 					}					
@@ -330,11 +325,14 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 			root.parentNode.removeChild(root);
 		}
 
+		this.clear = function() {
+			root.innerHTML = '';
+		}
+
 		function createListElement(data, parentSymbol) {
 			var domClone = parentSymbol.template.cloneNode(true);
-			var tmpl = new Template(domClone);
+			var tmpl = Refuel.newModule('Template', {'root': domClone});
 			tmpl.bindingsProxy = self;
-			tmpl.parse();
 			tmpl.render(data);
 			parentSymbol.elements.push(tmpl);
 			return tmpl.getRoot();

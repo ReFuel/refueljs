@@ -53,7 +53,7 @@ Refuel.define('BasicModule', {require: ['Template', 'DataSource'], inherits: 'Ob
             var path = e.linkedTo;
             var obs = this.observe(path, e.symbol, 
                 function(observable, tmplSymbol) {
-                    this.template.renderSymbol(tmplSymbol, this.dataSource.getData());
+                    this.template.renderSymbol(tmplSymbol, this.data);
                     this.notify('observableChange', {'observable': observable}, true);
                 }
             );
@@ -126,7 +126,9 @@ Refuel.define('BasicModule', {require: ['Template', 'DataSource'], inherits: 'Ob
         this.saveData = function() {
             this.dataSource.save();
         }
-
+        this.getModule = function(name) {
+            return this.items[name];
+        }
 
         Object.defineProperty(this, 'data', {
             configurable: true,            

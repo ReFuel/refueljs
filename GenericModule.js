@@ -32,7 +32,7 @@ Refuel.define('GenericModule',{inherits: 'BasicModule', require:'ListModule'},
                     data: passthison  
                     ,autoload: false
                     ,root: e.symbol.domElement
-                    ,dataLabel: label //rename in 'name'
+                    ,dataLabel: label //rename in 'name'?
                     ,dataPath: path
                 });
                 this.addModule(list);

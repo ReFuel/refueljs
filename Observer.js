@@ -54,10 +54,10 @@ Refuel.define('Observer',{require: ['ObservableArray'], inherits: 'Events'},
 				Object.defineProperty(parent, propName, {
 				    configurable: true,
 					set: function(val) {
-						if (_map[name].value !== val) {
+						//if (_map[name].value !== val) {
 				            _map[name].value = val;
 				            notifyChange(_map[name]);
-						}
+						//}
 				    },
 					get: function() {
 				        return _map[name].value;

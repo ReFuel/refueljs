@@ -26,6 +26,11 @@ Refuel.define('ListItemModule', {inherits: 'BasicModule'},
             //console.log('ListItemModule.oa_update', e);
         }
 
+        this.destroy = function() {
+            this.template.remove();
+            delete this;
+        }
+
         this.draw = function() {
             this.template.create(config.parentRoot, config.template, this.dataSource.getData());
         }
