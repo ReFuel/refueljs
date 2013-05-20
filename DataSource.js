@@ -78,7 +78,11 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax']},
 
         this.setConfig = function (myConfig) {
         	config = Refuel.mix(config, myConfig);
-        }	
+        	refreshInterface.call(this);
+        }
+        this.getConfig = function() {
+        	return config;
+        }
 
 		this.setData = function(dataObj) {
 			this.setLoadProgress();
@@ -143,7 +147,11 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax']},
 			}
 		}
 
-		this.load = function() {
+		this.load = function(myConfig) {
+			if (myConfig) {
+				console.log(myConfig);
+				this.setConfig(myConfig);
+			}
 			this.setLoadProgress();
 			if (config.key) {
 				var storedData = localStorage.getItem(config.key);

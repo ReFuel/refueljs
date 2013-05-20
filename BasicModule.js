@@ -44,6 +44,12 @@ Refuel.define('BasicModule', {require: ['Template', 'DataSource'], inherits: 'Ob
             }
         }
 
+        this.addEventListener = function(eventType, callback, bubbles){
+            this.template.getRoot().addEventListener(eventType, callback, bubbles);
+        }
+        this.removeEventListener = function(eventType, callback){
+            this.template.getRoot().removeEventListener(eventType, callback);
+        }
         /**
             called by the template (via event) when something has an option: observe
         **/

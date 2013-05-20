@@ -32,8 +32,15 @@
 		if(obj === null || typeof(obj) !== 'object'){
 			return obj;
 		}
-		
-		var temp = obj.constructor(); // changed
+		//console.log('clone', obj, obj.constructor);
+		var temp;
+		try {
+			temp = obj.constructor(); // changed
+		}
+		catch(e) {
+			//htmlElement returns itself
+			return obj;
+		}
 		
 		for(var key in obj){
 			temp[key] = Refuel.clone(obj[key]);

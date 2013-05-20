@@ -1,6 +1,6 @@
 Refuel.config = {
 	paths: {
-		'TVSApp' : '../TVSApp',
+		'TVSApp' : 'TVSApp',
 		'TodoApp': '../TodoApp'
 	}
 };

@@ -3,8 +3,7 @@ Refuel.static('ajax',
 		var ajaxCounter = 0;
 		var callLog = {};
 		var config = {
-			//ok: function(e){console.log('ajax ok',e);},
-			//ko: function(e){console.log('ajax ko',e);}
+			
 		};
 
 		function setProvider(){
@@ -52,7 +51,7 @@ Refuel.static('ajax',
 				ajax(url, options);
 			} else {
 				callLog[url].counter = 0;
-				options[options.timeout ? 'timeout' : 'ko'](resp, 0, xhr);
+				options[options.timeout ? 'timeout' : 'errorCallback'](resp, 0, xhr);
 			}
 		}
 
