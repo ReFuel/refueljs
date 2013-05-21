@@ -165,14 +165,17 @@
 	}
 
 	function startApplication() {
-		
-		var baseConfig = {
-           	baseUrl: path
-        };
+		var startupPath = startupModule.split('/');
+		startupModule = startupPath[startupPath.length-1];
+	 	startupPath = startupPath.slice(0,startupPath.length-1).join('/') || '.';
+	 	var absPath = [document.location.href, startupPath, startupModule].join('/');
+	 	
+		var baseConfig = { baseUrl: path, paths: {} };
+        baseConfig.paths[startupModule] = absPath;
+
       	var mixedconf = Refuel.mix(baseConfig, Refuel.config || {});
       	require.config(mixedconf);
-      	
-		startupRequirements = [startupModule, 'hammer.min', 'path.min', 'config'];
+		startupRequirements = [startupModule, 'hammer.min', 'path.min'];
       	require(startupRequirements, function() {
 			Path.listen();
 			classMap[startupModule].body();
