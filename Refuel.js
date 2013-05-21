@@ -139,9 +139,14 @@
  	var head = document.querySelector('head');
  	var script = head.querySelector('script[data-rf-startup]'); 
  	var node = document.createElement('script');
- 	var startupModule = script.getAttribute('data-rf-startup');
- 	var path = script.getAttribute('src').split('/');
- 	path = path.slice(0,path.length-1).join('/') || '.';
+	if (script) {
+	 	var startupModule = script.getAttribute('data-rf-startup');
+	 	var startupPath = startupModule.split('/');
+	 	startupModule = startupPath[startupPath.length-1];
+		startupPath = startupPath.slice(0,startupPath.length-1).join('/') || '.';
+	 	var path = script.getAttribute('src').split('/');
+	 	path = path.slice(0,path.length-1).join('/') || '.';
+	}
  
  	if (typeof define == 'undefined') {
      	node.type = 'text/javascript';
@@ -165,16 +170,11 @@
 	}
 
 	function startApplication() {
-		var startupPath = startupModule.split('/');
-		startupModule = startupPath[startupPath.length-1];
-	 	startupPath = startupPath.slice(0,startupPath.length-1).join('/') || '.';
-	 	var absPath = [document.location.href, startupPath, startupModule].join('/');
-	 	
 		var baseConfig = { baseUrl: path, paths: {} };
-        baseConfig.paths[startupModule] = absPath;
+		baseConfig.paths[startupModule] =  startupPath+'/'+startupModule;
+		Refuel.config = Refuel.mix(baseConfig, Refuel.config || {});
+      	require.config(Refuel.config);
 
-      	var mixedconf = Refuel.mix(baseConfig, Refuel.config || {});
-      	require.config(mixedconf);
 		startupRequirements = [startupModule, 'hammer.min', 'path.min'];
       	require(startupRequirements, function() {
 			Path.listen();

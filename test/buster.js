@@ -1,19 +1,29 @@
 var config = module.exports;
 
-config["My tests"] = {
+config["refueljs"] = {
 	env: "browser",        // or "node"
 	rootPath: "../",
 	libs:[
 		"require.min.js"
 	],
 	sources: [
-	"Refuel.js",
-	"Events.js"// Glob patterns supported
+		"Refuel.js",
+		"Events.js"// Glob patterns supported
 	],
 	tests: [
-	"test/*-test.js"
+		"test/*-test.js"
 	],
-	extensions: [require("buster-amd")]
+	extensions: [
+		require("buster-amd"),
+		require("buster-coverage")
+	],
+
+	"buster-coverage": {
+		outputDirectory: "test/coverage", //Write to this directory instead of coverage
+		format: "lcov", //At the moment cobertura and lcov are the only ones available
+		combinedResultsOnly: true, //Write one combined file instead of one for each browser
+		coverageExclusions: ["resources"] //Exclude everything with resources in it's path
+	}
 };
 
 // Add more configuration groups as needed 
