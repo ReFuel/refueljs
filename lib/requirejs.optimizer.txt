@@ -1,0 +1,13 @@
+REQUIREJS OPTIMIZER
+(http://requirejs.org/)
+
+==DOCS== 
+http://requirejs.org/docs/optimization.html
+
+==INFO==
+1. Install RequireJS Optimizer 
+
+2. Inside the RefuelJS directory execute:
+    $ r.js -o lib/require_build.js 
+
+3. In lib/ folder you will find the minified framework

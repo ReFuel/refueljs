@@ -1,0 +1,13 @@
+BUSTERJS TEST SUITE
+
+==Start Test==
+1. Clone RefuelJS repository on your local machine
+2. Go on RefuelJS repository root directory (es: ~/My_Repos/refueljs/)
+3. Start Buster Server (exec: $ buster-server -p 1111 &)
+4. Start Test (exec: $ buster-test)
+
+ ==Generate Coverage Report==
+1. Stay on RefuelJS repository root directory (es: ~/My_Repos/refueljs/)
+2. Exec genhtml command:
+	$ genhtml test/coverage/refueljs.coverage.lcov -o report
+3. Open report/index.html in your web browser
