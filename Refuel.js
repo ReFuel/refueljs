@@ -174,7 +174,7 @@
 		if (startupModule) baseConfig.paths[startupModule] = startupPath+'/'+startupModule;
 
 		Refuel.config = Refuel.mix(baseConfig, Refuel.config || {});
-      	require.config(Refuel.config);
+      	requirejs.config(Refuel.config);
 		startupRequirements = [startupModule];
       	if (!window.Path) startupRequirements.push('path.min');
       	if (!window.Hammer) startupRequirements.push('hammer.min');
@@ -183,7 +183,5 @@
 			classMap[startupModule].body();
 		});
 	}
-
-
 })();
 

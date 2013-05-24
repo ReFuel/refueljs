@@ -31,7 +31,7 @@ Refuel.define('SaytModule', {inherits: 'BasicModule'},
         function handleTyping(e) {
             var query = e.target.value.trim();
             if (searchTimeout) window.clearTimeout(searchTimeout);
-            searchTimeout = window.setTimeout(startSearch.bind(this, query),conf.delay[]);
+            searchTimeout = window.setTimeout(startSearch.bind(this, query),config.delay);
             //startSearch.call(this, query);
         }
         function cancelSearch() {
