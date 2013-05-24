@@ -24,8 +24,9 @@ Refuel.define('GenericModule',{inherits: 'BasicModule', require:'ListModule'},
             var path = e.symbol.linkedTo.split('.');
             var label = path[0];
             path = path.slice(1).join('.');
+
+            console.log('createList', [e.symbol.linkedTojs, label]);
             //add name to listModule and path for data
-            
             if (typeof this.items[label] === 'undefined') {
                 var passthison = this.dataSource.data[label];
                 var list = Refuel.newModule('ListModule', {

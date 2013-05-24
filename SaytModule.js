@@ -9,7 +9,8 @@
 Refuel.define('SaytModule', {inherits: 'BasicModule'},  
     function SaytModule() {
         var config = {};
-        var lastQuery;
+        var lastQuery,
+            searchTimeout;
         this.init = function(myConfig) {
             config = Refuel.mix(config, myConfig);
             this.enableAutoUpdate(this.data);
@@ -29,16 +30,21 @@ Refuel.define('SaytModule', {inherits: 'BasicModule'},
 
         function handleTyping(e) {
             var query = e.target.value.trim();
-            startSearch.call(this, query);
+            if (searchTimeout) window.clearTimeout(searchTimeout);
+            searchTimeout = window.setTimeout(startSearch.bind(this, query),conf.delay[]);
+            //startSearch.call(this, query);
         }
         function cancelSearch() {
             lastQuery = this.currentQuery; //move in currentQuery setter?
             this.currentQuery = null;
         }
         function startSearch(query) {
-            lastQuery = this.currentQuery;
-            this.currentQuery = query;
-            this.dataSource.load({'params': 'q='+query});
+            if (searchTimeout) window.clearTimeout(searchTimeout);
+            if (query != this.currentQuery) {
+                lastQuery = this.currentQuery;
+                this.currentQuery = query;
+                this.dataSource.load({'params': 'q='+query});
+            }
         }
         //XXX Cache will be a DataSource functionality
         function writeCache(key, data){

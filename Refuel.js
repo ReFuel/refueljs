@@ -168,6 +168,8 @@
 		var startupPath = startupModule.split('/');
 		startupModule = startupPath[startupPath.length-1];
 	 	startupPath = startupPath.slice(0,startupPath.length-1).join('/') || '.';
+	 	console.log('locations:',startupPath, startupModule);
+
 	 	var absPath = [document.location.href, startupPath, startupModule].join('/');
 	 	
 		var baseConfig = { baseUrl: path, paths: {} };
