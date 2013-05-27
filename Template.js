@@ -182,17 +182,50 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 		this.parse = function(node,
 						   /* privates */ nodeValue, matchedElms) {
 			var node = node || root;
+			if (node.tagName == 'ul' ) console.log(node);
 			nodeValue = node.nodeValue;
 			switch (node.nodeType){
 				case 1:
+					//FIXME alcuni symbol vengono parsati a doppio, perchè vengono trattati sia nel 
+					//	generic che nella root del modulo controllare che non vengano anche agganciati doppi eventi
 					var parsedAttributes = parseDOMElement(node, symbolTable, regExpToMatchName, regExpToMatchValue);
 					var isRoot = node === root;
+
+					//TODO questo è il punto in cui implementare il module.config e creare un parse per la sua sintassi
+					//	non dimentichiamoci che i value match vanno comunque gestiti, sono gli elementi child che invece
+					//	vanno cercati secondo il module.config
 					var loopSymbol = parsedAttributes['loop'];
 					var listSymbol = parsedAttributes['list'];
 					var templateSymbol = parsedAttributes['template'];
-					
-					//This code parses childrenNodes of the current DOMElement, there are some DOMElement that not always you should 
-					//investigate inside, unless this particular node is the proper root of the current template.
+
+					var modules = Refuel.config.modules;
+					for (var key in modules) {
+						if (node.hasAttribute(key)) {
+							var mod = modules[key];
+							var parts = mod['parts'];
+							if (!isRoot) {
+								this.submodules = this.submodules || {};
+								//name deve essere pulito se prendiamo quel dato
+								//forse un data-name esterno ai dati è meglio? 
+								var mName = node.getAttribute(key);
+								this.submodules[mName] = mod['className'];
+							}
+							//find  parts defined inside module.config
+							else {
+								this.parts = this.parts || {};
+								for (var selector in parts) {	
+									var name = parts[selector]['name'];
+									if (name) {
+										var found = node.querySelectorAll(selector);
+										if (found.length) {
+											this.parts[name] = found.length > 1 ? found : found[0];
+										}
+									}
+								}
+							}
+						}
+					}
+
 					if (loopSymbol) {
 						var tmplRoot = loopSymbol.domElement;
 						var child = tmplRoot.querySelector('[data-rf-template]'); 

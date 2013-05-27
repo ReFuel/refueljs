@@ -3,7 +3,8 @@
 	var classMap = {};
 	
 	Refuel.classMap = classMap;
-	  
+	Refuel.config = Refuel.config || {};
+
 	function argumentsToArray(args){
 		return Array.prototype.slice.call(args);
 	}
@@ -153,7 +154,7 @@
      	node.charset = 'utf-8';
      	node.async = true;
  		node.addEventListener('load', onScriptLoad, false);
- 		node.src = path+'/require.min.js';
+ 		node.src = path+'/lib/require.min.js';
  		head.appendChild(node);
  	}
  	else {
@@ -171,13 +172,13 @@
 	function startApplication() {
 		var baseConfig = { baseUrl: '', paths: {} };
 		if (path) baseConfig.baseUrl = path;
-		if (startupModule) baseConfig.paths[startupModule] = startupPath+'/'+startupModule;
+		if (startupModule) baseConfig.paths[startupModule] = location.pathname+startupPath+'/'+startupModule;
 
 		Refuel.config = Refuel.mix(baseConfig, Refuel.config || {});
       	require.config(Refuel.config);
 		startupRequirements = [startupModule];
-      	if (!window.Path) startupRequirements.push('path.min');
-      	if (!window.Hammer) startupRequirements.push('hammer.min');
+      	if (!window.Path) startupRequirements.push('lib/path.min');
+      	if (!window.Hammer) startupRequirements.push('lib/hammer.min');
       	require(startupRequirements, function() {
 			Path.listen();
 			classMap[startupModule].body();

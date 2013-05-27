@@ -5,10 +5,12 @@ config["refueljs"] = {
 	rootPath: "../",
 	libs:[
 		"require.min.js"
+		,"hammer.min.js"
+		,"path.min.js"
 	],
 	sources: [
 		"Refuel.js",
-		"Events.js"// Glob patterns supported
+		"Events.js"
 	],
 	tests: [
 		"test/*-test.js"
