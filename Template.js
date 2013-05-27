@@ -19,10 +19,11 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 
 		this.markMissedRefs = false;
 		this.bindingsProxy = null;
-
-		var regExpToMatchName = new RegExp('data-rf-(\\w*)');
+		var markupPrefix = 'data-rf-';
+		var markupActionPrefix = 'data-rf-action-';
+		var regExpToMatchName = new RegExp(markupPrefix+'(\\w*)');
 		var regExpToMatchValue = new RegExp('\\{\\{(.*)\\}\\}');
-		var attributeRegExp = new RegExp('data-rf-action-','i');
+		var attributeRegExp = new RegExp(markupActionPrefix,'i');
 		var datasetRegExp = new RegExp('rfAction', 'i');
 		
 		this.init = function(myConfig) {
@@ -123,7 +124,7 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 			if (bindingTable[e.type] && hasDataAction(e.target, e.type)) {
 				e.action = (e.type === 'click'? 
 					e.target.dataset['rfAction'] || e.target.dataset['rfActionClick'] : 
-					e.target.getAttribute('data-rf-action-' + e.type)
+					e.target.getAttribute(markupActionPrefix + e.type)
 			    );
 			    e = splitOptions(e, e.action);
 			   	self.bindingsProxy.notify('genericBinderEvent', e);
@@ -131,7 +132,7 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 			else if (bindingTable[e.type] && hasDataAction(e.currentTarget, e.type)) {
 				e.action = (e.type === 'click'? 
 					e.currentTarget.dataset['rfAction'] || e.currentTarget.dataset['rfActionClick'] : 
-					e.currentTarget.getAttribute('data-rf-action-' + e.type)
+					e.currentTarget.getAttribute(markupActionPrefix + e.type)
 				);
 				e = splitOptions(e, e.action);
 				self.bindingsProxy.notify('genericBinderEvent', e);
@@ -146,7 +147,7 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 			for(var i = 0, symbol;  symbol = symbolTable[i]; i++) {
 				var isRoot = symbol.domElement === root;
 				if (symbol.action === 'action') {
-					var eventType = (symbol.attributeName === 'data-rf-action' ? 'click' : symbol.attributeName.replace(attributeRegExp, ''));
+					var eventType = (symbol.attributeName === markupActionPrefix ? 'click' : symbol.attributeName.replace(attributeRegExp, ''));
 					if (!bindingTable[eventType]) {
 						var gesture;
 						if (typeof(Hammer) !== 'undefined') 
@@ -182,7 +183,6 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 		this.parse = function(node,
 						   /* privates */ nodeValue, matchedElms) {
 			var node = node || root;
-			if (node.tagName == 'ul' ) console.log(node);
 			nodeValue = node.nodeValue;
 			switch (node.nodeType){
 				case 1:
@@ -200,17 +200,22 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 
 					var modules = Refuel.config.modules;
 					for (var key in modules) {
-						if (node.hasAttribute(key)) {
+						var attribKey = markupPrefix+key;
+						if (node.hasAttribute(attribKey)) {
 							var mod = modules[key];
 							var parts = mod['parts'];
 							if (!isRoot) {
 								this.submodules = this.submodules || {};
 								//name deve essere pulito se prendiamo quel dato
 								//forse un data-name esterno ai dati è meglio? 
-								var mName = node.getAttribute(key);
+								var mName = node.getAttribute(attribKey);
 								this.submodules[mName] = mod['className'];
+								this.notify('_new_module_requested', {
+									'symbol':parsedAttributes[key],
+									'module': mod
+								});
 							}
-							//find  parts defined inside module.config
+							//find  parts defined inside config.modules
 							else {
 								this.parts = this.parts || {};
 								for (var selector in parts) {	
@@ -226,9 +231,10 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 						}
 					}
 
+					//fa parsare il loop con una symbol table interna anzichè con quella normale
 					if (loopSymbol) {
 						var tmplRoot = loopSymbol.domElement;
-						var child = tmplRoot.querySelector('[data-rf-template]'); 
+						var child = tmplRoot.querySelector(':first-child'); 
 						var tmpl = tmplRoot.removeChild(child);
 						loopSymbol.template = tmpl;
 						this.parse(tmpl, loopSymbol.symbolTable);
@@ -238,9 +244,10 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 					}
 					else if (listSymbol && isRoot) { 
 						var tmplRoot = listSymbol.domElement;
-						var child = tmplRoot.querySelector('[data-rf-template]'); 
+						var child = tmplRoot.querySelector(':first-child'); 
 						var tmpl = tmplRoot.removeChild(child);
-						listSymbol.template = tmpl;
+						listSymbol.template = tmpl; //come dire che il :first-child è template [ma nella symbolTable]
+						//si potrebbe organizzare un .parts della symbol table?
 					}
 					else {
 						for (var i=0, childElm; childElm = node.childNodes[i++];) {
@@ -266,8 +273,12 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 				break;
 			}
 
-			if (node === root) templateBinder(node, symbolTable);
+			//if (node === root) templateBinder(node, symbolTable);
 			return symbolTable;
+		}
+
+		this.parseTemplate = function() {
+			symbolTable = this.parse();
 		}
 
 		/**
@@ -279,6 +290,7 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 			profiler.timestart = new Date().getTime();
 			if (!data) console.error('Template::render data argument is null');
 			if (!symbolTable.length) symbolTable = this.parse();
+			templateBinder(root, symbolTable);
 			self.notify('_template_parsed', {symbolTable: symbolTable});
 			
 			for(var i = 0, symbol;  symbol = symbolTable[i]; i++) {
@@ -326,7 +338,7 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 					var docFragment = document.createDocumentFragment();
 					for (var i = 0; i < linkedData.length; i++) {
 						var el = createListElement(linkedData[i], symbol);
-						el.setAttribute('data-rf-id', i);
+						el.setAttribute(markupPrefix+id, i);
 						docFragment.appendChild(el);
 					};
 					symbol.domElement.appendChild(docFragment);

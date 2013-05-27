@@ -6,16 +6,16 @@
 *   @author Stefano Sergio
 **/
 
-Refuel.define('ListItemModule', {inherits: 'BasicModule'},  
+Refuel.define('ListItemModule', {inherits: 'GenericModule'},  
     function ListItemModule() {
         var config = {};
         this.init = function(myConfig) {
             config = Refuel.mix(config, myConfig);
             //this.defineUpdateManager(oa_update);
-            this.dataSource.name = this.template.name = 'ListItemModule';
             this.enableAutoUpdate(this.dataSource.getData());
             
             this.dataSource.subscribe('dataAvailable', function(data) {
+                console.log('ListItemModule.dataAvailable');
                 this.draw();
             }, this);
 

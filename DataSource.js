@@ -166,7 +166,10 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax']},
             	}
             }
             else if (config.url) {
-            	Refuel.ajax.get(config.url, config);
+            	setTimeout(function() {
+            		Refuel.ajax.get(config.url, config);
+            		
+            	}, 500)
             }
 
             for(var key in data) {

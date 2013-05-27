@@ -65,7 +65,9 @@
 			var parent;
 			for (var i=0, item; item = dataPath[i]; i++) {
 				parent = extData;
-				//if (item == 'results') debugger;
+				if (extData === undefined) {
+					console.error(item,'in',path,'from',data,'is undefined');
+				}
 				extData = extData[item];
 				
 				while (Refuel.refuelClass(extData) == 'DataSource') {
@@ -174,7 +176,7 @@
 		if (path) baseConfig.baseUrl = path;
 		if (startupModule) baseConfig.paths[startupModule] = location.pathname+startupPath+'/'+startupModule;
 
-		Refuel.config = Refuel.mix(baseConfig, Refuel.config || {});
+		Refuel.config = Refuel.mix(baseConfig, Refuel.config);
       	require.config(Refuel.config);
 		startupRequirements = [startupModule];
       	if (!window.Path) startupRequirements.push('lib/path.min');

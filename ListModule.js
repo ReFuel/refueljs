@@ -14,18 +14,28 @@ Refuel.define('ListModule',{inherits: 'BasicModule', require:'ListItemModule'},
         var filterApplied = null;
 
         this.init = function(myConfig) {
-            config = Refuel.mix(config, myConfig);
-            this.dataLabel = config.dataLabel;
+            config = Refuel.mix(config, myConfig);         
+            //XXX shouldnt be auto-detect which type?   
             this.dataSource.setConfig({defaultDataType: 'Array'});
+
             this.defineUpdateManager(oa_update.bind(this));
-            this.template.setRoot(config.root);
+            if (config.root) this.template.setRoot(config.root);
             
-            this.dataSource.subscribe('dataAvailable', function(e) {
-                this.create();
+            this.subscribeOnce('_parentDataAvailable', parentDataHandler, this);
+
+            this.dataSource.subscribeOnce('dataAvailable', function(e) {
+                console.log('ListModule.dataAvailable');
                 this.draw();
-                set.call(this);
+                //set.call(this);
             }, this);
             this.dataSource.init(config);   
+        }
+
+        function parentDataHandler(e) {
+            //XXX function mergeData, non basta settargli gli stessi dati
+            //this.data = e.data[this.dataLabel].data;
+
+            console.log('ListModule.parentDataHandler',this.dataLabel, this.data['results']);
         }
 
         this.create = function() {
@@ -65,6 +75,8 @@ Refuel.define('ListModule',{inherits: 'BasicModule', require:'ListItemModule'},
         }
         function set(dataToShow) {
             dataToShow = dataToShow || this.data;
+
+            console.log('ListModule.set', dataToShow);
             var listData = Refuel.resolveChain(this.template.rootSymbol, dataToShow);
             this.items = [];
             this.template.clear();

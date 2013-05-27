@@ -25,7 +25,7 @@ Refuel.define('BasicModule', {require: ['Template', 'DataSource'], inherits: 'Ob
             }else {
                 this.dataSource = Refuel.newModule('DataSource');
             }
-             
+            this.dataLabel = config.dataLabel;
             this.template = Refuel.newModule('Template', config);
             this.defineUpdateManager(oa_update.bind(this));
             this.template.subscribe('genericBinderEvent', genericEventHandler, this);
@@ -141,8 +141,11 @@ Refuel.define('BasicModule', {require: ['Template', 'DataSource'], inherits: 'Ob
             get: function() {
                 return this.dataSource.data;
             },
+            //questo è molto male, controllare come viene usato dall'esterno
+            //se voglio settare i data di un module dovrei settarli nel suo dataSource
             set: function(value) {
-                this['data'] = value; 
+                //console.log('data set', value);
+                this.dataSource.setData(value); 
             }
         });
         

@@ -1,13 +1,13 @@
 
 Refuel.config.modules = {
-	'data-rf-list': {
+	'list': {
 		className: 'ListModule',
 		parts: {
 			':first-child': { name: 'template' },
 			'[data-rf-template]': { name: 'template' } 
 		}
 	},
-	'data-rf-sayt': {
+	'sayt': {
 		className: 'SaytModule',
 		parts: {
 			'input': 	{ name: 'inputField' },

@@ -54,6 +54,13 @@ Refuel.define('Events',
 			onGoingNotification[name].push(handler);
 		}
 
+		this.subscribeOnce = function(name, callback, context){
+			if (this.isSubscribed(name)) {
+				this.unsubscribe(name, callback);
+			}
+			this.subscribe(name, callback, context);
+		}
+
 		this.isSubscribed = function(name) {
 			return !(Refuel.isUndefined(onGoingNotification[name]) || onGoingNotification[name].length===0);
 		}
