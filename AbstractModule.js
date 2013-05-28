@@ -1,12 +1,12 @@
     /**
-    *   @class BasicModule
+    *   @class AbstractModule
     *   @fires _unhandledAction Fired when an Action is requested on this module but is not defined
     *   @fires observableChange Fired when some data observed by this module changes
     *
     *   @author Stefano Sergio
     */
-Refuel.define('BasicModule', {require: ['Template', 'DataSource'], inherits: 'Observer'}, 
-    function BasicModule() {
+Refuel.define('AbstractModule', {require: ['Template', 'DataSource'], inherits: 'Observer'}, 
+    function AbstractModule() {
         var actionMap = {};
         /**
         * @type {object}
@@ -66,7 +66,7 @@ Refuel.define('BasicModule', {require: ['Template', 'DataSource'], inherits: 'Ob
         }
 
         /**
-        *   @memberof BasicModule#addModule
+        *   @memberof AbstractModule#addModule
         *   Add a child module. Child module is added in the 'items' collection under the name specified in the template if any.
         *   Otherwise is pushed as array element inside the 'items' collection.
         */ 
@@ -85,11 +85,11 @@ Refuel.define('BasicModule', {require: ['Template', 'DataSource'], inherits: 'Ob
         }
         
         function oa_update(e) {
-            //console.log('BasicModule','update ->',e);      
+            //console.log('AbstractModule','update ->',e);      
         }
 
         /**
-        *   @method BasicModule#draw
+        *   @method AbstractModule#draw
         *   Begin the render of the part of template owned by this module
         *   @param data The data to populate the template with, define this if data are different from the dataSource's data    
         */
@@ -99,7 +99,7 @@ Refuel.define('BasicModule', {require: ['Template', 'DataSource'], inherits: 'Ob
         }
 
         /**
-        * @method BasicModule#defineUpdateManager
+        * @method AbstractModule#defineUpdateManager
         * @param callback The function that will manage _oa_update event
         */        
         this.defineUpdateManager = function(callback) {
@@ -107,13 +107,13 @@ Refuel.define('BasicModule', {require: ['Template', 'DataSource'], inherits: 'Ob
             this.subscribe('_oa_update', callback);  
         }
         /**
-        * @method BasicModule#defineAction
+        * @method AbstractModule#defineAction
         */
         this.defineAction = function(name, callback) {
             actionMap[name] = {context: this, callback: callback};
         }
         /**
-        * @method BasicModule#querySelector
+        * @method AbstractModule#querySelector
         */
         this.querySelector = function(query) {
             return this.template.getRoot().querySelector(query);

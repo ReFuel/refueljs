@@ -6,7 +6,7 @@
 *
 *   @author Stefano Sergio
 **/
-Refuel.define('ListModule',{inherits: 'BasicModule', require:'ListItemModule'}, 
+Refuel.define('ListModule',{inherits: 'AbstractModule', require:'ListItemModule'}, 
     function ListModule() {
         var ENTER_KEY = 13;
         this.items = [];
@@ -21,7 +21,7 @@ Refuel.define('ListModule',{inherits: 'BasicModule', require:'ListItemModule'},
             this.defineUpdateManager(oa_update.bind(this));
             if (config.root) this.template.setRoot(config.root);
             
-            this.subscribeOnce('_parentDataAvailable', parentDataHandler, this);
+            //this.subscribeOnce('_parentDataAvailable', parentDataHandler, this);
 
             this.dataSource.subscribeOnce('dataAvailable', function(e) {
                 console.log('ListModule.dataAvailable');
