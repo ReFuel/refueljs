@@ -306,7 +306,7 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 			var path = normalizePath(symbol.linkedTo);
 			var linkedData = Refuel.resolveChain(path, data);
 			if (symbol.expression) linkedData = evalExpression(symbol.expression, linkedData);
-			if (isRoot) this.rootSymbol = path;
+			//if (isRoot) this.rootSymbol = path;
 			//console.log('renderSymbol',path,symbol.linkedTo, linkedData);
 			switch(symbol.action) {
 				case 'replaceText': 

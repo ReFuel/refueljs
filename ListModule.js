@@ -84,13 +84,11 @@ Refuel.define('ListModule',{inherits: 'AbstractModule', require:'ListItemModule'
         }
         function set(dataToShow) {
             dataToShow = dataToShow || this.data;
-
-            var listData = Refuel.resolveChain(this.template.rootSymbol, dataToShow);
-            console.log('ListModule.set',this.template.rootSymbol, listData);
+            var listData = this.data;
+            console.log('ListModule.set', this.data.length);
             this.items = [];
             this.template.clear();
             for (var i = 0, item; item = listData[i]; i++) {
-                //item.title = 'entry '+i;
                 addListItem.call(this,{'data': item, 'index':i});
             }
         }

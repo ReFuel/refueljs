@@ -3,6 +3,7 @@
 *	@param data direct set data
 *	@param key  localStorage key
 *	@param url  ajax call url
+*	@param dataPath when data are loaded
 *   
 *	@fires dataAvaiable The class has loaded its data and is ready
 *	@fires dataError Some error is occurred during data loading
@@ -75,7 +76,7 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax']},
            		this.notify('dataAvailable', {'data': data});
            	}
            	else if (config.data) {
-           		this.setData(config.data);
+           		setData.call(this, config.data);
            		config.data = null;
 			} 
            	else if (config.autoload) {
@@ -87,11 +88,16 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax']},
         	config = Refuel.mix(config, myConfig);
         	refreshInterface.call(this);
         }
+        //XXX Really?
         this.getConfig = function() {
         	return config;
         }
 
 		this.setData = function(dataObj) {
+			setData.call(this, dataObj);
+		}
+
+		function setData (dataObj) {
 			this.setLoadProgress();
 			data = dataObj;
 			
@@ -166,11 +172,12 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax']},
 				var storedData = localStorage.getItem(config.key);
 				var storedObject = JSON.parse(storedData);
 				if (storedObject) {
-            		this.setData(storedObject);
+					var puredata = Refuel.resolveChain(config.dataPath, storedObject);
+            		setData.call(this, puredata);
             	}
             	else {
             		var defaultEmptyData = config.defaultDataType == 'Array' ? [] : {};
-            		this.setData(defaultEmptyData);
+            		setData.call(this, defaultEmptyData);
             	}
             }
             else if (config.url) {
@@ -190,7 +197,8 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax']},
 
 		function successCallback(dataObj) {
 			//console.log('successCallback',dataObj);
-			this.setData(dataObj.responseJSON);
+			var puredata = Refuel.resolveChain(config.dataPath, dataObj.responseJSON);
+			setData.call(this, puredata);
 		}
 		
 		function errorCallback(dataObj) {

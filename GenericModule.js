@@ -73,15 +73,19 @@ Refuel.define('GenericModule',{inherits: 'AbstractModule', require:'ListModule'}
         function createSubmodule(e) {
             var symbol = e.symbol;
             var module = e.module;
-            var label = symbol.linkedTo.split('.')[0];
+            var path = symbol.linkedTo.split('.');
+            var label = path.splice(0,1)[0];
+            path = path.join('.');
+
             console.log('GenericModule creates a Submodule',module.className,'with data', symbol.linkedTo);
-            
+
             var newmodule = Refuel.newModule(module.className, {
                 autoload: false
                 ,root: symbol.domElement
                 ,dataLabel: label //rename in 'name'?
                 ,data: this.data[label]
-                ,mountpoint: this.data
+                ,dataPath: path
+                //,mountpoint: this.data
             });
 
             // se sono linkedTo bisogna dargli una label, bisogna dargli un rootpath e il resto del path
