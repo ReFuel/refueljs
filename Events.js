@@ -46,19 +46,16 @@ Refuel.define('Events',
 			if (typeof onGoingNotification[name] === 'undefined') {
 				onGoingNotification[name] = [];
 			}
+			else {
+				//if the same callback is subscribed to the same event, remove it
+				this.unsubscribe(name, callback);
+			}
 
 			var handler = {
 				'callback': callback,
 				'context': context
 			}
 			onGoingNotification[name].push(handler);
-		}
-
-		this.subscribeOnce = function(name, callback, context){
-			if (this.isSubscribed(name)) {
-				this.unsubscribe(name, callback);
-			}
-			this.subscribe(name, callback, context);
 		}
 
 		this.isSubscribed = function(name) {

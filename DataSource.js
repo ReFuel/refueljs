@@ -18,7 +18,8 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax']},
 				'defaultDataType': 'Object',
 				'dataPath': null,
 				'successCallback': successCallback.bind(this),
-				'errorCallback': errorCallback.bind(this)
+				'errorCallback': errorCallback.bind(this),
+				autoload: false
 			},
 			extLoadingState = {
 				requested: 0,
@@ -49,9 +50,14 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax']},
 		        return _loadStatus == 'idle';
 		    }
 		});
+		Object.defineProperty(this, 'loadStatus', {
+			get: function() {
+		        return _loadStatus;
+		    }
+		});
+
 		Object.defineProperty(this, 'data', {
-			configurable: true,
-					
+			configurable: true,				
 			get: function() {
 		        return data;
 		    },
@@ -62,13 +68,14 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax']},
 
 		this.init = function(myConfig) {
 			config = Refuel.mix(config, myConfig);
+			console.log('datasource.init',config.dataLabel,_loadStatus,config.autoload, config.msg );
 			refreshInterface.call(this);
 
 			if (this.loadComplete) {
            		this.notify('dataAvailable', {'data': data});
            	}
            	else if (config.data) {
-				this.setData(config.data);
+           		this.setData(config.data);
            		config.data = null;
 			} 
            	else if (config.autoload) {
@@ -149,9 +156,11 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax']},
 
 		this.load = function(myConfig) {
 			if (myConfig) {
-				console.log(myConfig);
 				this.setConfig(myConfig);
 			}
+			if (this.loadProgress) return;
+			console.log('DataSource start loading data labelled',config.dataLabel,'from',config.url || config.key);
+			
 			this.setLoadProgress();
 			if (config.key) {
 				var storedData = localStorage.getItem(config.key);
@@ -160,7 +169,6 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax']},
             		this.setData(storedObject);
             	}
             	else {
-            		
             		var defaultEmptyData = config.defaultDataType == 'Array' ? [] : {};
             		this.setData(defaultEmptyData);
             	}
@@ -175,7 +183,7 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax']},
             for(var key in data) {
 				var prop = data[key];
 				if (Refuel.refuelClass(prop) == 'DataSource') {
-					if (!prop.loadComplete || !prop.loadProgress) prop.load();
+					if (!prop.loadComplete) prop.load();
 				}	
 			}
 		}

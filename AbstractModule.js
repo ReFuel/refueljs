@@ -14,20 +14,26 @@ Refuel.define('AbstractModule', {require: ['Template', 'DataSource'], inherits: 
         *
         */
         var config = {
-            dataPath: '.'
+            dataPath: '.',
+            autoload: false
         };
 
         this.init = function(myConfig) {
             config = Refuel.mix(config, myConfig);
             this.items = [];
-            if ( Refuel.refuelClass(config.data) == 'DataSource') {
-                this.dataSource = config.data; 
-            }else {
-                this.dataSource = Refuel.newModule('DataSource');
-            }
-            this.dataLabel = config.dataLabel;
-            this.template = Refuel.newModule('Template', config);
             this.defineUpdateManager(oa_update.bind(this));
+            this.dataLabel = config.dataLabel;
+            
+            if ( Refuel.refuelClass(config.data) == 'DataSource') {
+                console.log('a newly created '+Refuel.refuelClass(this)+' have DataSource PASSED by parent with name:', config.dataLabel, 'in status: '+ config.data.loadStatus );
+                this.dataSource = config.data; 
+            }
+            else {
+                console.log('a newly created '+Refuel.refuelClass(this)+' instances new DataSource with config:', config );
+                this.dataSource = Refuel.newModule('DataSource', config);
+            }
+
+            this.template = Refuel.newModule('Template', config);
             this.template.subscribe('genericBinderEvent', genericEventHandler, this);
             this.template.subscribe('_observe', observeTemplateSymbol, this);
         }
@@ -65,6 +71,10 @@ Refuel.define('AbstractModule', {require: ['Template', 'DataSource'], inherits: 
             );
         }
 
+        this.setDataPath = function(path) {
+            this.config.dataPath = path;
+        }
+
         /**
         *   @memberof AbstractModule#addModule
         *   Add a child module. Child module is added in the 'items' collection under the name specified in the template if any.
@@ -72,7 +82,7 @@ Refuel.define('AbstractModule', {require: ['Template', 'DataSource'], inherits: 
         */ 
         this.addModule = function(module) {
             if (module.dataLabel) this.items[module.dataLabel] = module;
-            else             this.items.push(module);
+            else                  this.items.push(module);
 
             module.subscribe('observableChange', function(e) {
                 this.notify('observableChange', e);
@@ -94,7 +104,7 @@ Refuel.define('AbstractModule', {require: ['Template', 'DataSource'], inherits: 
         *   @param data The data to populate the template with, define this if data are different from the dataSource's data    
         */
         this.draw = function(data) {
-            data = data || this.dataSource.getData();
+            data = data || this.data;
             this.template.render(data);
         }
 
@@ -139,12 +149,11 @@ Refuel.define('AbstractModule', {require: ['Template', 'DataSource'], inherits: 
         Object.defineProperty(this, 'data', {
             configurable: true,            
             get: function() {
-                return this.dataSource.data;
+                return this.dataSource.getData();
             },
             //questo è molto male, controllare come viene usato dall'esterno
             //se voglio settare i data di un module dovrei settarli nel suo dataSource
             set: function(value) {
-                //console.log('data set', value);
                 this.dataSource.setData(value); 
             }
         });

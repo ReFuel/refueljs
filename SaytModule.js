@@ -6,7 +6,7 @@
 *	@fires dataError Some error is occurred during data loading
 *	@author Stefano Sergio
 */
-Refuel.define('SaytModule', {inherits: 'AbstractModule'},  
+Refuel.define('SaytModule', {inherits: 'GenericModule'},  
     function SaytModule() {
         var config = {};
         var lastQuery,

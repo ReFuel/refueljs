@@ -14,27 +14,35 @@ Refuel.define('ListModule',{inherits: 'AbstractModule', require:'ListItemModule'
         var filterApplied = null;
 
         this.init = function(myConfig) {
-            config = Refuel.mix(config, myConfig);         
+            config = Refuel.mix(config, myConfig);  
+            delete config['data'];
+
             //XXX shouldnt be auto-detect which type?   
             this.dataSource.setConfig({defaultDataType: 'Array'});
 
             this.defineUpdateManager(oa_update.bind(this));
             if (config.root) this.template.setRoot(config.root);
             
+
             //this.subscribeOnce('_parentDataAvailable', parentDataHandler, this);
 
-            this.dataSource.subscribeOnce('dataAvailable', function(e) {
-                console.log('ListModule.dataAvailable');
-                this.draw();
-                //set.call(this);
-            }, this);
-            this.dataSource.init(config);   
+            if (this.dataSource) {
+                console.log(Refuel.refuelClass(this),config.dataLabel,'have dataSource and is waiting for data...');
+                this.dataSource.subscribe('dataAvailable', function(data) {
+                    console.log(Refuel.refuelClass(this),'got all data ',this.data,', now he can draw()');
+                    this.draw();
+                    set.call(this);
+                }, this);
+                this.dataSource.init(config);    
+            }
+        }
+
+        this.haslistener = function() {
+            return this.dataSource.isSubscribed('dataAvailable');
+            
         }
 
         function parentDataHandler(e) {
-            //XXX function mergeData, non basta settargli gli stessi dati
-            //this.data = e.data[this.dataLabel].data;
-
             console.log('ListModule.parentDataHandler',this.dataLabel, this.data['results']);
         }
 
@@ -60,6 +68,7 @@ Refuel.define('ListModule',{inherits: 'AbstractModule', require:'ListItemModule'
         }
 
         function oa_update(e) {
+            debugger;
             switch(e.action) {
                 case 'set':
                     set.call(this);
@@ -76,8 +85,8 @@ Refuel.define('ListModule',{inherits: 'AbstractModule', require:'ListItemModule'
         function set(dataToShow) {
             dataToShow = dataToShow || this.data;
 
-            console.log('ListModule.set', dataToShow);
             var listData = Refuel.resolveChain(this.template.rootSymbol, dataToShow);
+            console.log('ListModule.set',this.template.rootSymbol, listData);
             this.items = [];
             this.template.clear();
             for (var i = 0, item; item = listData[i]; i++) {
@@ -93,7 +102,8 @@ Refuel.define('ListModule',{inherits: 'AbstractModule', require:'ListItemModule'
         }
         function addListItem(obj) {
             var rootSymbol = this.template.getSymbolByAction('list');
-            var listItem = Refuel.createInstance('ListItemModule', { 
+            console.log('ListModule.addListItem', obj);
+            var listItem = Refuel.newModule('ListItemModule', { 
                 parentRoot: config.root, 
                 template: rootSymbol.template,
                 autoload: false,

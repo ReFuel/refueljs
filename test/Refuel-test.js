@@ -209,9 +209,9 @@ define(["Refuel"], function(){
 			/*  not defined, please use Refuel.define --- empty inherits array
 			var defineSpy = sinon.stub(window, "define");
 			refute.exception(function(){
-				Refuel.define("newInstanceTest",  {require: [], inherits: []}, function(){return true});
+				Refuel.define("newModuleTest",  {require: [], inherits: []}, function(){return true});
 				defineSpy.getCall(0).args[2]();
-				Refuel.createInstance("newInstanceTest", {});
+				Refuel.createInstance("newModuleTest", {});
 			});
 			defineSpy.restore();
 			*/
@@ -219,22 +219,22 @@ define(["Refuel"], function(){
 			var newClassSpy = sinon.spy();
 			var defineSpy = sinon.spy(window, "define");
 			refute.exception(function(){
-				Refuel.define("newInstanceTestHi", {}, newClassSpy);
+				Refuel.define("newModuleTestHi", {}, newClassSpy);
 				defineSpy.getCall(0).args[2]();
-				Refuel.createInstance("newInstanceTestHi", {});
+				Refuel.createInstance("newModuleTestHi", {});
 			});
 			assert.isTrue(newClassSpy.calledOnce);
 			
 			var newClassInitSpy = sinon.spy();
-			Refuel.define("newInstanceTestHiSon", {require: [], inherits: "newInstanceTestHi"}, 
-				function newInstanceTestHiSon(){
+			Refuel.define("newModuleTestHiSon", {require: [], inherits: "newModuleTestHi"}, 
+				function newModuleTestHiSon(){
 					this.init = newClassInitSpy;
 				
 				}
 			);
 			defineSpy.getCall(1).args[2]();
 			defineSpy.restore();
-			Refuel.createInstance("newInstanceTestHiSon", {});
+			Refuel.createInstance("newModuleTestHiSon", {});
 			assert.isTrue(newClassInitSpy.calledOnce);
 		},
 		

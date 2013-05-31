@@ -10,17 +10,17 @@
 	}
 
 	Refuel.mix = function(base, argumenting) {
-		var res = Refuel.clone(base);
+		//var res = Refuel.clone(base);
+		var res = {};
+		for (var prop in base) {
+			res[prop] = base[prop];
+		}
 		for (var prop in argumenting) {
 			res[prop] = argumenting[prop];
 		}
 		return res;
 	}
-// not yet used
-// 	Refuel.implement = function(interface, target, options) {
-// 		target.constructor = target;
-// 		interface.apply(target);
-// 	}
+
 
 	Refuel.isArray = function(target) {
 		return toString.call(target) === '[object Array]';
@@ -33,7 +33,6 @@
 		if(obj === null || typeof(obj) !== 'object'){
 			return obj;
 		}
-		//console.log('clone', obj, obj.constructor);
 		var temp;
 		try {
 			temp = obj.constructor(); // changed
@@ -44,7 +43,12 @@
 		}
 		
 		for(var key in obj){
-			temp[key] = Refuel.clone(obj[key]);
+			try {
+				temp[key] = Refuel.clone(obj[key]);
+			}
+			catch(e) {
+				debugger;
+			}
 		}
 		return temp;
 	}
@@ -88,14 +92,19 @@
 		}
 	    var instance;
 	    var F = cl.body;
+	    if (!initObj._refuelClassName) initObj._refuelClassName = className;
 	    if (cl.inherits) {
 	    	if (!classMap[cl.inherits]) {
-				throw cl.inherits + ' not defined, please use Refuel.define'
+				throw cl.inherits + ' not defined, please use Refuel.define';
 			}
 	        F.prototype = Refuel.createInstance(cl.inherits, initObj);
 	    }
-	    instance = new F(initObj);    
-	   	instance._refuelClassName = className;
+	    instance = new F(initObj);   
+	    //Parent-class keeps child-class className
+	   	if (!instance._refuelClassName) {
+	   		instance._refuelClassName = initObj._refuelClassName;
+	   		delete initObj._refuelClassName;
+	    }
 	    if (instance.hasOwnProperty('init')) {
 	    	instance.init(initObj);
 	    } 
