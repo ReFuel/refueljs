@@ -3,7 +3,7 @@ Refuel.config.modules = {
 	'list': {
 		className: 'ListModule',
 		parts: {
-			':first-child': { name: 'template' },
+			//'>:first-child': { name: 'template' },
 			'[data-rf-template]': { name: 'template' } 
 		}
 	},
