@@ -42,7 +42,7 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 				attributeName = attribute.name;
 				attributeValue = attribute.value;
 				var matchedElms = null;
-				var symbol;
+				var symbol = null;
 				//Attribute is like data-rf-*
 				if (matchedElms = attributeName.match(regExpToMatchName)) {
 					symbol = {
@@ -73,6 +73,7 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 				}
 
 				if (symbol) {
+					//debugger;
 					parsedAttributes[symbol.action] = symbol; 
 					parsedAttributes['elementSymbolTable'].push(symbol);
 				}
