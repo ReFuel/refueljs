@@ -15,7 +15,8 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 			profiler = {},
 			bindingTable = {},
 			symbolTable = [];
-			
+		var refuelModules = Refuel.config.modules;
+		var defaultPartsConfig = { strip: false, required: false };
 
 		this.markMissedRefs = false;
 		this.bindingsProxy = null;
@@ -174,6 +175,23 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 			}
 		}
 
+		function getModuleParts(moduleObj) {
+			var parts = moduleObj['parts'];
+			this.parts = this.parts || {};
+			for (var partName in parts) {	
+				var partObj = parts[partName];
+				var selector = partObj['selector'];
+				if (selector) {
+					var found = root.querySelectorAll(selector);
+					if (found.length) {
+						var child = this.parts[partName] = found.length > 1 ? found : found[0];
+						if (partObj['strip']) root.removeChild(child);
+						this.parse(child, symbolTable);
+					}
+				}
+			}
+		}
+
 		/**
 		*	
 		*	@param node HTMLDomElement to be processed as root
@@ -190,63 +208,39 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 					var parsedAttributes = parseDOMElement(node, symbolTable, regExpToMatchName, regExpToMatchValue);
 					var isRoot = node === root;
 
-					//TODO questo è il punto in cui implementare il module.config e creare un parse per la sua sintassi
-					//	non dimentichiamoci che i value match vanno comunque gestiti, sono gli elementi child che invece
-					//	vanno cercati secondo il module.config
-					//var loopSymbol = parsedAttributes['loop'];
-					//var listSymbol = parsedAttributes['list'];
-					//var templateSymbol = parsedAttributes['template'];
-
-					var modules = Refuel.config.modules;
-					for (var key in modules) {
+					var moduleObj = null;
+					for (var key in refuelModules) {
 						var attribKey = markupPrefix+key;
 						if (node.hasAttribute(attribKey)) {
-							var mod = modules[key];
-							var parts = mod['parts'];
+							moduleObj = refuelModules[key];
 							if (!isRoot) {
 								this.submodules = this.submodules || {};
 								//name deve essere pulito se prendiamo quel dato
 								//forse un data-name esterno ai dati è meglio? 
 								var mName = node.getAttribute(attribKey);
 								//questa lista di submodules serve a qualcosa? Poi vengono messi in items le istanze
-								this.submodules[mName] = mod['className'];
+								this.submodules[mName] = moduleObj['className'];
 								this.notify('_new_module_requested', {
-									'symbol':parsedAttributes[key],
-									'module': mod
+									'symbol': parsedAttributes[key],
+									'module': moduleObj
 								});
 							}
 							//find  parts defined inside config.modules
 							else {
-								this.parts = this.parts || {};
-								for (var selector in parts) {	
-									var name = parts[selector]['name'];
-									if (name) {
-										//if (!node.id) node.id = "__refuelTarget";
-										var found = node.querySelectorAll(selector);
-										//if (node.id === "__refuelTarget") node.id = '';
-										if (found.length) {
-											//debugger;
-											var child = this.parts[name] = found.length > 1 ? found : found[0];
-
-											// Se è un nodo va parsato ed inserito nel symbol
-											symbolTable.template = child;
-											this.parse(child, symbolTable);
-										}
-									}
-								}
+								getModuleParts.call(this, moduleObj);
 							}
-						}
-						
-						else {
-							for (var i=0, childElm; childElm = node.childNodes[i++];) {
-								this.parse(childElm, symbolTable);
-							}
-						
-						}
-						
+						}						
 					}
 
-					
+					//If doesnt this node isn't a Module
+					if(!moduleObj) {
+						for (var i=0, childElm; childElm = node.childNodes[i++];) {
+							this.parse(childElm, symbolTable);
+						}
+					}
+					//var loopSymbol = parsedAttributes['loop'];
+					//var listSymbol = parsedAttributes['list'];
+					//var templateSymbol = parsedAttributes['template'];
 
 					//fa parsare il loop con una symbol table interna anzichè con quella normale
 					/*
@@ -275,11 +269,6 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 					
 					}
 					*/
-					
-						
-					
-
-					
 					symbolTable = symbolTable.concat(parsedAttributes['elementSymbolTable']);
 				break;
 				case 3: //Text Node
@@ -386,14 +375,9 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 			
 		**/
 		this.create = function(rootElement, template, data) {
-			try{
-				root = template.cloneNode(true);
-				this.render(data);
-				rootElement.appendChild(root);
-			}
-			catch (e) {
-				debugger;
-			}
+			root = template.cloneNode(true);
+			this.render(data);
+			rootElement.appendChild(root);
 		}
 
 		this.remove = function() {

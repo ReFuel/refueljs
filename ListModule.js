@@ -99,15 +99,9 @@ Refuel.define('ListModule',{inherits: 'AbstractModule', require:'ListItemModule'
             this.items.splice(e.index, 1);
         }
         function addListItem(obj) {
-            //var rootSymbol = this.template.getSymbolByAction('list');
-            debugger;
-            //console.log('ListModule.addListItem', obj);
-            var tmpl =  this.template.parts['template'];
-            tmpl.removeAttribute('data-rf-template');
             var listItem = Refuel.newModule('ListItemModule', { 
                 parentRoot: config.root, 
-                //template: rootSymbol.template,
-                template: tmpl,
+                template: this.template.parts['template'],
                 autoload: false,
                 data: obj.data
             });

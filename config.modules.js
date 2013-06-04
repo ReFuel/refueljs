@@ -4,16 +4,15 @@ Refuel.config.modules = {
 		className: 'ListModule',
 		parts: {
 			//'>:first-child': { name: 'template' },
-			'[data-rf-template]': { name: 'template' } 
+			'template': { selector: '[data-rf-template]', strip: true} 
 		}
 	},
 	'sayt': {
 		className: 'SaytModule',
 		parts: {
-			'input': 	{ name: 'inputField' },
-			'ul': 		{ name: 'listElement' },
-			'ul > li': 	{ name: 'listItemTemplate' }
+			'inputField': 		{selector: 'input'},
+			'listElement':  	{selector: 'ul' },
+			'listItemTemplate': {selector: 'ul > li'}
 		}
 	}
 }
-
