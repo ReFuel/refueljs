@@ -186,7 +186,6 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 					if (found.length) {
 						var child = this.parts[partName] = found.length > 1 ? found : found[0];
 						if (partObj['strip']) root.removeChild(child);
-						this.parse(child, symbolTable);
 					}
 				}
 			}
@@ -201,6 +200,8 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 						   /* privates */ nodeValue, matchedElms) {
 			var node = node || root;
 			nodeValue = node.nodeValue;
+			if (this._owner == 'ListModule') debugger;
+
 			switch (node.nodeType){
 				case 1:
 					//FIXME alcuni symbol vengono parsati a doppio, perchè vengono trattati sia nel 
@@ -231,44 +232,12 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 							}
 						}						
 					}
-
 					//If doesnt this node isn't a Module
 					if(!moduleObj) {
 						for (var i=0, childElm; childElm = node.childNodes[i++];) {
 							this.parse(childElm, symbolTable);
 						}
 					}
-					//var loopSymbol = parsedAttributes['loop'];
-					//var listSymbol = parsedAttributes['list'];
-					//var templateSymbol = parsedAttributes['template'];
-
-					//fa parsare il loop con una symbol table interna anzichè con quella normale
-					/*
-					if (loopSymbol) {
-						var tmplRoot = loopSymbol.domElement;
-						var child = tmplRoot.querySelector(':first-child'); 
-						var tmpl = tmplRoot.removeChild(child);
-						loopSymbol.template = tmpl;
-						this.parse(tmpl, loopSymbol.symbolTable);
-					}
-					else if ((templateSymbol || listSymbol) && !isRoot) { 
-
-					}
-					else if (listSymbol && isRoot) {
-						var tmplRoot = listSymbol.domElement;
-						var child = tmplRoot.querySelector(':first-child'); 
-						var tmpl = tmplRoot.removeChild(child);
-						listSymbol.template = tmpl;
-						//this.parse(tmpl, listSymbol.symbolTable);
-						
-					}
-					else {
-						for (var i=0, childElm; childElm = node.childNodes[i++];) {
-							this.parse(childElm, symbolTable);
-						}
-					
-					}
-					*/
 					symbolTable = symbolTable.concat(parsedAttributes['elementSymbolTable']);
 				break;
 				case 3: //Text Node
@@ -320,8 +289,7 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 			var path = normalizePath(symbol.linkedTo);
 			var linkedData = Refuel.resolveChain(path, data);
 			if (symbol.expression) linkedData = evalExpression(symbol.expression, linkedData);
-			//if (isRoot) this.rootSymbol = path;
-			//console.log('renderSymbol',path,symbol.linkedTo, linkedData);
+			//console.log('renderSymbol',path, symbol.linkedTo, linkedData);
 			switch(symbol.action) {
 				case 'replaceText': 
 					markMissing(symbol, linkedData);

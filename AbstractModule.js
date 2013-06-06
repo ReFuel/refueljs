@@ -34,6 +34,7 @@ Refuel.define('AbstractModule', {require: ['Template', 'DataSource'], inherits: 
             }
 
             this.template = Refuel.newModule('Template', config);
+            this.template._owner = Refuel.refuelClass(this);
             this.template.subscribe('genericBinderEvent', genericEventHandler, this);
             this.template.subscribe('_observe', observeTemplateSymbol, this);
         }

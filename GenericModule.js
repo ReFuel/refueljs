@@ -92,12 +92,6 @@ Refuel.define('GenericModule',{inherits: 'AbstractModule', require:'ListModule'}
             //newmodule.dataSource = this.data[label];
 
             this.addModule(newmodule);
-
-
-            //newmodule.dataSource.load();
-            //newmodule.init();
-            //TODO app.DS === submodule.DS / init deve essere fatto una volta  
-            //  il dato del submodule deve essere quello del path
         }
 
         
@@ -108,31 +102,7 @@ Refuel.define('GenericModule',{inherits: 'AbstractModule', require:'ListModule'}
                 module.notify('_parentDataAvailable', this);
             } 
         }
-        
-        /*
-        function createList(e) {
-            console.log('createList',e);
-            var path = e.symbol.linkedTo.split('.');
-            var label = path[0];
-            path = path.slice(1).join('.');
-            console.log('createList', [e.symbol.linkedTo, label]);
-            //qui arriva il path del dato come 'top.results', viene presa la prima parolina, quindi 'top'
-            //e quello diventa il nome del dato da cercare in questo DS
 
-            //add name to listModule and path for data 
-            if (typeof this.items[label] === 'undefined') {
-                var passthison = this.dataSource.data[label];
-                var list = Refuel.newModule('ListModule', {
-                    data: passthison  
-                    ,autoload: false
-                    ,root: e.symbol.domElement
-                    ,dataLabel: label //rename in 'name'?
-                    ,dataPath: path //non usato
-                });
-                this.addModule(list);
-            }
-        }
-        */
         function oa_update(e) {
             //console.log('GenericModule.update ->',e);      
         }
