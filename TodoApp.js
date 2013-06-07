@@ -4,12 +4,6 @@ Refuel.define('TodoApp',{require: ['GenericModule', 'DataSource']},
         var rootElement = document.querySelector('#todoapp');
         document.location.hash = '';
 
-        //var numberOfElements = 1;
-        //var todoList = [];
-        //for (var i = 0; i < numberOfElements; i++) {
-        //    todoList.push({ title: 'my text '+i, completed: false });
-        //};
-        
         app = Refuel.createInstance('GenericModule', { 
             'root': rootElement, 
             autoload: true,
@@ -39,7 +33,7 @@ Refuel.define('TodoApp',{require: ['GenericModule', 'DataSource']},
         }
 
         app.defineAction('clearComplete', function(e) {
-            var res = e.module.filterApply({'completed': false}, true);
+            var res = e.module.removeByFilter({'completed': true});
             app.saveData();
         });
 
@@ -68,7 +62,6 @@ Refuel.define('TodoApp',{require: ['GenericModule', 'DataSource']},
         });
 
         app.defineAction('delete', function(e) {
-            console.log('delete',e.module.data.title,e.module.data.completed);
             todoListModule.remove(e.module);
             app.saveData();
         });

@@ -169,6 +169,7 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 
 				//if (symbol.options && symbol.options === 'observe') {
 				if (symbol.action != 'action') {
+					//console.log('#',self._owner, 'templateBinder->', symbol.action)
 					var path = normalizePath(symbol.linkedTo);
 					self.notify('_observe', {'linkedTo': path, 'symbol': symbol});
 				}
@@ -200,7 +201,6 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 						   /* privates */ nodeValue, matchedElms) {
 			var node = node || root;
 			nodeValue = node.nodeValue;
-			if (this._owner == 'ListModule') debugger;
 
 			switch (node.nodeType){
 				case 1:
@@ -229,6 +229,7 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 							//find  parts defined inside config.modules
 							else {
 								getModuleParts.call(this, moduleObj);
+								symbolTable = symbolTable.concat(parsedAttributes['elementSymbolTable']);
 							}
 						}						
 					}
@@ -237,8 +238,8 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 						for (var i=0, childElm; childElm = node.childNodes[i++];) {
 							this.parse(childElm, symbolTable);
 						}
+						symbolTable = symbolTable.concat(parsedAttributes['elementSymbolTable']);
 					}
-					symbolTable = symbolTable.concat(parsedAttributes['elementSymbolTable']);
 				break;
 				case 3: //Text Node
 					if (matchedElms = nodeValue.match(regExpToMatchValue)) {

@@ -43,12 +43,7 @@
 		}
 		
 		for(var key in obj){
-			try {
-				temp[key] = Refuel.clone(obj[key]);
-			}
-			catch(e) {
-				debugger;
-			}
+			temp[key] = Refuel.clone(obj[key]);
 		}
 		return temp;
 	}

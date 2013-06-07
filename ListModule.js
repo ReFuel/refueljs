@@ -23,9 +23,6 @@ Refuel.define('ListModule',{inherits: 'AbstractModule', require:'ListItemModule'
             this.defineUpdateManager(oa_update.bind(this));
             if (config.root) this.template.setRoot(config.root);
             
-
-            //this.subscribeOnce('_parentDataAvailable', parentDataHandler, this);
-
             if (this.dataSource) {
                 console.log(Refuel.refuelClass(this),config.dataLabel,'have dataSource and is waiting for data...');
                 this.dataSource.subscribe('dataAvailable', function(data) {
@@ -38,8 +35,7 @@ Refuel.define('ListModule',{inherits: 'AbstractModule', require:'ListItemModule'
         }
 
         this.haslistener = function() {
-            return this.dataSource.isSubscribed('dataAvailable');
-            
+            return this.dataSource.isSubscribed('dataAvailable');   
         }
 
         function parentDataHandler(e) {
@@ -53,14 +49,23 @@ Refuel.define('ListModule',{inherits: 'AbstractModule', require:'ListItemModule'
         this.add = function(objData) {
             this.dataSource.data.push(objData);
         }
-
+        /*
         this.remove = function(objData) {
             var index = this.getItemIndex(objData);
             this.removeAt(index);
         }
+        */
         this.removeAt = function(index) {
             this.data.splice(index, 1);    
         }
+
+        this.removeByFilter = function(filterObj) {
+            var todelete = this.filterBy(filterObj);
+            for (var i=0, item; item = this.data[i]; i++) {
+                this.removeAt(this.getItemIndex(item));
+            }
+        }
+
         this.update = function(objData) {
             var obj = {};
             obj[config.dataLabel] = objData;
@@ -68,7 +73,6 @@ Refuel.define('ListModule',{inherits: 'AbstractModule', require:'ListItemModule'
         }
 
         function oa_update(e) {
-            debugger;
             switch(e.action) {
                 case 'set':
                     set.call(this);
@@ -84,11 +88,10 @@ Refuel.define('ListModule',{inherits: 'AbstractModule', require:'ListItemModule'
         }
         function set(dataToShow) {
             dataToShow = dataToShow || this.data;
-            var listData = this.data;
             console.log('ListModule.set', this.data.length);
             this.items = [];
             this.template.clear();
-            for (var i = 0, item; item = listData[i]; i++) {
+            for (var i = 0, item; item = dataToShow[i]; i++) {
                 addListItem.call(this,{'data': item, 'index':i});
             }
         }
@@ -98,6 +101,7 @@ Refuel.define('ListModule',{inherits: 'AbstractModule', require:'ListItemModule'
             this.items[e.index].destroy();
             this.items.splice(e.index, 1);
         }
+
         function addListItem(obj) {
             var listItem = Refuel.newModule('ListItemModule', { 
                 parentRoot: config.root, 
@@ -117,18 +121,20 @@ Refuel.define('ListModule',{inherits: 'AbstractModule', require:'ListItemModule'
             }
         }
 
+        //XXX this returns index of DATA not ITEM
         this.getItemIndex = function(item) {
-            for (var i = 0, curItem; curItem = this.items[i]; i++) {
+            for (var i = 0, curItem; curItem = this.data[i]; i++) {
                 if (curItem === item) return i;
             };
             return null;
         }
 
+        //XXX this is filtering DATA not ITEM
         this.filterBy = function(filterObj) {
             return this.data.filter(function(item, index, array) {
                 var result = true;
                 for (var key in filterObj) {
-                    result = result && filterObj[key] == Refuel.resolveChain(key, item);
+                    result = result && (filterObj[key] == Refuel.resolveChain(key, item));
                 }
                 return result;
             });
@@ -138,6 +144,7 @@ Refuel.define('ListModule',{inherits: 'AbstractModule', require:'ListItemModule'
             filterApplied = filterObj;
             var filtered = this.filterBy(filterObj);
             set.call(this, filtered);
+            return filtered;
         }
 
         this.filterClear = function() {

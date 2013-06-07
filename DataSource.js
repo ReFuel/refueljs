@@ -69,7 +69,7 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax']},
 
 		this.init = function(myConfig) {
 			config = Refuel.mix(config, myConfig);
-			console.log('datasource.init',config.dataLabel,_loadStatus,config.autoload, config.msg );
+			//console.log('datasource.init',config.dataLabel,_loadStatus,config.autoload, config.msg );
 			refreshInterface.call(this);
 
 			if (this.loadComplete) {
@@ -165,7 +165,7 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax']},
 				this.setConfig(myConfig);
 			}
 			if (this.loadProgress) return;
-			console.log('DataSource start loading data labelled',config.dataLabel,'from',config.url || config.key);
+			//console.log('DataSource start loading data labelled',config.dataLabel,'from',config.url || config.key);
 			
 			this.setLoadProgress();
 			if (config.key) {
@@ -196,7 +196,7 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax']},
 		}
 
 		function successCallback(dataObj) {
-			//console.log('successCallback',dataObj);
+			////console.log('successCallback',dataObj);
 			var puredata = Refuel.resolveChain(config.dataPath, dataObj.responseJSON);
 			setData.call(this, puredata);
 		}

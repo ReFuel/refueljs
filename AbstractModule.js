@@ -25,11 +25,11 @@ Refuel.define('AbstractModule', {require: ['Template', 'DataSource'], inherits: 
             this.dataLabel = config.dataLabel;
             
             if ( Refuel.refuelClass(config.data) == 'DataSource') {
-                console.log('a newly created '+Refuel.refuelClass(this)+' have DataSource PASSED by parent with name:', config.dataLabel, 'in status: '+ config.data.loadStatus );
+                //console.log('a newly created '+Refuel.refuelClass(this)+' have DataSource PASSED by parent with name:', config.dataLabel, 'in status: '+ config.data.loadStatus );
                 this.dataSource = config.data; 
             }
             else {
-                console.log('a newly created '+Refuel.refuelClass(this)+' instances new DataSource with config:', config );
+                //console.log('a newly created '+Refuel.refuelClass(this)+' instances new DataSource with config:', config );
                 this.dataSource = Refuel.newModule('DataSource', config);
             }
 
@@ -115,7 +115,7 @@ Refuel.define('AbstractModule', {require: ['Template', 'DataSource'], inherits: 
         */        
         this.defineUpdateManager = function(callback) {
             this.unsubscribe('_oa_update');
-            this.subscribe('_oa_update', callback);  
+            this.subscribe('_oa_update', callback);
         }
         /**
         * @method AbstractModule#defineAction
