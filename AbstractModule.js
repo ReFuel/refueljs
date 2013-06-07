@@ -21,6 +21,8 @@ Refuel.define('AbstractModule', {require: ['Template', 'DataSource'], inherits: 
         this.init = function(myConfig) {
             config = Refuel.mix(config, myConfig);
             this.items = [];
+            this.elements = {};
+            if (config.elements) this.elements = config.elements;
             this.defineUpdateManager(oa_update.bind(this));
             this.dataLabel = config.dataLabel;
             
@@ -37,6 +39,14 @@ Refuel.define('AbstractModule', {require: ['Template', 'DataSource'], inherits: 
             this.template._owner = Refuel.refuelClass(this);
             this.template.subscribe('genericBinderEvent', genericEventHandler, this);
             this.template.subscribe('_observe', observeTemplateSymbol, this);
+            this.template.subscribe('_template_element_found', addTemplateElement, this);
+
+            //configurated elements are overridden by MARKUP elements
+        }
+
+        function addTemplateElement(e) {
+            console.log('#',Refuel.refuelClass(this), e.name, e.element);
+            this.elements[e.name] = e.element;
         }
 
         function genericEventHandler(e) {    
@@ -51,12 +61,6 @@ Refuel.define('AbstractModule', {require: ['Template', 'DataSource'], inherits: 
             }
         }
 
-        this.addEventListener = function(eventType, callback, bubbles){
-            this.template.getRoot().addEventListener(eventType, callback, bubbles);
-        }
-        this.removeEventListener = function(eventType, callback){
-            this.template.getRoot().removeEventListener(eventType, callback);
-        }
         /**
             called by the template (via event) when something has an option: observe
         **/

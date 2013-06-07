@@ -12,32 +12,35 @@ Refuel.define('SaytModule', {inherits: 'GenericModule'},
         var lastQuery,
             searchTimeout;
         this.init = function(myConfig) {
-            config = Refuel.mix(config, myConfig);
-            this.enableAutoUpdate(this.data);
-            
-            this.template.setRoot(config.root);
-            
-            this.addEventListener('keyup', handleTyping.bind(this));
+            config = Refuel.mix(config, myConfig);  
+            delete config['data'];
+            //this.enableAutoUpdate(this.data);
+            //this.defineUpdateManager(oa_update.bind(this));
 
-            this.dataSource.subscribe('dataAvailable', function(data) {
-                console.log('Sayt.dataAvailable', data);
-                this.draw();
-            }, this);
-
-            this.dataSource.init(config);
+            if (config.root) this.template.setRoot(config.root);
+            //this.elements['inputField'].addEventListener('keyup', handleTyping.bind(this));
+            
+            if (this.dataSource) {
+                this.dataSource.subscribe('dataAvailable', function(data) {
+                    console.log('Sayt.dataAvailable', data);
+                    this.draw();
+                }, this);
+                this.dataSource.init(config);
+            }
             this.currentQuery = null;
         }
 
         function handleTyping(e) {
+            debugger;
             var query = e.target.value.trim();
             if (searchTimeout) window.clearTimeout(searchTimeout);
             searchTimeout = window.setTimeout(startSearch.bind(this, query),config.delay);
-            //startSearch.call(this, query);
         }
+
         function cancelSearch() {
             lastQuery = this.currentQuery; //move in currentQuery setter?
-            this.currentQuery = null;
-        }
+            this.currentQuery = null
+;        }
         function startSearch(query) {
             if (searchTimeout) window.clearTimeout(searchTimeout);
             if (query != this.currentQuery) {

@@ -30,7 +30,6 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 		this.init = function(myConfig) {
             config = Refuel.mix(config, myConfig);
            	root = config.root;
-			//console.log('TEMPLATE.init',config.dataLabel);
         }
 
 		function parseDOMElement(node, symbolTable, regExpToMatchName, regExpToMatchValue, refId,
@@ -177,7 +176,7 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 		}
 
 		function getModuleParts(moduleObj) {
-			var parts = moduleObj['parts'];
+			var parts = moduleObj['elements'];
 			this.parts = this.parts || {};
 			for (var partName in parts) {	
 				var partObj = parts[partName];
@@ -187,6 +186,7 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 					if (found.length) {
 						var child = this.parts[partName] = found.length > 1 ? found : found[0];
 						if (partObj['strip']) root.removeChild(child);
+						this.notify('_template_element_found', {'name': partName, 'element': child});
 					}
 				}
 			}
@@ -228,6 +228,7 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 							}
 							//find  parts defined inside config.modules
 							else {
+								moduleTemplateConfig = moduleObj;
 								getModuleParts.call(this, moduleObj);
 								symbolTable = symbolTable.concat(parsedAttributes['elementSymbolTable']);
 							}
