@@ -34,6 +34,7 @@ Refuel.define('ListItemModule', {inherits: 'AbstractModule'},
         }
 
         this.draw = function() {
+
             this.template.create(config.parentRoot, config.template, this.data);
         }
 });

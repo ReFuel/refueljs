@@ -8,7 +8,8 @@
 Refuel.define('GenericModule',{inherits: 'AbstractModule', require:'ListModule'}, 
     function GenericModule() {
         var config = {};
-        this.items = [];
+        this.items = {};
+
         this.init = function(myConfig) {
             config = Refuel.mix(config, myConfig);
             delete config['data'];
@@ -70,6 +71,8 @@ Refuel.define('GenericModule',{inherits: 'AbstractModule', require:'ListModule'}
 
 
         */
+
+
         function createSubmodule(e) {
             var symbol = e.symbol;
             var module = e.module;
@@ -78,15 +81,15 @@ Refuel.define('GenericModule',{inherits: 'AbstractModule', require:'ListModule'}
             path = path.join('.');
 
             console.log('GenericModule creates a Submodule',module.className,'with data', symbol.linkedTo);
-
-            var newmodule = Refuel.newModule(module.className, {
+            var defaultSubmoduleConfig = {
                 autoload: false
                 ,root: symbol.domElement
                 ,dataLabel: label //rename in 'name'?
                 ,data: this.data[label]
                 ,dataPath: path
-                //,mountpoint: this.data
-            });
+            }
+            defaultSubmoduleConfig = Refuel.mix(defaultSubmoduleConfig, config[label]);
+            var newmodule = Refuel.newModule(module.className, defaultSubmoduleConfig);
 
             // se sono linkedTo bisogna dargli una label, bisogna dargli un rootpath e il resto del path
             //newmodule.dataSource = this.data[label];

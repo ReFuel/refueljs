@@ -8,9 +8,8 @@
 **/
 Refuel.define('ListModule',{inherits: 'AbstractModule', require:'ListItemModule'}, 
     function ListModule() {
-        var ENTER_KEY = 13;
-        this.items = [];
         var config = {};
+        this.items = [];
         var filterApplied = null;
 
         this.init = function(myConfig) {
@@ -24,9 +23,9 @@ Refuel.define('ListModule',{inherits: 'AbstractModule', require:'ListItemModule'
             if (config.root) this.template.setRoot(config.root);
             
             if (this.dataSource) {
-                console.log(Refuel.refuelClass(this),config.dataLabel,'have dataSource and is waiting for data...');
+                //console.log(Refuel.refuelClass(this),config.dataLabel,'have dataSource and is waiting for data...');
                 this.dataSource.subscribe('dataAvailable', function(data) {
-                    console.log(Refuel.refuelClass(this),'got all data ',this.data,', now he can draw()');
+                    //console.log(Refuel.refuelClass(this),'got all data ',this.data,', now he can draw()');
                     this.draw();
                     set.call(this);
                 }, this);
@@ -36,10 +35,6 @@ Refuel.define('ListModule',{inherits: 'AbstractModule', require:'ListItemModule'
 
         this.haslistener = function() {
             return this.dataSource.isSubscribed('dataAvailable');   
-        }
-
-        function parentDataHandler(e) {
-            console.log('ListModule.parentDataHandler',this.dataLabel, this.data['results']);
         }
 
         this.create = function() {
@@ -88,7 +83,7 @@ Refuel.define('ListModule',{inherits: 'AbstractModule', require:'ListItemModule'
         }
         function set(dataToShow) {
             dataToShow = dataToShow || this.data;
-            console.log('ListModule.set', this.data.length);
+            //console.log('ListModule.set', this.data.length);
             this.items = [];
             this.template.clear();
             for (var i = 0, item; item = dataToShow[i]; i++) {
@@ -105,7 +100,7 @@ Refuel.define('ListModule',{inherits: 'AbstractModule', require:'ListItemModule'
         function addListItem(obj) {
             var listItem = Refuel.newModule('ListItemModule', { 
                 parentRoot: config.root, 
-                template: this.template.parts['template'],
+                template: this.elements['template'],
                 autoload: false,
                 data: obj.data
             });

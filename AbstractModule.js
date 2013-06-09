@@ -37,16 +37,16 @@ Refuel.define('AbstractModule', {require: ['Template', 'DataSource'], inherits: 
 
             this.template = Refuel.newModule('Template', config);
             this.template._owner = Refuel.refuelClass(this);
-            this.template.subscribe('genericBinderEvent', genericEventHandler, this);
+            this.template.subscribe('_generic_binder_event', genericEventHandler, this);
             this.template.subscribe('_observe', observeTemplateSymbol, this);
-            this.template.subscribe('_template_element_found', addTemplateElement, this);
-
-            //configurated elements are overridden by MARKUP elements
+            this.template.subscribe('_template_element_found', addTemplateElement, this);            
         }
 
         function addTemplateElement(e) {
-            console.log('#',Refuel.refuelClass(this), e.name, e.element);
+            //console.log('#',Refuel.refuelClass(this), e.name, e.element);
             this.elements[e.name] = e.element;
+        }
+        this.defineCreateManager = function(f) {
         }
 
         function genericEventHandler(e) {    
@@ -88,7 +88,6 @@ Refuel.define('AbstractModule', {require: ['Template', 'DataSource'], inherits: 
         this.addModule = function(module) {
             if (module.dataLabel) this.items[module.dataLabel] = module;
             else                  this.items.push(module);
-
             module.subscribe('observableChange', function(e) {
                 this.notify('observableChange', e);
             }, this);
@@ -99,6 +98,14 @@ Refuel.define('AbstractModule', {require: ['Template', 'DataSource'], inherits: 
             }, this);
         }
         
+        this.getModulesByClass = function(classname) {
+            var res = [];
+            for (var mod in this.items) {
+                if (Refuel.refuelClass(this.items[mod]) == classname) res.push(this.items[mod]);
+            }
+            return res;    
+        }
+
         function oa_update(e) {
             //console.log('AbstractModule','update ->',e);      
         }

@@ -165,7 +165,7 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax']},
 				this.setConfig(myConfig);
 			}
 			if (this.loadProgress) return;
-			//console.log('DataSource start loading data labelled',config.dataLabel,'from',config.url || config.key);
+			console.log('DataSource start loading data labelled',config.dataLabel,'from',config.url || config.key);
 			
 			this.setLoadProgress();
 			if (config.key) {

@@ -1,11 +1,12 @@
 /**
 *   @class Template
-*	@fires genericBinderEvent An event bound on the markup has been triggered
+*	@fires _generic_binder_event An event bound on the markup has been triggered
 *	@fires _observe Notifies the module to observe some data marked as "observe" in the template
 *	@fires _new_list Notifies the module to create a new List as per rf-list in template
 *	@fires _new_listitem Notifies the module to create a new ListItem 
+*	@fires parsingComplete 
 *
-*   @author Matteo Burgassi, Stefano Sergio
+*   @author Stefano Sergio
 */
 
 Refuel.define('Template',{inherits: 'Events'}, function Template() {
@@ -126,7 +127,7 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 					e.target.getAttribute(markupActionPrefix + e.type)
 			    );
 			    e = splitOptions(e, e.action);
-			   	self.bindingsProxy.notify('genericBinderEvent', e);
+			   	self.bindingsProxy.notify('_generic_binder_event', e);
 			}
 			else if (bindingTable[e.type] && hasDataAction(e.currentTarget, e.type)) {
 				e.action = (e.type === 'click'? 
@@ -134,7 +135,7 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 					e.currentTarget.getAttribute(markupActionPrefix + e.type)
 				);
 				e = splitOptions(e, e.action);
-				self.bindingsProxy.notify('genericBinderEvent', e);
+				self.bindingsProxy.notify('_generic_binder_event', e);
 			}
 		}
 
@@ -213,6 +214,7 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 					for (var key in refuelModules) {
 						var attribKey = markupPrefix+key;
 						if (node.hasAttribute(attribKey)) {
+							
 							moduleObj = refuelModules[key];
 							if (!isRoot) {
 								this.submodules = this.submodules || {};
@@ -232,10 +234,10 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 								getModuleParts.call(this, moduleObj);
 								symbolTable = symbolTable.concat(parsedAttributes['elementSymbolTable']);
 							}
-						}						
+						}			
 					}
-					//If doesnt this node isn't a Module
-					if(!moduleObj) {
+					//If this node isn't a Module
+					if(!moduleObj || isRoot) {
 						for (var i=0, childElm; childElm = node.childNodes[i++];) {
 							this.parse(childElm, symbolTable);
 						}
@@ -262,8 +264,9 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 			return symbolTable;
 		}
 
-		this.parseTemplate = function() {
+		this.parseTemplate = function(reparse) {
 			symbolTable = this.parse();
+			this.notify('parsingComplete', symbolTable);
 		}
 
 		/**
@@ -274,7 +277,7 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 		this.render = function(data) {
 			profiler.timestart = new Date().getTime();
 			if (!data) console.error('Template::render data argument is null');
-			if (!symbolTable.length) symbolTable = this.parse();
+			if (!symbolTable.length) this.parseTemplate();
 			templateBinder(root, symbolTable);
 			self.notify('_template_parsed', {symbolTable: symbolTable});
 			
@@ -282,7 +285,7 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 				self.renderSymbol(symbol, data)
 			}
 			profiler.timestop = new Date().getTime();
-			//if(profiler.enabled) console.log('Template.profiler[render]',root.id, profiler.timestop - profiler.timestart);
+			if(profiler.enabled) console.log('Template.profiler[render]',root.id, profiler.timestop - profiler.timestart);
 		}
 
 		this.renderSymbol = function(symbol, data) {

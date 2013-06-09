@@ -10,19 +10,22 @@ Refuel.define('SaytModule', {inherits: 'GenericModule'},
     function SaytModule() {
         var config = {};
         var lastQuery,
-            searchTimeout;
+            searchTimeout,
+            listElement,
+            listItemTemplate,
+            theList;
+
         this.init = function(myConfig) {
             config = Refuel.mix(config, myConfig);  
             delete config['data'];
-            //this.enableAutoUpdate(this.data);
-            //this.defineUpdateManager(oa_update.bind(this));
-
+            
             if (config.root) this.template.setRoot(config.root);
-            //this.elements['inputField'].addEventListener('keyup', handleTyping.bind(this));
+            this.template.subscribe('parsingComplete', create, this);
+            this.template.parseTemplate();
             
             if (this.dataSource) {
                 this.dataSource.subscribe('dataAvailable', function(data) {
-                    console.log('Sayt.dataAvailable', data);
+                //    console.log('Sayt.dataAvailable', data);
                     this.draw();
                 }, this);
                 this.dataSource.init(config);
@@ -30,8 +33,53 @@ Refuel.define('SaytModule', {inherits: 'GenericModule'},
             this.currentQuery = null;
         }
 
+        function create(e) {
+            this.elements['inputField'].addEventListener('keyup', handleTyping.bind(this));
+            listElement = this.elements['listElement'];
+            if (!listElement) {
+                listElement = document.createElement('ul');
+                this.template.getRoot().appendChild(listElement);
+                this.elements['listElement'] = listElement;
+            }
+            listItemTemplate = this.elements['listItemTemplate'];
+            if (!listItemTemplate) {
+                listItemTemplate = document.createElement('li');
+                listItemTemplate.innerHTML = '<div class="view">{{title}}</div>';
+                listElement.appendChild(listItemTemplate);
+                this.elements['listItemTemplate'] = listItemTemplate;
+            }
+
+            //ListModule is defined inside markup
+            theList = this.getModulesByClass('ListModule')[0];
+            //ListModule is not defined by the developer
+            if (!theList) {
+                theList = Refuel.newModule('ListModule', {
+                    'root': listElement, 
+                    'dataPath': config.dataPath,
+                    'dataLabel': 'list',
+                    'elements': {
+                        'template': listItemTemplate 
+                    }
+                });
+                this.addModule(theList);
+            }
+            //XXX when ListModule -> GenericModule this is unuseful
+            theList.template.parseTemplate();
+        }
+
+        this.draw = function(data) {
+            //XXX with super() method we'll be fine
+            data = data || this.data;
+            this.template.render(data);
+
+            //XXX this ignores any dataPath, both Sayt and List
+            theList.data = data;
+
+            theList.toggleClass('show', data.length);
+            theList.toggleClass('hide', !data.length);
+        }
+
         function handleTyping(e) {
-            debugger;
             var query = e.target.value.trim();
             if (searchTimeout) window.clearTimeout(searchTimeout);
             searchTimeout = window.setTimeout(startSearch.bind(this, query),config.delay);
@@ -39,13 +87,19 @@ Refuel.define('SaytModule', {inherits: 'GenericModule'},
 
         function cancelSearch() {
             lastQuery = this.currentQuery; //move in currentQuery setter?
-            this.currentQuery = null
-;        }
+            this.currentQuery = null;
+        }
         function startSearch(query) {
             if (searchTimeout) window.clearTimeout(searchTimeout);
+            theList.template.clear();
             if (query != this.currentQuery) {
                 lastQuery = this.currentQuery;
                 this.currentQuery = query;
+            //  console.log(this.dataSource.getConfig());
+                if (query.length < 3) { //XXX this control on the upper if, + params
+                    this.dataSource.setData([]);
+                    return;
+                }
                 this.dataSource.load({'params': 'q='+query});
             }
         }
