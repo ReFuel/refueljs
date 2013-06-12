@@ -20,7 +20,7 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax']},
 				'dataPath': null,
 				'successCallback': successCallback.bind(this),
 				'errorCallback': errorCallback.bind(this),
-				autoload: false
+				'autoload': false
 			},
 			extLoadingState = {
 				requested: 0,

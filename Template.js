@@ -266,6 +266,7 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 
 		this.parseTemplate = function(reparse) {
 			symbolTable = this.parse();
+			templateBinder(root, symbolTable);
 			this.notify('parsingComplete', symbolTable);
 		}
 
@@ -277,8 +278,11 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 		this.render = function(data) {
 			profiler.timestart = new Date().getTime();
 			if (!data) console.error('Template::render data argument is null');
-			if (!symbolTable.length) this.parseTemplate();
-			templateBinder(root, symbolTable);
+			if (!symbolTable.length) {
+				this.parseTemplate();
+				templateBinder(root, symbolTable);
+				//TODO why we dont notify? check sayt
+			}
 			self.notify('_template_parsed', {symbolTable: symbolTable});
 			
 			for(var i = 0, symbol;  symbol = symbolTable[i]; i++) {
@@ -289,8 +293,11 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 		}
 
 		this.renderSymbol = function(symbol, data) {
-			var isRoot = symbol.domElement === root;
+			//optimize symbol processed: ignore action
+			if (symbol.action === 'action' ||
+				symbol.action === 'list') return;
 
+			var isRoot = symbol.domElement === root;
 			var path = normalizePath(symbol.linkedTo);
 			var linkedData = Refuel.resolveChain(path, data);
 			if (symbol.expression) linkedData = evalExpression(symbol.expression, linkedData);
@@ -317,9 +324,6 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 					else  symbol.domElement.style.display = 'none';
 				break;
 				case 'loop':
-					//La symbol table per ogni elemento non ha bisogno di essere ri-parsata ogni volta
-					//andrebbe parsata una volta dal main-tmpl, clonata e passata direttamente al template 
-					//con un metodo apposito 
 					symbol.elements = [];
 					symbol.domElement.innerHTML = '';
 					var docFragment = document.createDocumentFragment();
@@ -329,12 +333,6 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 						docFragment.appendChild(el);
 					};
 					symbol.domElement.appendChild(docFragment);
-				break;
-				case 'list':
-					if (!isRoot) {
-						symbol.linkedData = linkedData;
-						self.notify('_new_list', {symbol: symbol});
-					}					
 				break;
 			}
 		}

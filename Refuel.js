@@ -81,7 +81,7 @@
 	}
 
 	Refuel.createInstance = function (className, initObj) {
-	    var cl = classMap[className];
+		var cl = classMap[className];
 	    if(typeof cl === 'undefined') {
 			throw className + ' not defined, please use Refuel.define';
 		}

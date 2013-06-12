@@ -16,7 +16,7 @@ Refuel.define('SaytModule', {inherits: 'GenericModule'},
             theList;
 
         this.init = function(myConfig) {
-            config = Refuel.mix(config, myConfig);  
+            config = Refuel.mix(config, myConfig); 
             delete config['data'];
             
             if (config.root) this.template.setRoot(config.root);
@@ -72,7 +72,7 @@ Refuel.define('SaytModule', {inherits: 'GenericModule'},
             data = data || this.data;
             this.template.render(data);
 
-            //XXX this ignores any dataPath, both Sayt and List
+            //XXX this ignores List dataPath
             theList.data = data;
 
             theList.toggleClass('show', data.length);
@@ -96,7 +96,7 @@ Refuel.define('SaytModule', {inherits: 'GenericModule'},
                 lastQuery = this.currentQuery;
                 this.currentQuery = query;
             //  console.log(this.dataSource.getConfig());
-                if (query.length < 3) { //XXX this control on the upper if, + params
+                if (query.length < config.minChars) { //XXX this control on the upper if
                     this.dataSource.setData([]);
                     return;
                 }
