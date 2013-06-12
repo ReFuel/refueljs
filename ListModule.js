@@ -97,11 +97,24 @@ Refuel.define('ListModule',{inherits: 'AbstractModule', require:'ListItemModule'
             this.items.splice(e.index, 1);
         }
 
+        function getElementStyle() {   
+            var rowStyle = null;
+            if (config.rowStyle) {
+                var index = data.length;
+                var even = (index % 2) == 0 ? 0 : 1;
+                rowStyle = config.rowStyle.length == 1 ? config.rowStyle[0] : config.rowStyle[even];                
+            }
+
+            return rowStyle;
+        }
+
         function addListItem(obj) {
+            var rowStyle = getElementStyle();
             var listItem = Refuel.newModule('ListItemModule', { 
                 parentRoot: config.root, 
                 template: this.elements['template'],
                 autoload: false,
+                styleClass: rowStyle,
                 data: obj.data
             });
             this.addModule(listItem);
