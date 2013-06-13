@@ -100,7 +100,7 @@ Refuel.define('ListModule',{inherits: 'AbstractModule', require:'ListItemModule'
         function getElementStyle() {   
             var rowStyle = null;
             if (config.rowStyle) {
-                var index = data.length;
+                var index = this.items.length;
                 var even = (index % 2) == 0 ? 0 : 1;
                 rowStyle = config.rowStyle.length == 1 ? config.rowStyle[0] : config.rowStyle[even];                
             }
@@ -109,7 +109,7 @@ Refuel.define('ListModule',{inherits: 'AbstractModule', require:'ListItemModule'
         }
 
         function addListItem(obj) {
-            var rowStyle = getElementStyle();
+            var rowStyle = getElementStyle.call(this);
             var listItem = Refuel.newModule('ListItemModule', { 
                 parentRoot: config.root, 
                 template: this.elements['template'],

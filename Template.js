@@ -202,13 +202,15 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 						   /* privates */ nodeValue, matchedElms) {
 			var node = node || root;
 			nodeValue = node.nodeValue;
+			var isRoot = node === root;
+			//Sets the style class to the root element
+			if (isRoot) root.classList.add(config.styleClass);
 
 			switch (node.nodeType){
 				case 1:
 					//FIXME alcuni symbol vengono parsati a doppio, perchè vengono trattati sia nel 
 					//	generic che nella root del modulo controllare che non vengano anche agganciati doppi eventi
 					var parsedAttributes = parseDOMElement(node, symbolTable, regExpToMatchName, regExpToMatchValue);
-					var isRoot = node === root;
 
 					var moduleObj = null;
 					for (var key in refuelModules) {
