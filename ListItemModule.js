@@ -34,7 +34,7 @@ Refuel.define('ListItemModule', {inherits: 'AbstractModule'},
         }
 
         this.draw = function() {
-
+            if (!config.template) throw "No template found for ListItemModule";
             this.template.create(config.parentRoot, config.template, this.data);
         }
 });

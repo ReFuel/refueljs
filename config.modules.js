@@ -1,5 +1,8 @@
 
 Refuel.config.modules = {
+	'generic': {
+		className: 'GenericModule'
+	},
 	'list': {
 		className: 'ListModule',
 		elements: {

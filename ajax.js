@@ -29,13 +29,6 @@ Refuel.static('ajax',
 			return XMLHttpRequest;
 		}
 
-		function checkURL(url){
-			var urlElm = document.createElement("A");
-			urlElm.href = url;
-
-			return urlElm.protocol + "//" + urlElm.host === window.location.protocol + "//" + window.location.host;
-		}
-
 		function killAjaxCall(xhr, url, options){
 			xhr.onreadystatechange = null;
 			xhr.abort();
@@ -57,12 +50,6 @@ Refuel.static('ajax',
 
 		function ajax(url, options){
 			options = Refuel.mix(config, options);
-			
-			if(!checkURL(url)){
-				console.error('checkURL failed', url);
-				// @TODO - maybe - CORS requests
-				return false;
-			}
 			
 			var xhr = setProvider();
 			var method = options.method ? options.method : "GET";
@@ -95,7 +82,7 @@ Refuel.static('ajax',
 						responseXML: xhr.responseXML,
 						responseText: xhr.responseText
 					};
-					if (xhr.getResponseHeader("Content-Type") === 'application/json' && resp.responseText){
+					if (resp.responseText){
 						resp.responseJSON = JSON.parse(resp.responseText) || {};
 					}
 					if (status >= 200 && status < 400 || status === 1224){
@@ -105,7 +92,9 @@ Refuel.static('ajax',
 					}
 				}
 			};
-			xhr.open(method, url);
+			var params = (options.params);
+			
+			xhr.open(method, url+'?'+params);
 
 			ajaxCounter++;
 

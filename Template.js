@@ -204,7 +204,7 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 			nodeValue = node.nodeValue;
 			var isRoot = node === root;
 			//Sets the style class to the root element
-			if (isRoot) root.classList.add(config.styleClass);
+			if (isRoot && config.styleClass) root.classList.add(config.styleClass);
 
 			switch (node.nodeType){
 				case 1:

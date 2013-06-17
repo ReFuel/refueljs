@@ -8,7 +8,11 @@
 */
 Refuel.define('SaytModule', {inherits: 'GenericModule'},  
     function SaytModule() {
-        var config = {};
+        var config = {
+            minChars: 2,
+            searchParam: 'q',
+            delay: 100
+        };
         var lastQuery,
             searchTimeout,
             listElement,
@@ -48,13 +52,12 @@ Refuel.define('SaytModule', {inherits: 'GenericModule'},
                 this.elements['listItemTemplate'] = listItemTemplate;
             }
 
-            //ListModule is defined inside markup
+            //if ListModule is defined inside markup
             theList = this.getModulesByClass('ListModule')[0];
-            //ListModule is not defined by the developer
+            //if ListModule is not already defined
             if (!theList) {
                 theList = Refuel.newModule('ListModule', {
-                    'root': listElement, 
-                    'dataPath': config.dataPath,
+                    'root': listElement,
                     'dataLabel': 'list',
                     'elements': {
                         'template': listItemTemplate 
@@ -62,7 +65,8 @@ Refuel.define('SaytModule', {inherits: 'GenericModule'},
                 });
                 this.addModule(theList);
             }
-            //XXX when ListModule -> GenericModule this is unuseful
+            theList.toggleClass('hide', true);
+            //XXX we got to call here because in general doesnt have all config?
             theList.template.parseTemplate();
         }
 
@@ -71,10 +75,10 @@ Refuel.define('SaytModule', {inherits: 'GenericModule'},
             data = data || this.data;
             this.template.render(data);
 
-            //XXX this ignores List dataPath
+            //ignores any dataPath the list may have
             theList.data = data;
 
-            theList.toggleClass('show', data.length);
+            //theList.toggleClass('show', data.length);
             theList.toggleClass('hide', !data.length);
         }
 
@@ -91,26 +95,14 @@ Refuel.define('SaytModule', {inherits: 'GenericModule'},
         function startSearch(query) {
             if (searchTimeout) window.clearTimeout(searchTimeout);
             theList.template.clear();
-            if (query != this.currentQuery) {
+            if (query.length === 0) {
+                theList.toggleClass('hide', true);
+            }
+            else if (query != this.currentQuery && query.length >= config.minChars) {
                 lastQuery = this.currentQuery;
                 this.currentQuery = query;
-            //  console.log(this.dataSource.getConfig());
-                if (query.length < config.minChars) { //XXX this control on the upper if
-                    this.dataSource.setData([]);
-                    return;
-                }
-                this.dataSource.load({'params': 'q='+query});
+                this.dataSource.load({'params': config.searchParam+'='+query});
             }
-        }
-        //XXX Cache will be a DataSource functionality
-        function writeCache(key, data){
-        	localStorage.setItem(key, data);	
-        }
-        function readCache(key){
-        	var data = null;
-        	data = localStorage.getItem(key);
-        	data = JSON.parse(data);
-        	return data;
         }
         
         function oa_update(e) {
