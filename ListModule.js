@@ -16,16 +16,16 @@ Refuel.define('ListModule',{inherits: 'AbstractModule', require:'ListItemModule'
             config = Refuel.mix(config, myConfig);  
             delete config['data'];
 
-            //XXX shouldnt be auto-detect which type?   
+            //XXX shouldnt auto-detect type?   
             this.dataSource.setConfig({defaultDataType: 'Array'});
 
             this.defineUpdateManager(oa_update.bind(this));
             if (config.root) this.template.setRoot(config.root);
             
             if (this.dataSource) {
-                //console.log(Refuel.refuelClass(this),config.dataLabel,'have dataSource and is waiting for data...');
+                console.log(config.dataLabel+' ('+Refuel.refuelClass(this)+') have dataSource and is waiting for data...');
                 this.dataSource.subscribe('dataAvailable', function(data) {
-                    //console.log(Refuel.refuelClass(this),'got all data ',this.data,', now he can draw()');
+                    console.log(Refuel.refuelClass(this),'got all data ',this.data,', now he can draw()');
                     this.draw();
                     set.call(this);
                 }, this);

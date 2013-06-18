@@ -15,7 +15,8 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 			config = {},
 			profiler = {},
 			bindingTable = {},
-			symbolTable = [];
+			symbolTable = [],
+			templateBound = false;
 		var refuelModules = Refuel.config.modules;
 		var defaultPartsConfig = { strip: false, required: false };
 
@@ -174,6 +175,7 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 					self.notify('_observe', {'linkedTo': path, 'symbol': symbol});
 				}
 			}
+			templateBound = true;
 		}
 
 		function getModuleParts(moduleObj) {
@@ -201,6 +203,10 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 		this.parse = function(node,
 						   /* privates */ nodeValue, matchedElms) {
 			var node = node || root;
+			if (!node) {
+				debugger;
+				throw "No root defined";
+			}
 			nodeValue = node.nodeValue;
 			var isRoot = node === root;
 			//Sets the style class to the root element
@@ -268,7 +274,6 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 
 		this.parseTemplate = function(reparse) {
 			symbolTable = this.parse();
-			templateBinder(root, symbolTable);
 			this.notify('parsingComplete', symbolTable);
 		}
 
@@ -280,11 +285,9 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 		this.render = function(data) {
 			profiler.timestart = new Date().getTime();
 			if (!data) console.error('Template::render data argument is null');
-			if (!symbolTable.length) {
-				this.parseTemplate();
-				templateBinder(root, symbolTable);
-				//TODO why we dont notify? check sayt
-			}
+			//TODO why we dont notify? check sayt
+			if (!symbolTable.length)  this.parseTemplate();
+			if (!templateBound) templateBinder(root, symbolTable);
 			self.notify('_template_parsed', {symbolTable: symbolTable});
 			
 			for(var i = 0, symbol;  symbol = symbolTable[i]; i++) {
@@ -303,6 +306,7 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 			var path = normalizePath(symbol.linkedTo);
 			var linkedData = Refuel.resolveChain(path, data);
 			if (symbol.expression) linkedData = evalExpression(symbol.expression, linkedData);
+
 			//console.log('renderSymbol',path, symbol.linkedTo, linkedData);
 			switch(symbol.action) {
 				case 'replaceText': 

@@ -8,6 +8,7 @@
 Refuel.define('AbstractModule', {require: ['Template', 'DataSource'], inherits: 'Observer'}, 
     function AbstractModule() {
         var actionMap = {};
+        this.items = {};
         /**
         * @type {object}
         * @property {string} dataPath 
@@ -20,7 +21,6 @@ Refuel.define('AbstractModule', {require: ['Template', 'DataSource'], inherits: 
 
         this.init = function(myConfig) {
             config = Refuel.mix(config, myConfig);
-            this.items = [];
             this.elements = {};
             if (config.elements) this.elements = config.elements;
             this.defineUpdateManager(oa_update.bind(this));
@@ -37,6 +37,7 @@ Refuel.define('AbstractModule', {require: ['Template', 'DataSource'], inherits: 
 
             this.template = Refuel.newModule('Template', config);
             this.template._owner = Refuel.refuelClass(this);
+            this.template.subscribe('_new_module_requested', createSubmodule, this);
             this.template.subscribe('_generic_binder_event', genericEventHandler, this);
             this.template.subscribe('_observe', observeTemplateSymbol, this);
             this.template.subscribe('_template_element_found', addTemplateElement, this);            
@@ -46,8 +47,31 @@ Refuel.define('AbstractModule', {require: ['Template', 'DataSource'], inherits: 
             //console.log('#',Refuel.refuelClass(this), e.name, e.element);
             this.elements[e.name] = e.element;
         }
-        this.defineCreateManager = function(f) {
+
+        function createSubmodule(e) {
+            var symbol = e.symbol;
+            var module = e.module;
+            var path = symbol.linkedTo.split('.');
+            var label = path.splice(0,1)[0];
+            path = path.join('.');
+
+            console.log(this.dataLabel,'creates a Submodule',module.className,'with data', symbol.linkedTo);
+            var defaultSubmoduleConfig = {
+                autoload: false
+                ,root: symbol.domElement
+                ,dataLabel: label //rename in 'name'?
+                ,data: this.data[label]
+                ,dataPath: path
+            }
+            defaultSubmoduleConfig = Refuel.mix(defaultSubmoduleConfig, config[label]);
+            var newmodule = Refuel.newModule(module.className, defaultSubmoduleConfig);
+
+            // se sono linkedTo bisogna dargli una label, bisogna dargli un rootpath e il resto del path
+            //newmodule.dataSource = this.data[label];
+            this.addModule(newmodule);
         }
+
+
 
         function genericEventHandler(e) {    
             var action = actionMap[e.linkedTo];
