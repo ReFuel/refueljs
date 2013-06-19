@@ -12,7 +12,7 @@ Refuel.define('GenericModule',{inherits: 'AbstractModule', require: ['ListModule
         this.init = function(myConfig) {
             config = Refuel.mix(config, myConfig);
             delete config['data'];
-            console.log(config.dataLabel,'GenericModule.init', config);
+            //console.log(config.dataLabel,'GenericModule.init', config);
             this.defineUpdateManager(oa_update);
 
             
@@ -22,10 +22,11 @@ Refuel.define('GenericModule',{inherits: 'AbstractModule', require: ['ListModule
             }
             
             if (this.dataSource) {
-                console.log(config.dataLabel, Refuel.refuelClass(this),'have dataSource and is waiting for data...');
+                //console.log(config.dataLabel, Refuel.refuelClass(this),'have dataSource and is waiting for data...');
                 this.dataSource.subscribe('dataAvailable', function(data) {
-                    console.log(config.dataLabel, Refuel.refuelClass(this),'got all data (dataAvailable), now he can draw()');
+                    //console.log(config.dataLabel, Refuel.refuelClass(this),'got all data (dataAvailable), now he can draw()');
                     this.draw();
+                   
                 }, this);
                 this.dataSource.init(config);
             }

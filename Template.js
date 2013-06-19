@@ -38,7 +38,6 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 			 					/* privates */ nodeAttributes, matchedElms, attribute, attributeName, attributeValue) {
 			nodeAttributes = node.attributes;
 			var parsedAttributes = {};
-			parsedAttributes['elementSymbolTable'] = [];
 			for (var i = 0; attribute = nodeAttributes[i]; i++) {
 				if (!attribute.specified) continue;
 				attributeName = attribute.name;
@@ -75,7 +74,6 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 				}
 				if (symbol) {
 					parsedAttributes[symbol.action] = symbol; 
-					parsedAttributes['elementSymbolTable'].push(symbol);
 				}
 			}
 			//return a list of actions to the dom parser to know what kind of features that element has
@@ -222,7 +220,6 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 					for (var key in refuelModules) {
 						var attribKey = markupPrefix+key;
 						if (node.hasAttribute(attribKey)) {
-							
 							moduleObj = refuelModules[key];
 							if (!isRoot) {
 								this.submodules = this.submodules || {};
@@ -233,14 +230,17 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 								this.submodules[mName] = moduleObj['className'];
 								this.notify('_new_module_requested', {
 									'symbol': parsedAttributes[key],
-									'module': moduleObj
+									'module': moduleObj,
+									'config': parsedAttributes
 								});
 							}
 							//find  parts defined inside config.modules
 							else {
 								moduleTemplateConfig = moduleObj;
 								getModuleParts.call(this, moduleObj);
-								symbolTable = symbolTable.concat(parsedAttributes['elementSymbolTable']);
+								for (var key in parsedAttributes) {
+									symbolTable.push(parsedAttributes[key]);
+								}
 							}
 						}			
 					}
@@ -249,7 +249,9 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 						for (var i=0, childElm; childElm = node.childNodes[i++];) {
 							this.parse(childElm, symbolTable);
 						}
-						symbolTable = symbolTable.concat(parsedAttributes['elementSymbolTable']);
+						for (var key in parsedAttributes) {
+							symbolTable.push(parsedAttributes[key]);
+						}
 					}
 				break;
 				case 3: //Text Node

@@ -51,11 +51,12 @@ Refuel.define('AbstractModule', {require: ['Template', 'DataSource'], inherits: 
         function createSubmodule(e) {
             var symbol = e.symbol;
             var module = e.module;
+            var conf = e.config;
             var path = symbol.linkedTo.split('.');
             var label = path.splice(0,1)[0];
             path = path.join('.');
 
-            console.log(this.dataLabel,'creates a Submodule',module.className,'with data', symbol.linkedTo);
+            //console.log(this.dataLabel,'creates a Submodule',module.className,'with data', symbol.linkedTo);
             var defaultSubmoduleConfig = {
                 autoload: false
                 ,root: symbol.domElement
@@ -63,8 +64,9 @@ Refuel.define('AbstractModule', {require: ['Template', 'DataSource'], inherits: 
                 ,data: this.data[label]
                 ,dataPath: path
             }
-            defaultSubmoduleConfig = Refuel.mix(defaultSubmoduleConfig, config[label]);
-            var newmodule = Refuel.newModule(module.className, defaultSubmoduleConfig);
+            conf = Refuel.mix(defaultSubmoduleConfig, conf);
+            conf = Refuel.mix(conf, config[label]);
+            var newmodule = Refuel.newModule(module.className, conf);
 
             // se sono linkedTo bisogna dargli una label, bisogna dargli un rootpath e il resto del path
             //newmodule.dataSource = this.data[label];

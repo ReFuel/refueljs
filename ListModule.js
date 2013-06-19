@@ -23,11 +23,12 @@ Refuel.define('ListModule',{inherits: 'AbstractModule', require:'ListItemModule'
             if (config.root) this.template.setRoot(config.root);
             
             if (this.dataSource) {
-                console.log(config.dataLabel+' ('+Refuel.refuelClass(this)+') have dataSource and is waiting for data...');
+                //console.log(config.dataLabel+' ('+Refuel.refuelClass(this)+') have dataSource and is waiting for data...');
                 this.dataSource.subscribe('dataAvailable', function(data) {
-                    console.log(Refuel.refuelClass(this),'got all data ',this.data,', now he can draw()');
+                    //console.log(Refuel.refuelClass(this),'got all data ',this.data,', now he can draw()');
                     this.draw();
                     set.call(this);
+                     console.log(this.dataLabel || this.config.name, config);
                 }, this);
                 this.dataSource.init(config);    
             }
