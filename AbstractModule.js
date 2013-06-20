@@ -2,6 +2,7 @@
     *   @class AbstractModule
     *   @fires _unhandledAction Fired when an Action is requested on this module but is not defined
     *   @fires observableChange Fired when some data observed by this module changes
+    *   @fires loadComplete
     *
     *   @author Stefano Sergio
     */
@@ -36,6 +37,9 @@ Refuel.define('AbstractModule', {require: ['Template', 'DataSource'], inherits: 
                 this.dataSource = Refuel.newModule('DataSource', config);
             }
 
+            this.dataSource.subscribe('dataAvailable', function(data) {
+                this.notify('loadComplete');
+            }, this);
 
             this.template = Refuel.newModule('Template', config);
             this.template.subscribe('_new_module_requested', createSubmodule, this);

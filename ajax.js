@@ -54,7 +54,7 @@ Refuel.static('ajax',
 			var xhr = setProvider();
 			var method = options.method ? options.method : "GET";
 			var headers, timeout;
-			options.msTimeout = options.msTimeout || 2500;
+			options.msTimeout = options.msTimeout || 5000;
 
 			timeout = setTimeout(function(xhr, url, options){
 				return function timeoutHandler(){
@@ -82,10 +82,22 @@ Refuel.static('ajax',
 						responseXML: xhr.responseXML,
 						responseText: xhr.responseText
 					};
+
 					if (resp.responseText){
-						resp.responseJSON = JSON.parse(resp.responseText) || {};
+						try {
+							resp.responseJSON = JSON.parse(resp.responseText) || {};	
+						}
+						catch (e) {
+							console.error("Parsing Error in responseText", resp);
+							throw "Parsing Error [responseText] in "+url;
+						}
 					}
-					if (status >= 200 && status < 400 || status === 1224){
+
+					var allowed = false;
+					if (options.allowedStatus) {
+						allowed = options.allowedStatus.indexOf(status) > -1 ? true : false;
+					}
+					if (status >= 200 && status < 400 || status === 1224 || allowed){
 						options.successCallback(resp, status, xhr);
 					} else if (status >= 400){
 						options.errorCallback(resp, status, xhr);

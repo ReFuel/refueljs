@@ -20,7 +20,9 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax']},
 				'dataPath': null,
 				'successCallback': successCallback.bind(this),
 				'errorCallback': errorCallback.bind(this),
+				'timeout': timeoutCallback.bind(this),
 				'autoload': false
+				//,allowedStatus: []
 			},
 			extLoadingState = {
 				requested: 0,
@@ -196,13 +198,15 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax']},
 		}
 
 		function successCallback(dataObj) {
-			////console.log('successCallback',dataObj);
 			var puredata = Refuel.resolveChain(config.dataPath, dataObj.responseJSON);
 			setData.call(this, puredata);
 		}
-		
 		function errorCallback(dataObj) {
 			console.error("datasource error:", config, dataObj);
+			this.notify("dataError", this.getData());
+		}
+		function timeoutCallback(dataObj) {
+			console.error("datasource Timed-Out:", config, dataObj);
 			this.notify("dataError", this.getData());
 		}
 
