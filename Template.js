@@ -325,6 +325,10 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 						case 'selected':
 							symbol.domElement[symbol.attributeName] = linkedData == true;
 						break;
+						case 'data-src':
+							symbol.domElement.removeAttribute('data-rf-src');
+							symbol.domElement.setAttribute('src', linkedData);
+						break;
 						default:
 							symbol.attribute.value = symbol.originalContent.replace(symbol.originalSymbol, linkedData);	
 					}
