@@ -182,10 +182,12 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 			for (var partName in parts) {	
 				var partObj = parts[partName];
 				var selector = partObj['selector'];
+				var onlyone = partObj['onlyone'];
+				var found = root.querySelectorAll(selector);
 				if (selector) {
-					var found = root.querySelectorAll(selector);
 					if (found.length) {
-						var child = this.parts[partName] = found.length > 1 ? found : found[0];
+						var child = this.parts[partName] = found.length > 1 && !onlyone ? found : found[0];
+
 						if (partObj['strip']) root.removeChild(child);
 						this.notify('_template_element_found', {'name': partName, 'element': child});
 					}

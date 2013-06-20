@@ -7,7 +7,7 @@ Refuel.config.modules = {
 		className: 'ListModule',
 		elements: {
 			//'>:first-child': { name: 'template' },
-			'template': { selector: '[data-rf-template]', strip: true} 
+			'template': { selector: '[data-rf-template]', strip: true, onlyone: true} 
 		}
 	},
 	'sayt': {

@@ -25,7 +25,8 @@ Refuel.define('AbstractModule', {require: ['Template', 'DataSource'], inherits: 
             if (config.elements) this.elements = config.elements;
             this.defineUpdateManager(oa_update.bind(this));
             this.dataLabel = config.dataLabel;
-            
+            this.name = config.name;
+
             if ( Refuel.refuelClass(config.data) == 'DataSource') {
                 //console.log('a newly created '+Refuel.refuelClass(this)+' have DataSource PASSED by parent with name:', config.dataLabel, 'in status: '+ config.data.loadStatus );
                 this.dataSource = config.data; 
@@ -35,8 +36,8 @@ Refuel.define('AbstractModule', {require: ['Template', 'DataSource'], inherits: 
                 this.dataSource = Refuel.newModule('DataSource', config);
             }
 
+
             this.template = Refuel.newModule('Template', config);
-            this.template._owner = Refuel.refuelClass(this);
             this.template.subscribe('_new_module_requested', createSubmodule, this);
             this.template.subscribe('_generic_binder_event', genericEventHandler, this);
             this.template.subscribe('_observe', observeTemplateSymbol, this);
@@ -56,6 +57,8 @@ Refuel.define('AbstractModule', {require: ['Template', 'DataSource'], inherits: 
             var label = path.splice(0,1)[0];
             path = path.join('.');
 
+            
+
             //console.log(this.dataLabel,'creates a Submodule',module.className,'with data', symbol.linkedTo);
             var defaultSubmoduleConfig = {
                 autoload: false
@@ -73,8 +76,6 @@ Refuel.define('AbstractModule', {require: ['Template', 'DataSource'], inherits: 
             this.addModule(newmodule);
         }
 
-
-
         function genericEventHandler(e) {    
             var action = actionMap[e.linkedTo];
             if (action) {
@@ -85,13 +86,14 @@ Refuel.define('AbstractModule', {require: ['Template', 'DataSource'], inherits: 
             else {
                 this.notify('_unhandledAction', e);
             }
+
         }
 
         /**
             called by the template (via event) when something has an option: observe
         **/
         function observeTemplateSymbol(e) {
-            this.enableAutoUpdate(this.dataSource.getData(), config.dataLabel); //FIXME not generic
+            this.enableAutoUpdate(this.data); //FIXME not generic
             //TODO levare i parametri passati all'observe
             var path = e.linkedTo;
             var obs = this.observe(path, e.symbol, 
@@ -122,6 +124,14 @@ Refuel.define('AbstractModule', {require: ['Template', 'DataSource'], inherits: 
                 if (!e.module) e.module = module; //keeps only the original module inside the event data
                 genericEventHandler.call(this, e);
             }, this);
+
+            //XXX dataAvaiable when module.data changes, use updater
+            this.dataSource.subscribe('dataAvailable', function(e) {
+                if (module.dataLabel && this.data[module.dataLabel]) {
+                    module.data = this.data[module.dataLabel];
+                }
+            }, this);
+            
         }
         
         this.getModulesByClass = function(classname) {

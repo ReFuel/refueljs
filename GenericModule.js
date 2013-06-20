@@ -8,14 +8,12 @@
 Refuel.define('GenericModule',{inherits: 'AbstractModule', require: ['ListModule']}, 
     function GenericModule() {
         var config = {};
-
         this.init = function(myConfig) {
             config = Refuel.mix(config, myConfig);
             delete config['data'];
             //console.log(config.dataLabel,'GenericModule.init', config);
             this.defineUpdateManager(oa_update);
 
-            
             if (config.root) {
                 this.template.setRoot(config.root);
                 this.template.parseTemplate();
@@ -26,7 +24,6 @@ Refuel.define('GenericModule',{inherits: 'AbstractModule', require: ['ListModule
                 this.dataSource.subscribe('dataAvailable', function(data) {
                     //console.log(config.dataLabel, Refuel.refuelClass(this),'got all data (dataAvailable), now he can draw()');
                     this.draw();
-                   
                 }, this);
                 this.dataSource.init(config);
             }
