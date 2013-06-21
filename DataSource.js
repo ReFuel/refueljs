@@ -183,10 +183,7 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax']},
             	}
             }
             else if (config.url) {
-            	setTimeout(function() {
-            		Refuel.ajax.get(config.url, config);
-            		
-            	}, 500)
+            	Refuel.ajax.get(config.url, config);
             }
 
             for(var key in data) {
@@ -194,7 +191,13 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax']},
 				if (Refuel.refuelClass(prop) == 'DataSource') {
 					if (!prop.loadComplete) prop.load();
 				}	
-			}
+			}			
+		}
+
+		this.post = function(body, callback) {
+			var postconf = Refuel.clone(config);
+			postconf.successCallback = postconf.errorCallback = postconf.timeoutCallback = callback;
+			Refuel.ajax.post(config.url, body, postconf);
 		}
 
 		function successCallback(dataObj) {
@@ -203,11 +206,11 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax']},
 		}
 		function errorCallback(dataObj) {
 			console.error("datasource error:", config, dataObj);
-			this.notify("dataError", this.getData());
+			this.notify("dataError", data);
 		}
 		function timeoutCallback(dataObj) {
 			console.error("datasource Timed-Out:", config, dataObj);
-			this.notify("dataError", this.getData());
+			this.notify("dataError", data);
 		}
 
 		function refreshInterface() {
@@ -229,8 +232,7 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax']},
 					},
 					"delete": function() {
 						Refuel.ajax.delete(url, config);
-					},
-					"getData": this.getData //è veramente da rendere pubblica??? potrebbe essere necessario 
+					}
 				}
 			 }
 			 else if (key) {

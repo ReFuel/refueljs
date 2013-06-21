@@ -104,10 +104,10 @@ Refuel.static('ajax',
 					}
 				}
 			};
-			var params = (options.params);
-			
-			xhr.open(method, url+'?'+params);
+			var params = options.params;
+			var queryString = params ? '?'+params : '';
 
+			xhr.open(method, url+queryString);
 			ajaxCounter++;
 
 			if (headers = options.headers){

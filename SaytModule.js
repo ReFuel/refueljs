@@ -93,6 +93,7 @@ Refuel.define('SaytModule', {inherits: 'GenericModule'},
             this.currentQuery = null;
         }
         function startSearch(query) {
+            console.log('start sayt search', query);
             if (searchTimeout) window.clearTimeout(searchTimeout);
             theList.template.clear();
             if (query.length === 0) {
