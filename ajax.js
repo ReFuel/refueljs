@@ -5,6 +5,7 @@ Refuel.static('ajax',
 		var config = {
 			
 		};
+		var timer = {};
 
 		function setProvider(){
 			var XMLHttpRequest;
@@ -67,7 +68,7 @@ Refuel.static('ajax',
 			};
 			xhr.onreadystatechange = function() {
 				var status, resp = {};
-
+				//console.log('XHR STATE', xhr.readyState );
 				if (xhr.readyState === 4){
 					callLog[url].counter = 0;
 					clearTimeout(callLog[url].timeoutId);
@@ -106,19 +107,26 @@ Refuel.static('ajax',
 			};
 			var params = options.params;
 			var queryString = params ? '?'+params : '';
-
-			xhr.open(method, url+queryString);
-			ajaxCounter++;
-
-			if (headers = options.headers){
-				for (var h in headers){
-					if (headers.hasOwnProperty(h)){
-						xhr.setRequestHeader(h, headers[h]);
+			
+			//ebugger;
+			var currentTime = new Date().getTime();
+			if (!timer.last) timer.last = new Date().getTime();
+			var ttd = Math.max((20 - (currentTime - timer.last)), 0);
+			
+			setTimeout(function() {
+				xhr.open(method, url+queryString);
+				ajaxCounter++;
+				if (headers = options.headers){
+					for (var h in headers){
+						if (headers.hasOwnProperty(h)){
+							xhr.setRequestHeader(h, headers[h]);
+						}
 					}
 				}
-			}
-
-			xhr.send(method.match(/POST|PUT/) && options.body ? options.body : null);
+				xhr.send(method.match(/POST|PUT/) && options.body ? options.body : null);
+				timer.last = new Date().getTime();
+			}, ttd);
+			
 		}
 		
 		return {

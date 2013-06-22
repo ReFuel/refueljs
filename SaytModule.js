@@ -15,7 +15,7 @@ Refuel.define('SaytModule', {inherits: 'GenericModule'},
         };
         var lastQuery,
             searchTimeout,
-            listElement,
+            resultList,
             listItemTemplate,
             theList;
 
@@ -38,17 +38,17 @@ Refuel.define('SaytModule', {inherits: 'GenericModule'},
 
         function create(e) {
             this.elements['inputField'].addEventListener('keyup', handleTyping.bind(this));
-            listElement = this.elements['listElement'];
-            if (!listElement) {
-                listElement = document.createElement('ul');
-                this.template.getRoot().appendChild(listElement);
-                this.elements['listElement'] = listElement;
+            resultList = this.elements['resultList'];
+            if (!resultList) {
+                resultList = document.createElement('ul');
+                this.template.getRoot().appendChild(resultList);
+                this.elements['resultList'] = resultList;
             }
             listItemTemplate = this.elements['listItemTemplate'];
             if (!listItemTemplate) {
                 listItemTemplate = document.createElement('li');
                 listItemTemplate.innerHTML = '<div class="view">{{title}}</div>';
-                listElement.appendChild(listItemTemplate);
+                resultList.appendChild(listItemTemplate);
                 this.elements['listItemTemplate'] = listItemTemplate;
             }
 
@@ -57,7 +57,7 @@ Refuel.define('SaytModule', {inherits: 'GenericModule'},
             //if ListModule is not already defined
             if (!theList) {
                 theList = Refuel.newModule('ListModule', {
-                    'root': listElement,
+                    'root': resultList,
                     'dataLabel': 'list',
                     'elements': {
                         'template': listItemTemplate 
@@ -65,7 +65,7 @@ Refuel.define('SaytModule', {inherits: 'GenericModule'},
                 });
                 this.addModule(theList);
             }
-            theList.toggleClass('hide', true);
+            this.hide();
             //XXX we got to call here because in general doesnt have all config?
             theList.template.parseTemplate();
         }
@@ -79,7 +79,7 @@ Refuel.define('SaytModule', {inherits: 'GenericModule'},
             theList.data = data;
 
             //theList.toggleClass('show', data.length);
-            theList.toggleClass('hide', !data.length);
+            data.length ? this.show() : this.hide();
         }
 
         function handleTyping(e) {
@@ -93,17 +93,24 @@ Refuel.define('SaytModule', {inherits: 'GenericModule'},
             this.currentQuery = null;
         }
         function startSearch(query) {
-            console.log('start sayt search', query);
+            //console.log('start sayt search', query);
             if (searchTimeout) window.clearTimeout(searchTimeout);
             theList.template.clear();
             if (query.length === 0) {
-                theList.toggleClass('hide', true);
+                this.hide();
             }
             else if (query != this.currentQuery && query.length >= config.minChars) {
                 lastQuery = this.currentQuery;
                 this.currentQuery = query;
                 this.dataSource.load({'params': config.searchParam+'='+query});
             }
+        }
+
+        this.hide = function() {
+             theList.toggleClass('hide', true);
+        }
+        this.show = function() {
+             theList.toggleClass('hide', false);
         }
         
         function oa_update(e) {

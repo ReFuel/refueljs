@@ -193,11 +193,21 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax']},
 				}	
 			}			
 		}
-
+		/**
+			Using post and get methods ignores any DataSource automation, it's just like a shortcut for an ajax call
+		**/
 		this.post = function(body, callback) {
 			var postconf = Refuel.clone(config);
-			postconf.successCallback = postconf.errorCallback = postconf.timeoutCallback = callback;
+			if (callback) 
+				postconf.successCallback = postconf.errorCallback = postconf.timeoutCallback = callback;
 			Refuel.ajax.post(config.url, body, postconf);
+		}
+		this.get = function(params, callback) {
+			var postconf = Refuel.clone(config);
+			if (callback) 
+				postconf.successCallback = postconf.errorCallback = postconf.timeoutCallback = callback;
+			postconf.params = params;
+			Refuel.ajax.get(config.url, postconf);
 		}
 
 		function successCallback(dataObj) {
@@ -205,10 +215,12 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax']},
 			setData.call(this, puredata);
 		}
 		function errorCallback(dataObj) {
+			this.setLoadIdle();
 			console.error("datasource error:", config, dataObj);
 			this.notify("dataError", data);
 		}
 		function timeoutCallback(dataObj) {
+			this.setLoadIdle();
 			console.error("datasource Timed-Out:", config, dataObj);
 			this.notify("dataError", data);
 		}

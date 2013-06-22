@@ -14,7 +14,7 @@ Refuel.config.modules = {
 		className: 'SaytModule',
 		elements: {
 			'inputField': 		{selector: 'input'},
-			'listElement':  	{selector: 'ul' },
+			'resultList':  		{selector: 'ul' },
 			'listItemTemplate': {selector: 'ul > li'}
 		}
 	}
