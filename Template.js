@@ -271,8 +271,6 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 					}
 				break;
 			}
-
-			//if (node === root) templateBinder(node, symbolTable);
 			return symbolTable;
 		}
 
@@ -326,7 +324,7 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 							symbol.domElement[symbol.attributeName] = linkedData == true;
 						break;
 						case 'data-src':
-							symbol.domElement.removeAttribute('data-rf-src');
+							symbol.domElement.removeAttribute('data-src');
 							symbol.domElement.setAttribute('src', linkedData);
 						break;
 						default:
