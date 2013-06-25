@@ -3,7 +3,9 @@ Refuel.static('ajax',
 		var ajaxCounter = 0;
 		var callLog = {};
 		var config = {
-			
+		    headers: {
+			'Content-Type': 'application/json'
+		    }
 		};
 		var timer = {};
 
@@ -50,6 +52,7 @@ Refuel.static('ajax',
 		}
 
 		function ajax(url, options){
+			options.headers = Refuel.mix(config.headers, options.headers);
 			options = Refuel.mix(config, options);
 			
 			var xhr = setProvider();
