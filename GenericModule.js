@@ -24,6 +24,7 @@ Refuel.define('GenericModule',{inherits: 'AbstractModule', require: ['ListModule
                 this.dataSource.subscribe('dataAvailable', function(data) {
                     //console.log(config.dataLabel, Refuel.refuelClass(this),'got all data (dataAvailable), now he can draw()');
                     this.draw();
+                    this.notify('loadComplete');
                 }, this);
                 this.dataSource.init(config);
             }

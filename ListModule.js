@@ -21,7 +21,8 @@ Refuel.define('ListModule',{inherits: 'AbstractModule', require:'ListItemModule'
 
             this.defineUpdateManager(oa_update.bind(this));
             if (config.root) this.template.setRoot(config.root);
-            
+
+
             if (this.dataSource) {
                 //console.log(config.dataLabel+' ('+Refuel.refuelClass(this)+') have dataSource and is waiting for data...');
                 this.dataSource.subscribe('dataAvailable', function(data) {
@@ -29,6 +30,7 @@ Refuel.define('ListModule',{inherits: 'AbstractModule', require:'ListItemModule'
                     this.draw();
                     set.call(this);
                      console.log(this.dataLabel || this.config.name, config);
+                     this.notify('loadComplete');
                 }, this);
                 this.dataSource.init(config);    
             }

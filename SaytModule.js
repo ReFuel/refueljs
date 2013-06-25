@@ -30,6 +30,7 @@ Refuel.define('SaytModule', {inherits: 'GenericModule'},
             if (this.dataSource) {
                 this.dataSource.subscribe('dataAvailable', function(data) {
                     this.draw();
+                    this.notify('loadComplete');
                 }, this);
                 this.dataSource.init(config);
             }

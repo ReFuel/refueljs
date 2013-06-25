@@ -36,11 +36,6 @@ Refuel.define('AbstractModule', {require: ['Template', 'DataSource'], inherits: 
                 //console.log('a newly created '+Refuel.refuelClass(this)+' instances new DataSource with config:', config );
                 this.dataSource = Refuel.newModule('DataSource', config);
             }
-
-            this.dataSource.subscribe('dataAvailable', function(data) {
-                this.notify('loadComplete');
-            }, this);
-
             this.template = Refuel.newModule('Template', config);
             this.template.subscribe('_new_module_requested', createSubmodule, this);
             this.template.subscribe('_generic_binder_event', genericEventHandler, this);
@@ -61,8 +56,6 @@ Refuel.define('AbstractModule', {require: ['Template', 'DataSource'], inherits: 
             var label = path.splice(0,1)[0];
             path = path.join('.');
 
-            
-
             //console.log(this.dataLabel,'creates a Submodule',module.className,'with data', symbol.linkedTo);
             var defaultSubmoduleConfig = {
                 autoload: false
@@ -74,7 +67,7 @@ Refuel.define('AbstractModule', {require: ['Template', 'DataSource'], inherits: 
             conf = Refuel.mix(defaultSubmoduleConfig, conf);
             conf = Refuel.mix(conf, config[label]);
             var newmodule = Refuel.newModule(module.className, conf);
-
+            
             // se sono linkedTo bisogna dargli una label, bisogna dargli un rootpath e il resto del path
             //newmodule.dataSource = this.data[label];
             this.addModule(newmodule);
