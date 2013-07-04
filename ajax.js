@@ -58,7 +58,7 @@ Refuel.static('ajax',
 			var xhr = setProvider();
 			var method = options.method ? options.method : "GET";
 			var headers, timeout;
-			options.msTimeout = options.msTimeout || 5000;
+			options.msTimeout = options.msTimeout || 60000;
 
 			timeout = setTimeout(function(xhr, url, options){
 				return function timeoutHandler(){

@@ -26,7 +26,7 @@ Refuel.define('ListModule',{inherits: 'AbstractModule', require:'ListItemModule'
             if (this.dataSource) {
                 //console.log(config.dataLabel+' ('+Refuel.refuelClass(this)+') have dataSource and is waiting for data...');
                 this.dataSource.subscribe('dataAvailable', function(data) {
-                    console.log(this.dataLabel,'got all data ',this.data,', now can draw()');
+                    //console.log(this.dataLabel,'got all data ',this.data,', now can draw()');
                     //if (this.dataLabel == 'dashboard') debugger;
                     this.draw();
                     set.call(this);

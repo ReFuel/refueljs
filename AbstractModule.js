@@ -175,15 +175,15 @@ Refuel.define('AbstractModule', {require: ['Template', 'DataSource'], inherits: 
         } 
 
         this.toggleClass = function(classname, value) {
-            var root = this.template.getRoot();
             if (value === undefined) {
-                root.classList.toggle(classname);
+                this.classList.toggle(classname);
             }
             else {
-                if (value) root.classList.add(classname);
-                else root.classList.remove(classname);
+                if (value) this.classList.add(classname);
+                else this.classList.remove(classname);
             }
-        } 
+        }
+
         this.saveData = function() {
             this.dataSource.save();
         }
@@ -200,6 +200,15 @@ Refuel.define('AbstractModule', {require: ['Template', 'DataSource'], inherits: 
             //se voglio settare i data di un module dovrei settarli nel suo dataSource
             set: function(value) {
                 this.dataSource.setData(value); 
+            }
+        });
+        Object.defineProperty(this, 'classList', {
+            configurable: true,            
+            get: function() {
+                return this.template.getRoot().classList;
+            },
+            set: function(value) {
+                console.error('cannot set '+this+'classList');
             }
         });
         
