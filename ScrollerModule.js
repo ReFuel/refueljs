@@ -249,7 +249,7 @@ Refuel.define('ScrollerModule', {inherits: 'Events'},
 			//set the new starting point
 			index = newY;
 			e.stopPropagation();
-			this.notify(eventType, {y: index});
+			if (eventType) this.notify(eventType, {y: index});
 		};
 		
 		function fixToUpperBound(){

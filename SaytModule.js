@@ -100,7 +100,7 @@ Refuel.define('SaytModule', {inherits: 'GenericModule'},
             if (query.length === 0) {
                 this.hide();
             }
-            else if (query != this.currentQuery && query.length >= config.minChars) {
+            else if (query.length >= config.minChars) {
                 lastQuery = this.currentQuery;
                 this.currentQuery = query;
                 this.dataSource.load({'params': config.searchParam+'='+query});

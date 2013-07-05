@@ -313,7 +313,7 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 			switch(symbol.action) {
 				case 'replaceText': 
 					markMissing(symbol, linkedData);
-					symbol.textNode.textContent = symbol.originalContent.replace(symbol.originalSymbol, linkedData);
+					symbol.textNode.textContent = symbol.originalContent.replace(symbol.originalSymbol, linkedData || '');
 				break;
 				
 				case 'replaceAttributeValue':
