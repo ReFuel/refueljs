@@ -211,6 +211,15 @@ Refuel.define('AbstractModule', {require: ['Template', 'DataSource'], inherits: 
                 console.error('cannot set '+this+'classList');
             }
         });
+        Object.defineProperty(this, 'root', {
+            configurable: true,            
+            get: function() {
+                return this.template.getRoot();
+            },
+            set: function(value) {
+                console.error('cannot set '+this+'classList');
+            }
+        });
         
         
 });

@@ -17,5 +17,8 @@ Refuel.config.modules = {
 			'resultList':  		{selector: 'ul' },
 			'listItemTemplate': {selector: 'ul > li'}
 		}
-	}
+	},
+	'scroller': {
+		className: 'ScrollerModule'
+	},
 }
