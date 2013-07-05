@@ -4,8 +4,9 @@ Refuel.static('ajax',
 		var callLog = {};
 		var config = {
 		    headers: {
-			'Content-Type': 'application/json'
-		    }
+				'Content-Type': 'application/json'
+		    },
+			dataSourceCallback: function() {return true;}
 		};
 		var timer = {};
 
@@ -98,14 +99,18 @@ Refuel.static('ajax',
 					}
 
 					var allowed = false;
+					var type = 'timeout';
 					if (options.allowedStatus) {
 						allowed = options.allowedStatus.indexOf(status) > -1 ? true : false;
 					}
 					if (status >= 200 && status < 400 || status === 1224 || allowed){
 						options.successCallback(resp, status, xhr);
+						type = 'success';
 					} else if (status >= 400){
 						options.errorCallback(resp, status, xhr);
+						type = 'error';
 					}
+					options.dataSourceCallback(resp, status, xhr, type);
 				}
 			};
 			var params = options.params;

@@ -21,7 +21,8 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax']},
 				'successCallback': successCallback.bind(this),
 				'errorCallback': errorCallback.bind(this),
 				'timeout': timeoutCallback.bind(this),
-				'autoload': false
+				'autoload': false,
+				'dataSourceCallback': genericCallback.bind(this)
 				//,allowedStatus: []
 			},
 			extLoadingState = {
@@ -71,9 +72,9 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax']},
 
 		this.init = function(myConfig) {
 			config = Refuel.mix(config, myConfig);
+
 			//console.log('datasource.init',config.dataLabel,_loadStatus,config.autoload, config.msg );
 			refreshInterface.call(this);
-
 			if (this.loadComplete) {
            		this.notify('dataAvailable', {'data': data});
            	}
@@ -211,8 +212,8 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax']},
 		}
 
 		function successCallback(dataObj) {
-			var puredata = Refuel.resolveChain(config.dataPath, dataObj.responseJSON);
-			setData.call(this, puredata);
+			//var puredata = Refuel.resolveChain(config.dataPath, dataObj.responseJSON);
+			//setData.call(this, puredata);
 		}
 		function errorCallback(dataObj) {
 			this.setLoadIdle();
@@ -223,6 +224,12 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax']},
 			this.setLoadIdle();
 			console.error("datasource Timed-Out:", config, dataObj);
 			this.notify("dataError", data);
+		}
+		function genericCallback(response, status, xhr, type) {
+			if (type == 'success') {
+				var puredata = Refuel.resolveChain(config.dataPath, response.responseJSON);
+				setData.call(this, puredata);	
+			}
 		}
 
 		function refreshInterface() {
