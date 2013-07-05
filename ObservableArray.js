@@ -105,5 +105,12 @@ Refuel.define('ObservableArray',{inherits: 'Events'},
 		this.filter = function(callback) {
 			return data.filter(callback);
 		}
+		this.empty = function() {
+			for (var i = 0; i < data.length; i++) {
+    			delete this[i];
+    		}
+			data.length = 0;
+			this.length = 0;
+		}
 		
 });

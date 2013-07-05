@@ -164,27 +164,25 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax']},
 		}
 
 		this.load = function(myConfig) {
-			if (myConfig) {
-				this.setConfig(myConfig);
-			}
+			myConfig = Refuel.mix(config, myConfig || {});
 			if (this.loadProgress) return;
 			//console.log('DataSource start loading data labelled',config.dataLabel,'from',config.url || config.key);
 			
 			this.setLoadProgress();
-			if (config.key) {
-				var storedData = localStorage.getItem(config.key);
+			if (myConfig.key) {
+				var storedData = localStorage.getItem(myConfig.key);
 				var storedObject = JSON.parse(storedData);
 				if (storedObject) {
-					var puredata = Refuel.resolveChain(config.dataPath, storedObject);
+					var puredata = Refuel.resolveChain(myConfig.dataPath, storedObject);
             		setData.call(this, puredata);
             	}
             	else {
-            		var defaultEmptyData = config.defaultDataType == 'Array' ? [] : {};
+            		var defaultEmptyData = myConfig.defaultDataType == 'Array' ? [] : {};
             		setData.call(this, defaultEmptyData);
             	}
             }
-            else if (config.url) {
-            	Refuel.ajax.get(config.url, config);
+            else if (myConfig.url) {
+            	Refuel.ajax.get(myConfig.url, myConfig);
             }
 
             for(var key in data) {
@@ -229,6 +227,9 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax']},
 			if (type == 'success') {
 				var puredata = Refuel.resolveChain(config.dataPath, response.responseJSON);
 				setData.call(this, puredata);	
+			}
+			else {
+				this.setLoadIdle();
 			}
 		}
 
