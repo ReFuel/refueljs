@@ -41,7 +41,8 @@ Refuel.define('ScrollerModule', {inherits: 'Events'},
 			window.addEventListener('resize', handleEvent, false);
 		};
 		
-		this.moveTo = function(newY) {
+		this.moveTo = function(y) {
+			newY = y;
 			applyStyle(element, 'transform', 'translate3d(0,' + newY + 'px,0)');
 			var tvalue =  config.speed + 'ms cubic-bezier(0, 0, 0, 1)';
 			applyStyle(element, 'transition',  tvalue);	
