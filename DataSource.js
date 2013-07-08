@@ -88,7 +88,8 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax']},
         }
 
         this.setConfig = function (myConfig) {
-        	config = Refuel.mix(config, myConfig);
+        	config.params = null;
+        	config = Refuel.mix(config, myConfig || {});
         	refreshInterface.call(this);
         }
         //XXX Really?
@@ -164,25 +165,25 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax']},
 		}
 
 		this.load = function(myConfig) {
-			myConfig = Refuel.mix(config, myConfig || {});
+			this.setConfig(myConfig);
 			if (this.loadProgress) return;
 			//console.log('DataSource start loading data labelled',config.dataLabel,'from',config.url || config.key);
 			
 			this.setLoadProgress();
-			if (myConfig.key) {
-				var storedData = localStorage.getItem(myConfig.key);
+			if (config.key) {
+				var storedData = localStorage.getItem(config.key);
 				var storedObject = JSON.parse(storedData);
 				if (storedObject) {
-					var puredata = Refuel.resolveChain(myConfig.dataPath, storedObject);
+					var puredata = Refuel.resolveChain(config.dataPath, storedObject);
             		setData.call(this, puredata);
             	}
             	else {
-            		var defaultEmptyData = myConfig.defaultDataType == 'Array' ? [] : {};
+            		var defaultEmptyData = config.defaultDataType == 'Array' ? [] : {};
             		setData.call(this, defaultEmptyData);
             	}
             }
-            else if (myConfig.url) {
-            	Refuel.ajax.get(myConfig.url, myConfig);
+            else if (config.url) {
+            	Refuel.ajax.get(config.url, config);
             }
 
             for(var key in data) {
@@ -190,23 +191,7 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax']},
 				if (Refuel.refuelClass(prop) == 'DataSource') {
 					if (!prop.loadComplete) prop.load();
 				}	
-			}			
-		}
-		/**
-			Using post and get methods ignores any DataSource automation, it's just like a shortcut for an ajax call
-		**/
-		this.post = function(body, callback) {
-			var postconf = Refuel.clone(config);
-			if (callback) 
-				postconf.successCallback = postconf.errorCallback = postconf.timeoutCallback = callback;
-			Refuel.ajax.post(config.url, body, postconf);
-		}
-		this.get = function(params, callback) {
-			var postconf = Refuel.clone(config);
-			if (callback) 
-				postconf.successCallback = postconf.errorCallback = postconf.timeoutCallback = callback;
-			postconf.params = params;
-			Refuel.ajax.get(config.url, postconf);
+			}
 		}
 
 		function successCallback(dataObj) {
@@ -241,11 +226,18 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax']},
 			if (url) {
 
 				facade = {
-					"get": function() {
-						Refuel.ajax.get(url, config);
+					"get": function(params, callback) {
+						var postconf = Refuel.clone(config);
+						if (callback) 
+							postconf.successCallback = postconf.errorCallback = postconf.timeoutCallback = callback;
+						postconf.params = params;
+						Refuel.ajax.get(config.url, postconf);
 					},
-					"post": function(body) {
-						Refuel.ajax.post(url, body, config);
+					"post": function(body, callback) {
+						var postconf = Refuel.clone(config);
+						if (callback) 
+							postconf.successCallback = postconf.errorCallback = postconf.timeoutCallback = callback;
+						Refuel.ajax.post(config.url, body, postconf);
 					},
 					"put": function(body) {
 						Refuel.ajax.put(url, body, config);
