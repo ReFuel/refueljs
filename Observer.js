@@ -14,6 +14,9 @@ Refuel.define('Observer',{require: ['ObservableArray'], inherits: 'Events'},
 	    this.getObservers = function() {
 	        return _map;
 	    }
+	    this.clearObservers = function() {
+	    	_map = {};
+	    }
 	    this.enableAutoUpdate = function(mpDataSource) {
 	    	mountpoint = mpDataSource;
 	    }
@@ -30,6 +33,7 @@ Refuel.define('Observer',{require: ['ObservableArray'], inherits: 'Events'},
 	        	parent = this.dataSource; // facciamo mountpoint = ds?
 			}
 			
+			//XXX if _map = {} doesnt work the second time you rebind
 			if (Refuel.refuelClass(parent) == 'DataSource') {
 				value = parent.data;
 				propName = 'data';
@@ -50,7 +54,6 @@ Refuel.define('Observer',{require: ['ObservableArray'], inherits: 'Events'},
 			}
 			//Observe an Object
 			else {
-				
 				Object.defineProperty(parent, propName, {
 				    configurable: true,
 					set: function(val) {
@@ -60,7 +63,7 @@ Refuel.define('Observer',{require: ['ObservableArray'], inherits: 'Events'},
 						//}
 				    },
 					get: function() {
-				        return _map[name].value;
+			        	return _map[name].value;
 				    }
 				});
 			}
@@ -96,12 +99,18 @@ Refuel.define('Observer',{require: ['ObservableArray'], inherits: 'Events'},
 	    		console.error('Before making',name,'observable you should enableAutoUpdate on',name,'or it\'s parent');
 	    		return;
 	    	} 
-	    	var obj = _map[name];
-	        if (!obj) obj = makeObservable.call(this, name);
+	    	
+	    	//XXX shouldnt re-make an already observed property, only add callbacks
+	    	//but doing this causes the need to reset _map when  re-rendering
+	    	var callbackList = (_map[name] && _map[name].callbackList) ? _map[name].callbackList : [];
+
+	        var obj = makeObservable.call(this, name);	        
+	        obj.callbackList = callbackList;
+	        _map[name] = obj;
+
 	        // Add Callback
 	        if (callback) {
-	        	if(!obj.callbackList) obj.callbackList = [];
-		        obj.callbackList.push({
+	        	obj.callbackList.push({
 		        	'callback': callback,
 		        	'context' : this,
 		        	'params'  : data

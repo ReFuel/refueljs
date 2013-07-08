@@ -150,6 +150,7 @@ Refuel.define('AbstractModule', {require: ['Template', 'DataSource'], inherits: 
         */
         this.draw = function(data) {
             data = data || this.data;
+            //this.clearObservers();
             this.template.render(data);
         }
 

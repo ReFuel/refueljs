@@ -168,7 +168,7 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 
 				//if (symbol.options && symbol.options === 'observe') {
 				if (symbol.action != 'action') {
-					//console.log('#',self._owner, 'templateBinder->', symbol.action)
+					//console.log('#',this._owner, 'templateBinder->', symbol.action)
 					var path = normalizePath(symbol.linkedTo);
 					self.notify('_observe', {'linkedTo': path, 'symbol': symbol});
 				}
@@ -289,7 +289,8 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 			if (!data) console.error('Template::render data argument is null');
 			//TODO why we dont notify? check sayt
 			if (!symbolTable.length)  this.parseTemplate();
-			if (!templateBound) templateBinder(root, symbolTable);
+			//if (!templateBound) 
+				templateBinder(root, symbolTable);
 			self.notify('_template_parsed', {symbolTable: symbolTable});
 			
 			for(var i = 0, symbol;  symbol = symbolTable[i]; i++) {
