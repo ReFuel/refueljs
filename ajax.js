@@ -6,7 +6,7 @@ Refuel.static('ajax',
 		    headers: {
 				'Content-Type': 'application/json'
 		    },
-			dataSourceCallback: function() {return true;}
+			_genericCallback: function() {return true;}
 		};
 		var timer = {};
 
@@ -48,7 +48,8 @@ Refuel.static('ajax',
 				ajax(url, options);
 			} else {
 				callLog[url].counter = 0;
-				options[options.timeout ? 'timeout' : 'errorCallback'](resp, 0, xhr);
+				options[options.timeout ? 'timeoutCallback' : 'errorCallback'](resp, 0, xhr);
+				options._genericCallback(resp, null, xhr, 'timeout');
 			}
 		}
 
@@ -110,7 +111,7 @@ Refuel.static('ajax',
 						options.errorCallback(resp, status, xhr);
 						type = 'error';
 					}
-					options.dataSourceCallback(resp, status, xhr, type);
+					options._genericCallback(resp, status, xhr, type);
 				}
 			};
 			var params = options.params;

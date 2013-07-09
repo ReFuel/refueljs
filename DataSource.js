@@ -13,6 +13,7 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax']},
 	function DataSource() {
 
 		var data = {},
+			lastLoadConfig = null,
 			_loadStatus = 'idle';
 
 		var config = {
@@ -20,9 +21,9 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax']},
 				'dataPath': null,
 				'successCallback': successCallback.bind(this),
 				'errorCallback': errorCallback.bind(this),
-				'timeout': timeoutCallback.bind(this),
+				'timeoutCallback': timeoutCallback.bind(this),
 				'autoload': false,
-				'dataSourceCallback': genericCallback.bind(this)
+				'_genericCallback': genericCallback.bind(this)
 				//,allowedStatus: []
 			},
 			extLoadingState = {
@@ -166,6 +167,7 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax']},
 
 		this.load = function(myConfig) {
 			this.setConfig(myConfig);
+			lastLoadConfig = config;
 			if (this.loadProgress) return;
 			//console.log('DataSource start loading data labelled',config.dataLabel,'from',config.url || config.key);
 			
@@ -194,27 +196,30 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax']},
 			}
 		}
 
-		function successCallback(dataObj) {
-			//var puredata = Refuel.resolveChain(config.dataPath, dataObj.responseJSON);
-			//setData.call(this, puredata);
+		this.reload = function() {
+			this.load(lastLoadConfig);
 		}
-		function errorCallback(dataObj) {
-			this.setLoadIdle();
-			console.error("datasource error:", config, dataObj);
-			this.notify("dataError", data);
-		}
-		function timeoutCallback(dataObj) {
-			this.setLoadIdle();
-			console.error("datasource Timed-Out:", config, dataObj);
-			this.notify("dataError", data);
-		}
+
+		function successCallback(dataObj) {}
+		function errorCallback(dataObj) {}
+		function timeoutCallback(dataObj) {}
+
 		function genericCallback(response, status, xhr, type) {
-			if (type == 'success') {
-				var puredata = Refuel.resolveChain(config.dataPath, response.responseJSON);
-				setData.call(this, puredata);	
-			}
-			else {
-				this.setLoadIdle();
+			switch(type) {
+				case 'success':
+					var puredata = Refuel.resolveChain(config.dataPath, response.responseJSON);
+					setData.call(this, puredata);	
+				break;
+				case 'error':
+					this.setLoadIdle();
+					console.error("datasource error:", config, dataObj);
+					this.notify("dataError", data);
+				break;
+				case 'timeout':
+					this.setLoadIdle();
+					console.error("datasource Timed-Out:", config, dataObj);
+					this.notify("dataError", data);
+				break;
 			}
 		}
 

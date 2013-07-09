@@ -184,6 +184,9 @@ Refuel.define('AbstractModule', {require: ['Template', 'DataSource'], inherits: 
                 else this.classList.remove(classname);
             }
         }
+        this.reload = function() {
+            this.dataSource.reload();
+        }
 
         this.saveData = function() {
             this.dataSource.save();
