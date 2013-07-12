@@ -88,6 +88,13 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax']},
            	}
         }
 
+        this.abort = function() {
+        	//not implemented yet
+        }
+        this.clear = function() {
+        	//not implemented yet
+        }
+
         this.setConfig = function (myConfig) {
         	config.params = null;
         	config = Refuel.mix(config, myConfig || {});

@@ -113,7 +113,7 @@ Refuel.define('SaytModule', {inherits: 'GenericModule'},
         this.show = function() {
              theList.toggleClass('hide', false);
         }
-        
+
         function oa_update(e) {
             //console.log('SaytModule.oa_update', e);
         }

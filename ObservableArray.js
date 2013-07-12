@@ -12,15 +12,8 @@ Refuel.define('ObservableArray',{inherits: 'Events'},
 
 		this.init = function(myConfig) {
 			this.config = Refuel.mix(this.config, myConfig);
-			data = this.config.value;
-			this.length = data.length;
-			this.subscribe('change', function(e){console.log(e.type, e)});
-	        for (var i = 0, prop; prop = data[i]; i++) {
-	            	watchElement.call(this, index);
-	                index++;  
-	        };
-			['pop', 'push', 'reverse', 'shift', 'sort', 'splice', 'unshift'].forEach(handleChange.bind(this));
-			this.notify('_oa_update',{action: 'set'});
+			this.set(this.config.value);
+			['pop', 'push', 'reverse', 'shift', 'sort', 'splice', 'unshift'].forEach(handleChange.bind(this));	
 		}
 
 		function refreshLength() {
@@ -105,12 +98,19 @@ Refuel.define('ObservableArray',{inherits: 'Events'},
 		this.filter = function(callback) {
 			return data.filter(callback);
 		}
-		this.empty = function() {
+		this.clear = function() {
 			for (var i = 0; i < data.length; i++) {
     			delete this[i];
     		}
+    		data = [];
 			data.length = 0;
 			this.length = 0;
+		}
+		this.set = function() {
+			data = this.config.value;
+			this.length = data.length;
+	        resetWatchers.call(this);
+	        this.notify('_oa_update',{action: 'set'});
 		}
 		
 });
