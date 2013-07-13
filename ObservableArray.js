@@ -13,7 +13,7 @@ Refuel.define('ObservableArray',{inherits: 'Events'},
 		this.init = function(myConfig) {
 			this.config = Refuel.mix(this.config, myConfig);
 			this.set(this.config.value);
-			['pop', 'push', 'reverse', 'shift', 'sort', 'splice', 'unshift'].forEach(handleChange.bind(this));	
+			['pop', 'push', 'reverse', 'shift', 'sort', 'splice', 'unshift', 'concat'].forEach(handleChange.bind(this));	
 		}
 
 		function refreshLength() {

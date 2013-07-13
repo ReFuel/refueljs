@@ -102,7 +102,6 @@ Refuel.define('ScrollerModule', {inherits: 'Events'},
 					scrollBar.style.top = "0px";
 					scrollBar.style.right = "5px";
 					scrollBar.style.background = "black";
-					scrollBar.style.marginTop = "40px"; //da dare come classe
 					scrollBar.style.border = "1px solid white";
 					scrollBar.style.opacity = "0.5";
 					scrollBar.style.borderRadius = "5px";

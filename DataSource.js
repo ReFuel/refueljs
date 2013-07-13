@@ -13,6 +13,7 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax']},
 	function DataSource() {
 
 		var data = {},
+			sourceData = {}, 
 			lastLoadConfig = null,
 			_loadStatus = 'idle';
 
@@ -23,7 +24,8 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax']},
 				'errorCallback': errorCallback.bind(this),
 				'timeoutCallback': timeoutCallback.bind(this),
 				'autoload': false,
-				'_genericCallback': genericCallback.bind(this)
+				'_genericCallback': genericCallback.bind(this),
+				'mode': 'new'
 				//,allowedStatus: []
 			},
 			extLoadingState = {
@@ -60,6 +62,12 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax']},
 		        return _loadStatus;
 		    }
 		});
+		Object.defineProperty(this, 'sourceData', {
+			get: function() {
+		        return sourceData;
+		    }
+		});
+
 
 		Object.defineProperty(this, 'data', {
 			configurable: true,				
@@ -97,7 +105,9 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax']},
 
         this.setConfig = function (myConfig) {
         	config.params = null;
+        	config.mode = 'new';
         	config = Refuel.mix(config, myConfig || {});
+        	lastLoadConfig = config;
         	refreshInterface.call(this);
         }
         //XXX Really?
@@ -111,8 +121,19 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax']},
 
 		function setData (dataObj) {
 			this.setLoadProgress();
-			data = dataObj;
+			if (config.mode === 'new') {
+				data = dataObj;
+			}
+			else if (config.mode === 'add') {
+				if (dataObj.hasOwnProperty('length') && data.concat) {
+					data = data.concat(dataObj);
+				}
+				else {
+					data = Refuel.mix(data, dataObj);
+				}
+			} 
 			
+			this.setConfig(); //reset config before passing on other DS
 			extLoadingState.found = extLoadingState.requested = extLoadingState.completed = 0;
 			for(var key in data) {
 				var prop = data[key];
@@ -174,7 +195,6 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax']},
 
 		this.load = function(myConfig) {
 			this.setConfig(myConfig);
-			lastLoadConfig = config;
 			if (this.loadProgress) return;
 			//console.log('DataSource start loading data labelled',config.dataLabel,'from',config.url || config.key);
 			
@@ -183,6 +203,7 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax']},
 				var storedData = localStorage.getItem(config.key);
 				var storedObject = JSON.parse(storedData);
 				if (storedObject) {
+					sourceData = storedObject;
 					var puredata = Refuel.resolveChain(config.dataPath, storedObject);
             		setData.call(this, puredata);
             	}
@@ -214,6 +235,7 @@ Refuel.define('DataSource', {inherits: 'Events', require: ['ajax']},
 		function genericCallback(response, status, xhr, type) {
 			switch(type) {
 				case 'success':
+					sourceData = response.responseJSON;
 					var puredata = Refuel.resolveChain(config.dataPath, response.responseJSON);
 					setData.call(this, puredata);	
 				break;

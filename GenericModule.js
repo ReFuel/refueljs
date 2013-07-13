@@ -11,8 +11,6 @@ Refuel.define('GenericModule',{inherits: 'AbstractModule', require: ['ListModule
         this.init = function(myConfig) {
             config = Refuel.mix(config, myConfig);
             delete config['data'];
-            //console.log(config.dataLabel,'GenericModule.init', config);
-            this.defineUpdateManager(oa_update);
 
             if (config.root) {
                 this.template.setRoot(config.root);
@@ -30,18 +28,5 @@ Refuel.define('GenericModule',{inherits: 'AbstractModule', require: ['ListModule
             }
         }
 
-        /*
-        function initSubmodules() {
-            console.log('Abstract.initSubmodules',this.items);
-            for(var moduleName in this.items) {
-                var module = this.items[moduleName];
-                module.notify('_parentDataAvailable', this);
-            } 
-        }
-        */
-
-        function oa_update(e) {
-            //console.log('GenericModule.update ->',e);      
-        }
 
 });
