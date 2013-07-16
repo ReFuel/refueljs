@@ -74,7 +74,13 @@
 	
 	Refuel.resolveChain = function(path, data, getParent) {
 		var extData = data;
+		var negate = false;
 		if (path && path != '.' && path != '') {
+			negate = path.indexOf('!') != -1;
+			if (negate) {
+
+				path = path.substr(negate);
+			}
 			var dataPath = path.split('.');
 			var parent;
 			for (var i=0, item; item = dataPath[i]; i++) {
@@ -91,6 +97,8 @@
 
 			}
 		}
+		if (negate) extData = !extData;
+		
 		if (getParent) return {'value': extData, 'parent': parent}
 		else return extData;
 	}
