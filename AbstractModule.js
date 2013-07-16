@@ -111,6 +111,7 @@ Refuel.define('AbstractModule', {require: ['Template', 'DataSource'], inherits: 
         *   Otherwise is pushed as array element inside the 'items' collection.
         */ 
         this.addModule = function(module) {
+            module.parentModule = this;
             if (module.dataLabel) this.items[module.dataLabel] = module;
             else                  this.items.push(module);
             module.subscribe('observableChange', function(e) {

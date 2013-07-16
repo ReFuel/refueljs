@@ -200,6 +200,7 @@
 		startupRequirements = [startupModule];
       	if (!window.Path) startupRequirements.push('lib/path.min');
       	if (!window.Hammer) startupRequirements.push('lib/hammer.min');
+      	startupRequirements.push('lib/polyfills.min');
       	require(startupRequirements, function() {
 			Path.listen();
 			classMap[startupModule].body();
