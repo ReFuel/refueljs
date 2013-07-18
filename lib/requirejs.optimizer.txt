@@ -6,6 +6,7 @@ http://requirejs.org/docs/optimization.html
 
 ==INFO==
 1. Install RequireJS Optimizer 
+	$ npm install -g requirejs
 
 2. Inside the RefuelJS directory execute:
     $ r.js -o lib/require_build.js 

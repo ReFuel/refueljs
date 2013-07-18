@@ -1,0 +1,3 @@
+Refuel.config = {
+	basePath: '.'
+} 
