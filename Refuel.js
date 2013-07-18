@@ -4,7 +4,7 @@
 	
 	Refuel.classMap = classMap;
 	Refuel.config = Refuel.config || {
-		lib_folder: 'lib/'
+		lib_folder: '/lib/'
 	};
 
 	function argumentsToArray(args){
