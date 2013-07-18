@@ -1,10 +1,11 @@
 (function() {
+	var config = Refuel ? Refuel.config : {};
 	window.Refuel = {};
 	var classMap = {};
 	
 	Refuel.classMap = classMap;
-	Refuel.config = Refuel.config || {
-		lib_folder: '/lib/'
+	Refuel.config = config || {
+		
 	};
 
 	function argumentsToArray(args){
@@ -171,24 +172,23 @@
  	var head = document.querySelector('head');
  	var script = head.querySelector('script[data-rf-startup]'); 
  	var node = document.createElement('script');
-	var path = window.location.pathname;
+	//var path = window.location.pathname;
 	if (script) {
 	 	var startupModule = script.getAttribute('data-rf-startup');
 	 	var startupPath = startupModule.split('/');
 	 	startupModule = startupPath[startupPath.length-1];
 		startupPath = startupPath.slice(0,startupPath.length-1).join('/') || '.';
-	 	path = script.getAttribute('src').split('/');
-	 	path = path.slice(0,path.length-1).join('/');
+	 	//path = script.getAttribute('src').split('/');
+	 	//path = path.slice(0,path.length-1).join('/');
 	}
 
-	Refuel.config.lib_folder = path+Refuel.config.lib_folder;
  	
  	if (typeof define == 'undefined') {
      	node.type = 'text/javascript';
      	node.charset = 'utf-8';
      	node.async = true;
  		node.addEventListener('load', onScriptLoad, false);
- 		node.src = Refuel.config.lib_folder+'require.min.js';
+ 		node.src = Refuel.config.requireFilePath;
  		head.appendChild(node);
  	}
  	else {
@@ -204,7 +204,7 @@
 	}
 	function startApplication() {
 		var baseConfig = { baseUrl: '', paths: {} };
-		baseConfig.baseUrl = path;
+		baseConfig.baseUrl = Refuel.config.basePath;//path;
 		startupRequirements = [];
 		if (startupModule) {
 			baseConfig.paths[startupModule] = location.pathname+startupPath+'/'+startupModule;
@@ -213,13 +213,15 @@
 
 		Refuel.config = Refuel.mix(baseConfig, Refuel.config);
       	require.config(Refuel.config);
-
-      	if (!window.Path) startupRequirements.push(Refuel.config.lib_folder+'path.min.js');
-      	if (!window.Hammer) startupRequirements.push(Refuel.config.lib_folder+'hammer.min.js');
-      	startupRequirements.push(Refuel.config.lib_folder+'polyfills.min.js');
-      	startupRequirements.push('config.modules');
+      	for (var lib in Refuel.config.libs) {
+      		if (!window[lib]) startupRequirements.push(Refuel.config.libs[lib]);
+      	}
+      	if (!Refuel.config.modules) startupRequirements.push('config.modules');
       	require(startupRequirements, function() {
-			Path.listen();
+			try {
+				Path.listen();
+			}
+			catch (e) {}
 			if (startupModule) classMap[startupModule].body();
 		});
 	}
