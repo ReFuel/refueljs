@@ -181,12 +181,14 @@
 	 	path = path.slice(0,path.length-1).join('/');
 	}
 
+	Refuel.config.lib_folder = path+Refuel.config.lib_folder;
+ 	
  	if (typeof define == 'undefined') {
      	node.type = 'text/javascript';
      	node.charset = 'utf-8';
      	node.async = true;
  		node.addEventListener('load', onScriptLoad, false);
- 		node.src = path+Refuel.config.lib_folder+'require.min.js';
+ 		node.src = Refuel.config.lib_folder+'require.min.js';
  		head.appendChild(node);
  	}
  	else {
@@ -211,9 +213,10 @@
 
 		Refuel.config = Refuel.mix(baseConfig, Refuel.config);
       	require.config(Refuel.config);
-      	if (!window.Path) startupRequirements.push(Refuel.config.lib_folder+'path.min');
-      	if (!window.Hammer) startupRequirements.push(Refuel.config.lib_folder+'hammer.min');
-      	startupRequirements.push(Refuel.config.lib_folder+'polyfills.min');
+
+      	if (!window.Path) startupRequirements.push(Refuel.config.lib_folder+'path.min.js');
+      	if (!window.Hammer) startupRequirements.push(Refuel.config.lib_folder+'hammer.min.js');
+      	startupRequirements.push(Refuel.config.lib_folder+'polyfills.min.js');
       	startupRequirements.push('config.modules');
       	require(startupRequirements, function() {
 			Path.listen();
