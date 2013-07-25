@@ -5,7 +5,7 @@
 */
 
 //XXX this module will be just a concrete implementation of AbstractModule 
-Refuel.define('GenericModule',{inherits: 'AbstractModule', require: ['ListModule']}, 
+Refuel.define('GenericModule',{inherits: 'AbstractModule'}, 
     function GenericModule() {
         var config = {};
         this.init = function(myConfig) {
@@ -27,6 +27,4 @@ Refuel.define('GenericModule',{inherits: 'AbstractModule', require: ['ListModule
                 this.dataSource.init(config);
             }
         }
-
-
 });

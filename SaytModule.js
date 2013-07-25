@@ -6,15 +6,19 @@
 *	@fires dataError Some error is occurred during data loading
 *	@author Stefano Sergio
 */
-Refuel.define('SaytModule', {inherits: 'GenericModule'},  
+Refuel.define('SaytModule', {inherits: 'GenericModule', require: ['ListModule']},  
     function SaytModule() {
         var config = {
             minChars: 2,
             searchParam: 'q',
-            delay: 100
+            delay: 100,
+            primaryField: 'name',
+            enableKeySelection: true,
+            keySelectionInsideInput: true
         };
         var lastQuery,
             searchTimeout,
+            inputField,
             resultList,
             listItemTemplate,
             theList;
@@ -38,21 +42,53 @@ Refuel.define('SaytModule', {inherits: 'GenericModule'},
         }
 
         function create(e) {
-            this.elements['inputField'].addEventListener('keyup', handleTyping.bind(this));
+            var self = this;
+            inputField = this.elements['inputField'];
             resultList = this.elements['resultList'];
+            listItemTemplate = this.elements['listItemTemplate'];
+            inputField.addEventListener('keyup', handleTyping.bind(this));
+            inputField.addEventListener('blur', function() { self.hide(); });
+            inputField.addEventListener('focus', function() { self.show(); });
+            
+            if (config.enableKeySelection) {
+                inputField.addEventListener('keydown', function(e) {
+                    if(!theList.items.length || (e.keyCode != 40 && e.keyCode != 38) ) return;
+                    switch(e.keyCode) {
+                        case 38: //up
+                            if (theList.selectedIndex > 0) {
+                                theList.selectChildAt(theList.selectedIndex-1);
+                            }
+                            else {
+                                theList.selectChildAt(theList.items.length-1);
+                            }
+                        break;
+                        case 40: //down
+                            if (theList.selectedIndex < theList.items.length-1) {
+                                theList.selectChildAt(theList.selectedIndex+1);
+                            }
+                            else {
+                                theList.selectChildAt(0);
+                            }
+                        break;
+                    }
+                    if (config.keySelectionInsideInput) 
+                        inputField.value = theList.items[theList.selectedIndex].data[config.primaryField];
+
+                });
+            }
+            /*
             if (!resultList) {
                 resultList = document.createElement('ul');
                 this.template.getRoot().appendChild(resultList);
                 this.elements['resultList'] = resultList;
             }
-            listItemTemplate = this.elements['listItemTemplate'];
             if (!listItemTemplate) {
                 listItemTemplate = document.createElement('li');
-                listItemTemplate.innerHTML = '<div class="view">{{title}}</div>';
+                listItemTemplate.innerHTML = '<div class="view">{{name}}</div>';
                 resultList.appendChild(listItemTemplate);
                 this.elements['listItemTemplate'] = listItemTemplate;
             }
-
+            */
             //if ListModule is defined inside markup
             theList = this.getModulesByClass('ListModule')[0];
             //if ListModule is not already defined
@@ -67,7 +103,7 @@ Refuel.define('SaytModule', {inherits: 'GenericModule'},
                 this.addModule(theList);
             }
             this.hide();
-            //XXX we got to call here because in general doesnt have all config?
+            //XXX why?
             theList.template.parseTemplate();
         }
 
@@ -84,9 +120,12 @@ Refuel.define('SaytModule', {inherits: 'GenericModule'},
         }
 
         function handleTyping(e) {
-            var query = e.target.value.trim();
-            if (searchTimeout) window.clearTimeout(searchTimeout);
-            searchTimeout = window.setTimeout(startSearch.bind(this, query),config.delay);
+            if (e.keyCode == 40 || e.keyCode == 38) return;
+            var query = inputField.value.trim();
+            if (query != this.currentQuery ) {
+                if (searchTimeout) window.clearTimeout(searchTimeout);
+                searchTimeout = window.setTimeout(startSearch.bind(this, query),config.delay);
+            }
         }
 
         function cancelSearch() {

@@ -13,6 +13,7 @@ Refuel.define('ListItemModule', {inherits: 'AbstractModule'},
             config = Refuel.mix(config, myConfig);
             delete config['data'];
             this.enableAutoUpdate(this.data);
+            this.isSelected = false;
 
             if (this.dataSource) {
                 //console.log(Refuel.refuelClass(this),config.dataLabel,'have dataSource and is waiting for data...');
@@ -37,6 +38,14 @@ Refuel.define('ListItemModule', {inherits: 'AbstractModule'},
         this.draw = function() {
             if (!config.template) throw "No template found for ListItemModule";
             this.template.create(config.parentRoot, config.template, this.data);
+        }
+        this.select = function() {
+            this.classList.add('selected');
+            this.isSelected = true;
+        }
+        this.deselect = function() {
+            this.classList.remove('selected');
+            this.isSelected = false;
         }
 });
 

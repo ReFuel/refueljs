@@ -1,12 +1,10 @@
 (function() {
-	var config = Refuel ? Refuel.config : {};
-	window.Refuel = {};
+
+	var config = window['Refuel'] ? Refuel.config : {};
+	window.Refuel = window['Refuel'] || {};
 	var classMap = {};
-	
+	var defaultClassName = '_Refuel-default-start-class';
 	Refuel.classMap = classMap;
-	Refuel.config = config || {
-		
-	};
 
 	function argumentsToArray(args){
 		return Array.prototype.slice.call(args);
@@ -23,7 +21,6 @@
 		}
 		return res;
 	}
-
 
 	Refuel.isArray = function(target) {
 		return toString.call(target) === '[object Array]';
@@ -136,9 +133,8 @@
 		return Refuel.createInstance(className, initObj);
 	}
 
-	Refuel.define = function(className, req, body) {
-	   	//console.log('define', className);
-	    if(classMap[className] !== undefined) {
+	Refuel.define = function(className, req, body, startup) {
+	   	if(classMap[className] !== undefined) {
 			throw new TypeError(className + ' alredy defined!');
 	        return;
 	    }
@@ -158,11 +154,18 @@
 					body: body,
 					inherits: req.inherits
 				};
+				//if (startup) startApplication();
 			});
 		}
 		catch(e){
 			console.log(e)
 		}
+	}
+
+	Refuel.start = function(req, body) {
+		startupModule = defaultClassName;
+		Refuel.define(defaultClassName, req, body);
+		startApplication();
 	}
 
 	Refuel.static = function(className, body) {
@@ -182,7 +185,6 @@
 	 	//path = path.slice(0,path.length-1).join('/');
 	}
 
- 	
  	if (typeof define == 'undefined') {
      	node.type = 'text/javascript';
      	node.charset = 'utf-8';
@@ -190,9 +192,8 @@
  		node.addEventListener('load', onScriptLoad, false);
  		node.src = Refuel.config.requireFilePath;
  		head.appendChild(node);
- 	}
- 	else {
- 		startApplication();
+ 	} else {
+		startApplication();
  	}
 
 	function onScriptLoad(e) {
@@ -203,13 +204,15 @@
 		}
 	}
 	function startApplication() {
+		if (!startupModule) return;
 		var baseConfig = { baseUrl: '', paths: {} };
 		baseConfig.baseUrl = Refuel.config.basePath;//path;
 		startupRequirements = [];
+		startupModule = startupModule || defaultClassName;
 		if (startupModule) {
 			baseConfig.paths[startupModule] = location.pathname+startupPath+'/'+startupModule;
 			startupRequirements.push(startupModule);
-		}
+		} 
 
 		Refuel.config = Refuel.mix(baseConfig, Refuel.config);
       	require.config(Refuel.config);
@@ -218,7 +221,7 @@
       	}
       	if (!Refuel.config.modules) startupRequirements.push('config.modules');
       	require(startupRequirements, function() {
-			try {
+      		try {
 				Path.listen();
 			}
 			catch (e) {}

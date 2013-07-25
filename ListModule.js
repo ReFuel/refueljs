@@ -8,13 +8,16 @@
 **/
 Refuel.define('ListModule',{inherits: 'AbstractModule', require:'ListItemModule'}, 
     function ListModule() {
-        var config = {};
+        var config = {
+            maxLength: 0
+        };
         this.items = [];
         var filterApplied = null;
 
         this.init = function(myConfig) {
             config = Refuel.mix(config, myConfig);  
             delete config['data'];
+            this.selectedIndex = -1;
 
             //XXX shouldnt auto-detect type?   
             this.dataSource.setConfig({defaultDataType: 'Array'});
@@ -25,7 +28,8 @@ Refuel.define('ListModule',{inherits: 'AbstractModule', require:'ListItemModule'
 
             if (this.dataSource) {
                 //console.log(config.dataLabel+' ('+Refuel.refuelClass(this)+') have dataSource and is waiting for data...');
-                this.dataSource.subscribe('dataAvailable', function(data) {
+                this.dataSource.subscribe('dataAvailable', function(e) {
+                    if (config.maxLength && e.data.length > config.maxLength) this.data = e.data.slice(0, config.maxLength);
                     //console.log(this.dataLabel,'got all data ',this.data,', now can draw()');
                     this.draw();
                     set.call(this);
@@ -45,6 +49,15 @@ Refuel.define('ListModule',{inherits: 'AbstractModule', require:'ListItemModule'
 
         this.add = function(objData) {
             this.dataSource.data.push(objData);
+        }
+        
+        this.selectChildAt = function(index, selected) {
+            selected = selected === undefined ? true : selected;
+            if (selected) {
+                if (this.selectedIndex > -1) this.items[this.selectedIndex].deselect();
+                this.selectedIndex = index;
+                this.items[index].select();
+            }
         }
         /*
         this.remove = function(objData) {
@@ -85,6 +98,7 @@ Refuel.define('ListModule',{inherits: 'AbstractModule', require:'ListItemModule'
         }
         function set(dataToShow) {
             dataToShow = dataToShow || this.data;
+            this.selectedIndex = -1;
             //console.log('ListModule.set', this.data.length);
             this.items = [];
             this.template.clear();
@@ -106,7 +120,6 @@ Refuel.define('ListModule',{inherits: 'AbstractModule', require:'ListItemModule'
                 var even = (index % 2) == 0 ? 0 : 1;
                 rowStyle = config.rowStyle.length == 1 ? config.rowStyle[0] : config.rowStyle[even];                
             }
-
             return rowStyle;
         }
 

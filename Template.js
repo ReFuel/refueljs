@@ -179,11 +179,18 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 		function getModuleParts(moduleObj) {
 			var parts = moduleObj['elements'];
 			this.parts = this.parts || {};
-			for (var partName in parts) {	
+			for (var partName in parts) {
+				//Takes parts from config or search in dom
 				var partObj = parts[partName];
 				var selector = partObj['selector'];
 				var onlyone = partObj['onlyone'];
-				var found = root.querySelectorAll(selector);
+				var found;
+				if (config['elements'] && config.elements[partName]) {
+					found = config.elements[partName];
+				}
+				else {
+					found = root.querySelectorAll(selector);
+				}
 				if (selector) {
 					if (found.length) {
 						var child = this.parts[partName] = found.length > 1 && !onlyone ? found : found[0];
@@ -236,7 +243,8 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 									'config': parsedAttributes
 								});
 							}
-							//find  parts defined inside config.modules
+							//find  parts defined inside config.modules 
+							//XXX if this is the root of a code-defined module this wont happen. Should be fixed unsing config.className
 							else {
 								moduleTemplateConfig = moduleObj;
 								getModuleParts.call(this, moduleObj);
@@ -244,9 +252,9 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 									symbolTable.push(parsedAttributes[key]);
 								}
 							}
-						}			
+						}
 					}
-					//If this node isn't a Module
+
 					if(!moduleObj || isRoot) {
 						for (var i=0, childElm; childElm = node.childNodes[i++];) {
 							this.parse(childElm, symbolTable);

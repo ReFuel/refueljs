@@ -9,7 +9,7 @@
 *	@fires dataError Some error is occurred during data loading
 *	@author Stefano Sergio
 */
-Refuel.define('DataSource', {inherits: 'Events', require: ['ajax']}, 
+Refuel.define('DataSource', {inherits: 'Events'}, 
 	function DataSource() {
 
 		var data = {},
