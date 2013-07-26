@@ -20,7 +20,7 @@ Refuel.define('ScrollerModule', {inherits: 'Events'},
 			speed:		1000,
 			inertia: 300,
 			maxElong: 150,
-			scrollBar: true,
+			scrollBar: false,
 			topMargin: 0
 		};
 		
@@ -41,10 +41,10 @@ Refuel.define('ScrollerModule', {inherits: 'Events'},
 			window.addEventListener('resize', handleEvent, false);
 		};
 		
-		this.moveTo = function(y) {
+		this.moveTo = function(y, time) {
 			newY = y;
 			applyStyle(element, 'transform', 'translate3d(0,' + newY + 'px,0)');
-			var tvalue =  config.speed + 'ms cubic-bezier(0, 0, 0, 1)';
+			var tvalue =  time || config.speed + 'ms cubic-bezier(0, 0, 0, 1)';
 			applyStyle(element, 'transition',  tvalue);	
 		}
 
@@ -318,6 +318,7 @@ Refuel.define('ScrollerModule', {inherits: 'Events'},
 		*/
 		
 		function scrollBarMove(x) {
+			if (!scrollBar) return;
 			//transform x document pixel in x page pixel
 			var factor = pagHeight/docHeight;
 			var scrollX = Math.floor(x*factor)*(-1);
@@ -325,6 +326,7 @@ Refuel.define('ScrollerModule', {inherits: 'Events'},
 		}
 		
 		function scrollBarEnd(x) {
+			if (!scrollBar) return;
 			var factor = pagHeight/docHeight;
 			var scrollX = Math.floor(x*factor)*(-1);
 
