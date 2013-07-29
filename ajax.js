@@ -2,6 +2,9 @@ Refuel.static('ajax',
 	function ajax() {
 		var ajaxCounter = 0;
 		var callLog = {};
+		var profiler = {
+			enabled: false
+		}
 		var config = {
 		    headers: {
 				'Content-Type': 'application/json'
@@ -91,7 +94,10 @@ Refuel.static('ajax',
 
 					if (resp.responseText){
 						try {
+							profiler.timestart = new Date().getTime();
 							resp.responseJSON = JSON.parse(resp.responseText) || {};	
+							profiler.timestop = new Date().getTime();
+							if(profiler.enabled) console.log('Refuel.ajax.profiler['+url+']: ', profiler.timestop - profiler.timestart);
 						}
 						catch (e) {
 							console.error("Parsing Error in responseText", resp);

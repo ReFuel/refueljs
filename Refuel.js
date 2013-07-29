@@ -1,5 +1,4 @@
 (function() {
-
 	var config = window['Refuel'] ? Refuel.config : {};
 	window.Refuel = window['Refuel'] || {};
 	var classMap = {};
@@ -208,7 +207,6 @@
 		var baseConfig = { baseUrl: '', paths: {} };
 		baseConfig.baseUrl = Refuel.config.basePath;//path;
 		startupRequirements = [];
-		startupModule = startupModule || defaultClassName;
 		if (startupModule) {
 			baseConfig.paths[startupModule] = location.pathname+startupPath+'/'+startupModule;
 			startupRequirements.push(startupModule);

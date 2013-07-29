@@ -1,5 +1,5 @@
 var app;
-Refuel.define('TodoApp',{require: ['GenericModule', 'DataSource']},
+Refuel.define('TodoApp',{require: ['GenericModule', 'ListModule']},
     function TodoApp() {    
         var rootElement = document.querySelector('#todoapp');
         document.location.hash = '';

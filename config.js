@@ -1,11 +1,11 @@
 Refuel = {
 	config: {
-		basePath: '/js/',
-		requireFilePath: 'lib/require.min.js',
+		basePath: '.',
+		requireFilePath: '/js/refueljs/lib/require.min.js',
 		libs: {
-			Path: 'lib/path.min.js',
-			Hammer: 'lib/hammer.min.js',
-			polyfills: 'lib/polyfills.min.js'
+			Path: '/js/refueljs/lib/path.min.js',
+			Hammer: '/js/refueljs/lib/hammer.min.js',
+			polyfills: '/js/refueljs/lib/polyfills.min.js'
 		}
 	}
 };
