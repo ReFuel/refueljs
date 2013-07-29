@@ -31,9 +31,10 @@ Refuel.define('ListModule',{inherits: 'AbstractModule', require:'ListItemModule'
                 this.dataSource.subscribe('dataAvailable', function(e) {
                     if (config.maxLength && e.data.length > config.maxLength) this.data = e.data.slice(0, config.maxLength);
                     //console.log(this.dataLabel,'got all data ',this.data,', now can draw()');
+                    this.notify('loadComplete');
                     this.draw();
                     set.call(this);
-                    this.notify('loadComplete');
+                    this.notify('drawComplete');
                 }, this);
                 this.dataSource.init(config);    
             }

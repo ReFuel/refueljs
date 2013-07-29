@@ -19,8 +19,9 @@ Refuel.define('ListItemModule', {inherits: 'AbstractModule'},
                 //console.log(Refuel.refuelClass(this),config.dataLabel,'have dataSource and is waiting for data...');
                 this.dataSource.subscribe('dataAvailable', function(data) {
                     //console.log(Refuel.refuelClass(this),'got all data (dataAvailable), now he can draw()');
-                    this.draw();
                     this.notify('loadComplete');
+                    this.draw();
+                    this.notify('drawComplete');
                 }, this);
                 this.dataSource.init(config);    
             }
