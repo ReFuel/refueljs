@@ -9,9 +9,8 @@
 *	@fires dataError Some error is occurred during data loading
 *	@author Stefano Sergio
 */
-Refuel.define('DataSource', {inherits: 'Events'}, 
+Refuel.define('DataSource', {inherits: 'Events', require: 'ajax'}, 
 	function DataSource() {
-
 		var data = {},
 			sourceData = {}, 
 			lastLoadConfig = null,
@@ -120,7 +119,11 @@ Refuel.define('DataSource', {inherits: 'Events'},
 		}
 
 		function setData (dataObj) {
+			//console.log(config.dataLabel,'setData', dataObj);
 			this.setLoadProgress();
+			if (Refuel.refuelClass(dataObj) == 'DataSource') {
+				dataObj = Refuel.resolveChain('data', dataObj);
+			}
 			if (config.mode === 'new') {
 				data = dataObj;
 			}
@@ -135,6 +138,7 @@ Refuel.define('DataSource', {inherits: 'Events'},
 			
 			this.setConfig(); //reset config before passing on other DS
 			extLoadingState.found = extLoadingState.requested = extLoadingState.completed = 0;
+
 			for(var key in data) {
 				var prop = data[key];
 
@@ -200,7 +204,9 @@ Refuel.define('DataSource', {inherits: 'Events'},
 			
 			this.setLoadProgress();
 			if (config.key) {
+				
 				var storedData = localStorage.getItem(config.key);
+				
 				var storedObject = JSON.parse(storedData);
 				if (storedObject) {
 					sourceData = storedObject;

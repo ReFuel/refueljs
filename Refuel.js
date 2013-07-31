@@ -206,7 +206,7 @@
 		if (!startupModule) return;
 		var baseConfig = { baseUrl: '', paths: {} };
 		baseConfig.baseUrl = Refuel.config.basePath;//path;
-		startupRequirements = [];
+		var startupRequirements = [];
 		if (startupModule) {
 			baseConfig.paths[startupModule] = location.pathname+startupPath+'/'+startupModule;
 			startupRequirements.push(startupModule);

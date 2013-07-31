@@ -4,12 +4,12 @@ Refuel.define('TodoApp',{require: ['GenericModule', 'ListModule']},
         var rootElement = document.querySelector('#todoapp');
         document.location.hash = '';
 
-        app = Refuel.createInstance('GenericModule', { 
+        app = Refuel.newModule('GenericModule', { 
             'root': rootElement, 
-            autoload: true,
+            'autoload': true,
             data: {
                 'title':'ReFuel Todo App',
-                'todoList': Refuel.createInstance('DataSource', {key: 'todos-refuel', defaultDataType: 'Array'}),
+                'todoList': Refuel.newModule('DataSource', {key: 'todos-refuel', defaultDataType: 'Array'}),
                 'completedLength': 0, 
                 'activeLength': 0
             } 
@@ -107,6 +107,7 @@ Refuel.define('TodoApp',{require: ['GenericModule', 'ListModule']},
             selectFilter(document.querySelector('[href="#/completed"]'));
             document.querySelector("#toggle-all").checked = true;
         });    
+
 });
 
 

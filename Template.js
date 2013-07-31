@@ -165,9 +165,11 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 						bindingTable[eventType] = true;
 					}
 				}
+				
+				var autoObserveEnabled = config.autoObserve && Refuel.config.autoObserve;
+				var observeEnabled = symbol.options && symbol.options === 'observe';
 
-				//if (symbol.options && symbol.options === 'observe') {
-				if (symbol.action != 'action') {
+				if (symbol.action != 'action' && (observeEnabled || autoObserveEnabled)) {
 					//console.log('#',this._owner, 'templateBinder->', symbol.action)
 					var path = normalizePath(symbol.linkedTo);
 					self.notify('_observe', {'linkedTo': path, 'symbol': symbol});
@@ -211,7 +213,6 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 						   /* privates */ nodeValue, matchedElms) {
 			var node = node || root;
 			if (!node) {
-				debugger;
 				throw "No root defined";
 			}
 			nodeValue = node.nodeValue;

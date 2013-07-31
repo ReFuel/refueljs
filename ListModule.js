@@ -155,6 +155,7 @@ Refuel.define('ListModule',{inherits: 'AbstractModule', require:'ListItemModule'
 
         //XXX this is filtering DATA not ITEM
         this.filterBy = function(filterObj) {
+            if (!this.data) return [];
             return this.data.filter(function(item, index, array) {
                 var result = true;
                 for (var key in filterObj) {

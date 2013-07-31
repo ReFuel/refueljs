@@ -17,8 +17,9 @@ Refuel.define('AbstractModule', {require: ['Template', 'DataSource'], inherits: 
         */
         var config = {
             dataPath: '.',
-            autoload: false
-        };
+            autoload: false,
+            autoObserve: true
+        }
 
         this.init = function(myConfig) {
             config = Refuel.mix(config, myConfig);
@@ -36,6 +37,7 @@ Refuel.define('AbstractModule', {require: ['Template', 'DataSource'], inherits: 
                 //console.log('a newly created '+Refuel.refuelClass(this)+' instances new DataSource with config:', config );
                 this.dataSource = Refuel.newModule('DataSource', config);
             }
+            config.data = null;
             this.template = Refuel.newModule('Template', config);
             this.template.subscribe('_new_module_requested', createSubmodule, this);
             this.template.subscribe('_generic_binder_event', genericEventHandler, this);
@@ -201,6 +203,7 @@ Refuel.define('AbstractModule', {require: ['Template', 'DataSource'], inherits: 
             get: function() {
                 return this.dataSource.getData();
             },
+            //used in Abstract.addModule
             //questo è molto male, controllare come viene usato dall'esterno
             //se voglio settare i data di un module dovrei settarli nel suo dataSource
             set: function(value) {
