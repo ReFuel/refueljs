@@ -6,10 +6,14 @@ Refuel.static('ajax',
 			enabled: false
 		}
 		var config = {
+		    mimeType: 'json',
 		    headers: {
 				'Content-Type': 'application/json'
 		    },
-			_genericCallback: function() {return true;}
+			_genericCallback: function() {return true;},
+			successCallback: function() {},
+			errorCallback: function() {},
+			timeoutCallback: function() {}
 		};
 		var timer = {};
 
@@ -91,19 +95,24 @@ Refuel.static('ajax',
 						responseXML: xhr.responseXML,
 						responseText: xhr.responseText
 					};
-
-					if (resp.responseText){
+					//MIME TYPE CONVERSION
+					//dataType (default: Intelligent Guess (xml, json, script, or html))
+					profiler.timestart = new Date().getTime();
+					if (resp.responseText) {
 						try {
-							profiler.timestart = new Date().getTime();
-							resp.responseJSON = JSON.parse(resp.responseText) || {};	
-							profiler.timestop = new Date().getTime();
-							if(profiler.enabled) console.log('Refuel.ajax.profiler['+url+']: ', profiler.timestop - profiler.timestart);
+							switch(options.mimeType) {
+								case 'json':
+									resp.responseJSON = JSON.parse(resp.responseText) || {};	
+								break;
+							}
 						}
 						catch (e) {
 							console.error("Parsing Error in responseText", resp);
 							throw "Parsing Error [responseText] in "+url;
 						}
 					}
+					profiler.timestop = new Date().getTime();
+					if(profiler.enabled) console.log('Refuel.ajax.profiler['+url+']: ', profiler.timestop - profiler.timestart);
 
 					var allowed = false;
 					var type = 'timeout';
