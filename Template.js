@@ -149,9 +149,9 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 					var eventType = (symbol.attributeName === 'data-rf-action' ? 'click' : symbol.attributeName.replace(attributeRegExp, ''));
 					if (!bindingTable[eventType]) {
 						var gesture;
-						if (typeof(Hammer) !== 'undefined') 
+						if (typeof(Hammer) !== 'undefined') {
 							gesture = Hammer(rootEl).on(eventType, notifyEvent);
-						gesture = false;
+						}
 						if (!gesture){
 							if (eventType == 'blur') {
 								rootEl.style.border = '1px solid red';
