@@ -14,7 +14,8 @@ Refuel.define('SaytModule', {inherits: 'GenericModule', require: ['ListModule']}
             delay: 100,
             primaryField: 'name',
             enableKeySelection: true,
-            keySelectionInsideInput: true
+            keySelectionInsideInput: true,
+            enterDefaultAction: null
         };
         var lastQuery,
             searchTimeout,
@@ -53,7 +54,7 @@ Refuel.define('SaytModule', {inherits: 'GenericModule', require: ['ListModule']}
             
             if (config.enableKeySelection) {
                 inputField.addEventListener('keydown', function(e) {
-                    if(!theList.items.length || (e.keyCode != 40 && e.keyCode != 38) ) return;
+                    if(!theList.items.length || (e.keyCode != 40 && e.keyCode != 38 && e.keyCode != 13) ) return;
                     switch(e.keyCode) {
                         case 38: //up
                             if (theList.selectedIndex > 0) {
@@ -69,6 +70,14 @@ Refuel.define('SaytModule', {inherits: 'GenericModule', require: ['ListModule']}
                             }
                             else {
                                 theList.selectChildAt(0);
+                            }
+                        break;
+                        case 13:
+                            if(config.enterDefaultAction) {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                e.module = theList.items[theList.selectedIndex];
+                                config.enterDefaultAction.call(this, e);
                             }
                         break;
                     }
@@ -121,7 +130,7 @@ Refuel.define('SaytModule', {inherits: 'GenericModule', require: ['ListModule']}
         }
 
         function handleTyping(e) {
-            if (e.keyCode == 40 || e.keyCode == 38) return;
+            if (e.keyCode == 40 || e.keyCode == 38 || e.keyCode == 13) return;
             var query = inputField.value.trim();
             if (query != this.currentQuery ) {
                 if (searchTimeout) window.clearTimeout(searchTimeout);
