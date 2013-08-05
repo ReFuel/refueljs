@@ -24,7 +24,7 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 		this.bindingsProxy = null;
 		var markupPrefix = 'data-rf-';
 		var markupActionPrefix = 'data-rf-action-';
-		var regExpToMatchName = new RegExp(markupPrefix+'(\\w*)');
+		var regExpToMatchName = new RegExp(markupPrefix+'([a-z-]*)');
 		var regExpToMatchValue = new RegExp('\\{\\{(.*)\\}\\}');
 		var attributeRegExp = new RegExp(markupActionPrefix,'i');
 		var datasetRegExp = new RegExp('rfAction', 'i');
@@ -38,6 +38,7 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 			 					/* privates */ nodeAttributes, matchedElms, attribute, attributeName, attributeValue) {
 			nodeAttributes = node.attributes;
 			var parsedAttributes = {};
+			//if (node.hasAttribute('debugger')) debugger;
 			for (var i = 0; attribute = nodeAttributes[i]; i++) {
 				if (!attribute.specified) continue;
 				attributeName = attribute.name;
@@ -112,29 +113,22 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 		function hasDataAction(element, type) {
 			for (var i in element.dataset) {
 				var action = i.replace(datasetRegExp, '');
-				if (action.toLowerCase() === type || action === '') return true; 
+				if (action.toLowerCase() === type || action === '') return element; 
 			}
 			return false;
 		}
 
 		function notifyEvent(e) {
-			e.stopPropagation();
+ 			e.stopPropagation();
 			self.bindingsProxy = self.bindingsProxy || self;
-			if (bindingTable[e.type] && hasDataAction(e.target, e.type)) {
-				e.action = (e.type === 'click'? 
-					e.target.dataset['rfAction'] || e.target.dataset['rfActionClick'] : 
-					e.target.getAttribute(markupActionPrefix + e.type)
+			var target = hasDataAction(e.target, e.type) || hasDataAction(e.currentTarget, e.type);
+			if (bindingTable[e.type] && target) {
+				e.action = (e.type === 'click' || e.type === 'tap' ? 
+					target.dataset['rfAction'] || target.dataset['rfActionClick'] : 
+					target.getAttribute(markupActionPrefix + e.type)
 			    );
 			    e = splitOptions(e, e.action);
 			   	self.bindingsProxy.notify('_generic_binder_event', e);
-			}
-			else if (bindingTable[e.type] && hasDataAction(e.currentTarget, e.type)) {
-				e.action = (e.type === 'click'? 
-					e.currentTarget.dataset['rfAction'] || e.currentTarget.dataset['rfActionClick'] : 
-					e.currentTarget.getAttribute(markupActionPrefix + e.type)
-				);
-				e = splitOptions(e, e.action);
-				self.bindingsProxy.notify('_generic_binder_event', e);
 			}
 		}
 
@@ -143,19 +137,18 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 		// Viene richiamato solo una volta per Template.parse
 		function templateBinder (rootEl, symbolTable) {
 			self.bindingsProxy = self.bindingsProxy || self;
+			//if (rootEl.hasAttribute('debugger')) debugger;
 			for(var i = 0, symbol;  symbol = symbolTable[i]; i++) {
 				var isRoot = symbol.domElement === root;
-				if (symbol.action === 'action') {
+				if (symbol.action === 'action' || symbol.action.indexOf('action') > -1) {
 					var eventType = (symbol.attributeName === 'data-rf-action' ? 'click' : symbol.attributeName.replace(attributeRegExp, ''));
 					if (!bindingTable[eventType]) {
 						var gesture;
 						if (typeof(Hammer) !== 'undefined') {
+							if (eventType == 'click') eventType = 'tap'; 
 							gesture = Hammer(rootEl).on(eventType, notifyEvent);
 						}
-						if (!gesture){
-							if (eventType == 'blur') {
-								rootEl.style.border = '1px solid red';
-							}
+						else {
 							if (rootEl.addEventListener) {
 								rootEl.addEventListener(eventType, notifyEvent, false); 
 							} else if (el.attachEvent) {
