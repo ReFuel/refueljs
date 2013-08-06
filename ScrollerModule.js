@@ -232,7 +232,7 @@ Refuel.define('ScrollerModule', {inherits: 'Events'},
 					//fix position at upper bound
 					fixToUpperBound();
 					//block event here
-					e.stopPropagation();
+					//e.stopPropagation();
 					return;
 				}
 				if ((Math.abs(newY) >= Math.abs(height))) {
@@ -240,7 +240,7 @@ Refuel.define('ScrollerModule', {inherits: 'Events'},
 
 					fixToLowerBound(elementHeight);
 					//block event here
-					e.stopPropagation();
+					//e.stopPropagation();
 					return;
 				}
 				if (scrollBar) scrollBar.style.display = "none";	
