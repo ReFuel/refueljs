@@ -145,7 +145,6 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 					if (!bindingTable[eventType]) {
 						var gesture;
 						if (typeof(Hammer) !== 'undefined') {
-							if (eventType == 'click') eventType = 'tap'; 
 							gesture = Hammer(rootEl).on(eventType, notifyEvent);
 						}
 						else {

@@ -40,18 +40,20 @@ Refuel.static('ajax',
 			return XMLHttpRequest;
 		}
 
+
 		function killAjaxCall(xhr, url, options){
 			xhr.onreadystatechange = null;
 			xhr.abort();
 			ajaxCounter--;
 			clearTimeout(callLog[url].timeoutId);
+
 			var resp = {
 				url: url,
 				responseText: "",
 				responseJSON: {}
 			};
 			if (callLog[url] <= 2){
-				options.msTimeout *= 1.5;
+				options.timeout *= 1.5;
 				ajax(url, options);
 			} else {
 				callLog[url].counter = 0;
@@ -67,13 +69,13 @@ Refuel.static('ajax',
 			var xhr = setProvider();
 			var method = options.method ? options.method : "GET";
 			var headers, timeout;
-			options.msTimeout = options.msTimeout || 60000;
+			options.timeout = options.timeout || 60000;
 
 			timeout = setTimeout(function(xhr, url, options){
 				return function timeoutHandler(){
 					killAjaxCall(xhr, url, options);
 				}
-			}(xhr, url, options), options.msTimeout);
+			}(xhr, url, options), options.timeout);
 			callLog[url] = {
 				counter: callLog[url] ? callLog[url].counter + 1 : 1,
 				timeoutId: timeout
@@ -151,6 +153,7 @@ Refuel.static('ajax',
 				timer.last = new Date().getTime();
 			}, ttd);
 			
+			return xhr;
 		}
 		
 		return {
@@ -160,24 +163,24 @@ Refuel.static('ajax',
 			"get": function(url, options){
 				options = Refuel.mix(config, options);
 				options.method = "GET";
-				ajax(url, options);
+				return ajax(url, options);
 			},
 			"post": function(url, body, options){
 				options = Refuel.mix(config, options);
 				options.method = "POST";
 				options.body = body;
-				ajax(url, options);
+				return ajax(url, options);
 			},
 			"put": function(url, body, options){
 				options = Refuel.mix(config, options);
 				options.method = "PUT";
 				options.body = body;
-				ajax(url, options);
+				return ajax(url, options);
 			},
 			"delete": function(url, options){
 				options = Refuel.mix(config, options);
 				options.method = "DELETE";
-				ajax(url, options);
+				return ajax(url, options);
 			}
 		}
 		

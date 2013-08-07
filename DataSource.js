@@ -14,7 +14,8 @@ Refuel.define('DataSource', {inherits: 'Events'},
 		var data = {},
 			sourceData = {}, 
 			lastLoadConfig = null,
-			_loadStatus = 'idle';
+			_loadStatus = 'idle',
+			currentXHR = null;
 
 		var config = {
 				'defaultDataType': 'Object',
@@ -219,7 +220,7 @@ Refuel.define('DataSource', {inherits: 'Events'},
             	}
             }
             else if (config.url) {
-            	Refuel.ajax.get(config.url, config);
+            	currentXHR = Refuel.ajax.get(config.url, config);
             }
 
             for(var key in data) {
@@ -228,6 +229,10 @@ Refuel.define('DataSource', {inherits: 'Events'},
 					if (!prop.loadComplete) prop.load();
 				}	
 			}
+		}
+
+		this.abort = function() {
+			currentXHR.abort();
 		}
 
 		this.reload = function() {
@@ -247,12 +252,12 @@ Refuel.define('DataSource', {inherits: 'Events'},
 				break;
 				case 'error':
 					this.setLoadIdle();
-					console.error("datasource error:", config, dataObj);
+					console.error("datasource error:", config);
 					this.notify("dataError", data);
 				break;
 				case 'timeout':
 					this.setLoadIdle();
-					console.error("datasource Timed-Out:", config, dataObj);
+					console.error("datasource Timed-Out:", config);
 					this.notify("dataError", data);
 				break;
 			}
