@@ -248,6 +248,10 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 						}
 					}
 
+					if (parsedAttributes['data-rf-visibility']) {
+						symbol.displayStyle = symbol.domElement.style.display;
+					}
+
 					if(!moduleObj || isRoot) {
 						for (var i=0, childElm; childElm = node.childNodes[i++];) {
 							this.parse(childElm, symbolTable);
@@ -334,7 +338,8 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 					}
 				break;
 				case 'visibility':
-					if (linkedData) symbol.domElement.style.display = 'block';
+
+					if (linkedData) symbol.domElement.style.display = symbol.displayStyle;
 					else  symbol.domElement.style.display = 'none';
 				break;
 				case 'loop':
