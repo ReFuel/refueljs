@@ -163,7 +163,7 @@ Refuel.define('ScrollerModule', {inherits: 'Events'},
 			// ensure scroll with one touch and not pinching
 			if (e.touches.length > 1 || e.scale && e.scale !== 1) return;
 			//avoid standard behaviour
-			//e.preventDefault();
+			e.preventDefault();
 			
 			//calculate vertical scroll
 			delta = e.touches[0].pageY - point;
@@ -232,7 +232,7 @@ Refuel.define('ScrollerModule', {inherits: 'Events'},
 					//fix position at upper bound
 					fixToUpperBound();
 					//block event here
-					//e.stopPropagation();
+					e.stopPropagation();
 					return;
 				}
 				if ((Math.abs(newY) >= Math.abs(height))) {
@@ -240,7 +240,7 @@ Refuel.define('ScrollerModule', {inherits: 'Events'},
 
 					fixToLowerBound(elementHeight);
 					//block event here
-					//e.stopPropagation();
+					e.stopPropagation();
 					return;
 				}
 				if (scrollBar) scrollBar.style.display = "none";	
@@ -248,7 +248,7 @@ Refuel.define('ScrollerModule', {inherits: 'Events'},
 			oldDelta = 0;
 			//set the new starting point
 			index = newY;
-			//e.stopPropagation();
+			e.stopPropagation();
 			if (eventType) this.notify(eventType, {y: index});
 		};
 		

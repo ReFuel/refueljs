@@ -225,11 +225,9 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 							moduleObj = refuelModules[key];
 							if (!isRoot) {
 								this.submodules = this.submodules || {};
-								//name deve essere pulito se prendiamo quel dato
-								//forse un data-name esterno ai dati è meglio? 
 								var mName = node.getAttribute(attribKey);
-								//questa lista di submodules serve a qualcosa? Poi vengono messi in items le istanze
-								this.submodules[mName] = moduleObj['className'];
+								
+								
 								this.notify('_new_module_requested', {
 									'symbol': parsedAttributes[key],
 									'module': moduleObj,

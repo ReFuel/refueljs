@@ -54,24 +54,28 @@ Refuel.define('AbstractModule', {require: ['Template', 'DataSource'], inherits: 
             var symbol = e.symbol;
             var module = e.module;
             var conf = e.config;
+            //onsole.log('submodule',e);
+
+            //dataPath from module label
             var path = symbol.linkedTo.split('.');
             var label = path.splice(0,1)[0];
             path = path.join('.');
+            if (path && config.datapath) console.error(label,'error. dataPath defined twice');
 
             //console.log(this.dataLabel,'creates a Submodule',module.className,'with data', symbol.linkedTo);
+            //dataLabel collega i dati del parent
             var defaultSubmoduleConfig = {
                 autoload: false
                 ,root: symbol.domElement
                 ,dataLabel: label //rename in 'name'?
-                ,data: this.data[label]
-                ,dataPath: path
+                ,data: this.data[label] //e se non esiste?
+                ,dataPath: path 
             }
             conf = Refuel.mix(defaultSubmoduleConfig, conf);
             conf = Refuel.mix(conf, config[label]);
             var newmodule = Refuel.newModule(module.className, conf);
             
-            // se sono linkedTo bisogna dargli una label, bisogna dargli un rootpath e il resto del path
-            //newmodule.dataSource = this.data[label];
+            // newmodule.dataSource = this.data[label];
             this.addModule(newmodule);
         }
 
