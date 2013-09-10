@@ -328,15 +328,15 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 							symbol.domElement[symbol.attributeName] = linkedData == true;
 						break;
 						case 'data-src':
+							var src = symbol.originalContent.replace(symbol.originalSymbol, linkedData || '');
 							symbol.domElement.removeAttribute('data-src');
-							symbol.domElement.setAttribute('src', linkedData);
+							symbol.domElement.setAttribute('src', src);
 						break;
 						default:
 							symbol.attribute.value = symbol.originalContent.replace(symbol.originalSymbol, linkedData);	
 					}
 				break;
 				case 'visibility':
-
 					if (linkedData) symbol.domElement.style.display = symbol.displayStyle;
 					else  symbol.domElement.style.display = 'none';
 				break;

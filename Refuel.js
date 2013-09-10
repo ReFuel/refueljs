@@ -132,7 +132,7 @@
 		return Refuel.createInstance(className, initObj);
 	}
 
-	Refuel.define = function(className, req, body, startup) {
+	Refuel.define = function(className, req, body) {
 	   	if(classMap[className] !== undefined) {
 			throw new TypeError(className + ' alredy defined!');
 	        return;
@@ -153,7 +153,6 @@
 					body: body,
 					inherits: req.inherits
 				};
-				//if (startup) startApplication();
 			});
 		}
 		catch(e){
