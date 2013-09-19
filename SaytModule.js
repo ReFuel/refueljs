@@ -136,6 +136,9 @@ Refuel.define('SaytModule', {inherits: 'GenericModule', require: ['ListModule']}
                 if (searchTimeout) window.clearTimeout(searchTimeout);
                 searchTimeout = window.setTimeout(startSearch.bind(this, query),config.delay);
             }
+            else {
+                this.show();
+            }
         }
 
         function cancelSearch() {
@@ -145,13 +148,13 @@ Refuel.define('SaytModule', {inherits: 'GenericModule', require: ['ListModule']}
         function startSearch(query) {
             //console.log('start sayt search', query);
             if (searchTimeout) window.clearTimeout(searchTimeout);
-            theList.template.clear();
+            lastQuery = this.currentQuery;
             if (query.length === 0) {
                 this.hide();
             }
             else if (query.length >= config.minChars) {
-                lastQuery = this.currentQuery;
                 this.currentQuery = query;
+                theList.template.clear();
                 this.dataSource.load({'params': config.searchParam+'='+query});
             }
         }
