@@ -83,9 +83,10 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 
 		function splitOptions(symbol, data) {
 			if (data.indexOf('?') != -1 && data.indexOf(':') != -1) {
+				data = data.replace(/\s+/g, '');
 				var opts = data.split('?');
 				symbol.linkedTo = opts[0];
-				symbol.expression = opts[1];
+				symbol.expression = data;
 			} 
 			else if (data.indexOf('&&') != -1) {
 				symbol.expression = data;
@@ -107,24 +108,19 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 		//TODO need better factorization
 		function evalExpression(exp, data) {
 			exp = exp.replace(/\s+/g, '');
-			var dataArr = exp.split(/\&\&|\|\||\=\=|\>|\</),
+			var dataArr = exp.split(/\&\&|\|\||\=\=|\?|\:/),
 				map = {},
 				solvedExpression = '';
 			if (dataArr.length > 1) {
 				for (var i = 0, key; key = dataArr[i]; i++) {
-					map[key] = Refuel.resolveChain(key, data);
+					if (!key[0].match(/\'|\"/)) map[key] = Refuel.resolveChain(key, data);	
 				}
 				solvedExpression = exp;
 				for (var key in map) {
+					if (typeof map[key] === 'string') map[key] = '\"'+map[key]+'\"'; 
 					solvedExpression = solvedExpression.replace(key, map[key]);
 				}
-				//console.log('expression',exp,'-->',solvedExpression);
 				return eval(solvedExpression);
-			}
-			else {
-				var res = exp.split(':');
-				res = data ? res[0] : res[1];
-				return eval(res.trim());
 			}
 		}
 
