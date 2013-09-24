@@ -81,7 +81,7 @@ Refuel.define('SaytModule', {inherits: 'GenericModule', require: ['ListModule']}
                             }
                         break;
                     }
-                    if (config.keySelectionInsideInput) 
+                    if (config.keySelectionInsideInput && theList.selectedIndex) 
                         inputField.value = theList.items[theList.selectedIndex].data[config.primaryField];
 
                 });
