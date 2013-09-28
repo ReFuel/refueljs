@@ -8,7 +8,8 @@ Refuel.static('ajax',
 		var config = {
 		    mimeType: 'json',
 		    headers: {
-				'Content-Type': 'application/json'
+				'Content-Type': 'application/json',
+				Accept: 'application/json; charset=utf-8',
 		    },
 			_genericCallback: function() {return true;},
 			successCallback: function() {},
@@ -104,7 +105,6 @@ Refuel.static('ajax',
 					};
 					//MIME TYPE CONVERSION
 					//dataType (default: Intelligent Guess (xml, json, script, or html))
-					profiler.timestart = new Date().getTime();
 					if (resp.responseText) {
 						try {
 							switch(options.mimeType) {
@@ -118,8 +118,6 @@ Refuel.static('ajax',
 							throw "Parsing Error [responseText] in "+url;
 						}
 					}
-					profiler.timestop = new Date().getTime();
-					if(profiler.enabled) console.log('Refuel.ajax.profiler['+url+']: ', profiler.timestop - profiler.timestart);
 
 					var allowed = false;
 					var type = 'timeout';
@@ -127,13 +125,13 @@ Refuel.static('ajax',
 						allowed = options.allowedStatus.indexOf(status) > -1 ? true : false;
 					}
 					if (status >= 200 && status < 400 || status === 1224 || allowed){
-						options.successCallback(resp, status, xhr);
 						type = 'success';
 					} else if (status >= 400){
-						options.errorCallback(resp, status, xhr);
 						type = 'error';
 					}
 					options._genericCallback(resp, status, xhr, type);
+					if (type === 'success')	options.successCallback(resp, status, xhr);
+					else if (type === 'error')	options.errorCallback(resp, status, xhr);
 				}
 			};
 			var params = options.params;

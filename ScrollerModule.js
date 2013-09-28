@@ -29,11 +29,7 @@ Refuel.define('ScrollerModule', {inherits: 'Events'},
 			rootDOMElement = config.rootDOMElement;
 			if (!rootDOMElement && config.rootId) rootDOMElement = document.querySelector("#"+config.rootId); 
 			resetElement();
-			
-			docHeight = element.getBoundingClientRect().height;
-			pagHeight = rootDOMElement.getBoundingClientRect().height;
-			
-			if (config.scrollBar) createScrollbar(element);
+			update();
 			//attach events
 			defaultEvents.forEach(function(ev) {
 				element.addEventListener(ev, handleEvent, false);
@@ -135,7 +131,8 @@ Refuel.define('ScrollerModule', {inherits: 'Events'},
 		
 		function update() {
 			docHeight = element.getBoundingClientRect().height;
-			pagHeight = rootDOMElement.getBoundingClientRect().height;
+			pagHeight = rootDOMElement.getBoundingClientRect().height - config.topMargin;
+			//console.log('docHeight, pagHeight',docHeight, pagHeight);
 			if (scrollBar) createScrollbar();
 		};
 		
@@ -198,7 +195,6 @@ Refuel.define('ScrollerModule', {inherits: 'Events'},
 
 			v >= 8? v=4: ""; 
 			v < -8? v=-4: "";
-
 			var height = element.offsetHeight - rootDOMElement.offsetHeight;
 			var elementHeight = -height;
 			var eventType;
@@ -208,20 +204,27 @@ Refuel.define('ScrollerModule', {inherits: 'Events'},
 				
 				//check upper bound
 				if (newY > 0) {
+					//console.log('1');
 					applyStyle(element, 'transform', 'translate3d(0,' + (elong) + 'px,0)');
 					applyStyle(element, 'transition',  elong + 'ms linear');					
 					scrollBarEnd(elong);
+					
+					fixToUpperBound();
 					eventType = 'upperBoundReached';
 					
 				}//check lower bound
 				else if ((Math.abs(newY) >= Math.abs(height))) {
+					//console.log('2');
 					var tvalue = 'translate3d(0,' + (-(height + elong)) + 'px,0)';
 					applyStyle(element, 'transform', tvalue);
 					applyStyle(element, 'transition',  elong + 'ms linear');	
 					scrollBarEnd(-(height + elong));
+					
+					fixToLowerBound();
 					eventType = 'lowerBoundReached';
 				}
 				else {
+					//console.log('3');
 					moveTo(newY);
 					scrollBarEnd(newY);
 					eventType = 'movedTo';
@@ -229,17 +232,14 @@ Refuel.define('ScrollerModule', {inherits: 'Events'},
 			}
 			else {
 				if ((newY > 0) || (height < 0)) {
-					//fix position at upper bound
+					//console.log('4');
 					fixToUpperBound();
-					//block event here
 					e.stopPropagation();
 					return;
 				}
 				if ((Math.abs(newY) >= Math.abs(height))) {
-					//fix position at lower bound
-
+					//console.log('5');
 					fixToLowerBound(elementHeight);
-					//block event here
 					e.stopPropagation();
 					return;
 				}
@@ -264,8 +264,9 @@ Refuel.define('ScrollerModule', {inherits: 'Events'},
 			index = 0;
 		};
 		
-		function fixToLowerBound(elementHeight){
-			var tvalue = 'translate3d(0,' + (elementHeight - config.topMargin) + 'px,0)';
+		function fixToLowerBound(){
+			var elementHeight = -docHeight + pagHeight;
+			var tvalue = 'translate3d(0,' + (elementHeight) + 'px,0)'; // - config.topMargin
 			applyStyle(element, 'transform', tvalue);
 			tvalue = config.inertia + 'ms cubic-bezier(0, 0, 0, 1)';
 			applyStyle(element, 'transition', tvalue);			
