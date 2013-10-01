@@ -105,6 +105,7 @@ Refuel.static('ajax',
 					};
 					//MIME TYPE CONVERSION
 					//dataType (default: Intelligent Guess (xml, json, script, or html))
+					var type = 'timeout';
 					if (resp.responseText) {
 						try {
 							switch(options.mimeType) {
@@ -115,12 +116,12 @@ Refuel.static('ajax',
 						}
 						catch (e) {
 							console.error("Parsing Error in responseText", resp);
-							throw "Parsing Error [responseText] in "+url;
+							type = 'error';
+							//throw "Parsing Error [responseText] in "+url;
 						}
 					}
 
 					var allowed = false;
-					var type = 'timeout';
 					if (options.allowedStatus) {
 						allowed = options.allowedStatus.indexOf(status) > -1 ? true : false;
 					}

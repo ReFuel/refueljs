@@ -291,9 +291,6 @@ Refuel.define('DataSource', {inherits: 'Events'},
 					},
 					"put": function(body) {
 						Refuel.ajax.put(url, body, config);
-					},
-					"delete": function() {
-						Refuel.ajax.delete(url, config);
 					}
 				}
 			 }

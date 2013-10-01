@@ -160,7 +160,8 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 			//if (rootEl.hasAttribute('debugger')) debugger;
 			for(var i = 0, symbol;  symbol = symbolTable[i]; i++) {
 				var isRoot = symbol.domElement === root;
-				if (symbol.action === 'action' || symbol.action.indexOf('action') > -1) {
+				if (symbol.action.indexOf('action') == 0) {
+					symbol.domAction = true;
 					var eventType = (symbol.attributeName === 'data-rf-action' ? 'click' : symbol.attributeName.replace(attributeRegExp, ''));
 					if (!bindingTable[eventType]) {
 						var gesture;
@@ -181,7 +182,7 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 				var autoObserveEnabled = config.autoObserve && Refuel.config.autoObserve;
 				var observeEnabled = symbol.options && symbol.options === 'observe';
 
-				if (symbol.action != 'action' && (observeEnabled || autoObserveEnabled)) {
+				if (!symbol.domAction && (observeEnabled || autoObserveEnabled)) {
 					//console.log('#',this._owner, 'templateBinder->', symbol.action)
 					var path = normalizePath(symbol.linkedTo);
 					self.notify('_observe', {'linkedTo': path, 'symbol': symbol});
@@ -325,8 +326,7 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 
 		this.renderSymbol = function(symbol, data) {
 			//optimize symbol processed: ignore action
-			if (symbol.action === 'action' ||
-				symbol.action === 'list') return;
+			if (symbol.domAction || symbol.action === 'list') return;
 
 			var isRoot = symbol.domElement === root;
 			var path = normalizePath(symbol.linkedTo);
