@@ -62,7 +62,7 @@ Refuel.static('ajax',
 			} 
 			else {
 				callLog[url].counter = 0;
-				options[options.timeout ? 'timeoutCallback' : 'errorCallback'](resp, 0, xhr);
+				options[options.timeout ? 'timeoutCallback' : 'errorCallback'].call(options.callerModule, resp, 0, xhr);
 				options._genericCallback(resp, null, xhr, 'timeout');
 			}
 		}
@@ -105,7 +105,6 @@ Refuel.static('ajax',
 					};
 					//MIME TYPE CONVERSION
 					//dataType (default: Intelligent Guess (xml, json, script, or html))
-					var type = 'timeout';
 					if (resp.responseText) {
 						try {
 							switch(options.mimeType) {
@@ -116,12 +115,13 @@ Refuel.static('ajax',
 						}
 						catch (e) {
 							console.error("Parsing Error in responseText", resp);
-							type = 'error';
-							//throw "Parsing Error [responseText] in "+url;
+							type = 'error';							
+//throw "Parsing Error [responseText] in "+url;
 						}
 					}
 
 					var allowed = false;
+					var type = 'timeout';
 					if (options.allowedStatus) {
 						allowed = options.allowedStatus.indexOf(status) > -1 ? true : false;
 					}
@@ -131,8 +131,8 @@ Refuel.static('ajax',
 						type = 'error';
 					}
 					options._genericCallback(resp, status, xhr, type);
-					if (type === 'success')	options.successCallback(resp, status, xhr);
-					else if (type === 'error')	options.errorCallback(resp, status, xhr);
+					if (type === 'success')	options.successCallback.call(options.callerModule, resp, status, xhr);
+					else if (type === 'error')	options.errorCallback.call(options.callerModule, resp, status, xhr);
 				}
 			};
 			var params = options.params;

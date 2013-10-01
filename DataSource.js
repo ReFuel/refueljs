@@ -18,6 +18,7 @@ Refuel.define('DataSource', {inherits: 'Events'},
 			currentXHR = null;
 
 		var config = {
+				'callerModule': this,
 				'defaultDataType': 'Object',
 				'dataPath': null,
 				'successCallback': successCallback.bind(this),
@@ -291,6 +292,9 @@ Refuel.define('DataSource', {inherits: 'Events'},
 					},
 					"put": function(body) {
 						Refuel.ajax.put(url, body, config);
+					},
+					"delete": function() {
+						Refuel.ajax.delete(url, config);
 					}
 				}
 			 }
@@ -320,6 +324,4 @@ Refuel.define('DataSource', {inherits: 'Events'},
 			}
 			return facade;
 		}
-
-
     });
