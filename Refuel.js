@@ -22,7 +22,7 @@
 	}
 
 	Refuel.isArray = function(target) {
-		return toString.call(target) === '[object Array]';
+		return target.toString() === '[object Array]';
 	}
 	Refuel.isUndefined = function(target) {
 		return typeof(target) === 'undefined';

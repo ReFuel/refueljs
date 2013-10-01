@@ -25,7 +25,12 @@ Refuel.define('DataSource', {inherits: 'Events'},
 				'timeoutCallback': timeoutCallback.bind(this),
 				'autoload': false,
 				'_genericCallback': genericCallback.bind(this),
-				'mode': 'new'
+				'mode': 'new',
+				'timeout': 1000,
+				'retryTimeoutIncrease': 1000, 
+				'retryTimes': 4,
+				'retryDelay': 500,
+				'retryDelayIncrease': 2000
 				//,allowedStatus: []
 			},
 			extLoadingState = {
@@ -286,9 +291,6 @@ Refuel.define('DataSource', {inherits: 'Events'},
 					},
 					"put": function(body) {
 						Refuel.ajax.put(url, body, config);
-					},
-					"delete": function() {
-						Refuel.ajax.delete(url, config);
 					}
 				}
 			 }
