@@ -82,12 +82,20 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 		}
 
 		function splitOptions(symbol, data) {
-			if (data.indexOf('?') != -1) {
+			if (data.indexOf('?') != -1 && data.indexOf(':') != -1) {
+				data = data.replace(/\s+/g, '');
 				var opts = data.split('?');
 				symbol.linkedTo = opts[0];
-				symbol.expression = opts[1];
-			} else {
-				var opts = data.split(':');			
+				symbol.expression = data;
+			} 
+			else if (data.indexOf('&&') != -1) {
+				symbol.expression = data;
+			}
+			else if (data.indexOf('||') != -1) {
+				symbol.expression = data;
+			}
+			else {
+				var opts = data.split(':');
 				symbol.linkedTo = opts.length > 1 ? opts[1] : opts[0];
 				if (opts.length > 1) symbol.options = opts[0];	
 			}
@@ -97,11 +105,23 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 			return symbol;
 		}
 
-		//TODO in beta version no eval will be allowed
+		//TODO need better factorization
 		function evalExpression(exp, data) {
-			var res = exp.split(':');
-			res = data ? res[0] : res[1];
-			return eval(res.trim());
+			exp = exp.replace(/\s+/g, '');
+			var dataArr = exp.split(/\&\&|\|\||\=\=|\?|\:/),
+				map = {},
+				solvedExpression = '';
+			if (dataArr.length > 1) {
+				for (var i = 0, key; key = dataArr[i]; i++) {
+					if (!key[0].match(/\'|\"/)) map[key] = Refuel.resolveChain(key, data);	
+				}
+				solvedExpression = exp;
+				for (var key in map) {
+					if (typeof map[key] === 'string') map[key] = '\"'+map[key]+'\"'; 
+					solvedExpression = solvedExpression.replace(key, map[key]);
+				}
+				return eval(solvedExpression);
+			}
 		}
 
 		function normalizePath(path) {
@@ -311,7 +331,7 @@ Refuel.define('Template',{inherits: 'Events'}, function Template() {
 			var isRoot = symbol.domElement === root;
 			var path = normalizePath(symbol.linkedTo);
 			var linkedData = Refuel.resolveChain(path, data);
-			if (symbol.expression) linkedData = evalExpression(symbol.expression, linkedData);
+			if (symbol.expression) linkedData = evalExpression(symbol.expression, data);
 
 			//console.log('renderSymbol',path, symbol.linkedTo, linkedData);
 			switch(symbol.action) {

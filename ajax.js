@@ -53,10 +53,14 @@ Refuel.static('ajax',
 				responseText: "",
 				responseJSON: {}
 			};
-			if (callLog[url] <= 2){
-				options.timeout *= 1.5;
-				ajax(url, options);
-			} else {
+			if (options.retryTimes) {
+				var tempDelay = options.retryDelay;
+				options.retryTimes -= 1;
+				options.retryDelay += options.retryDelayIncrease;
+				options.timeout += options.retryTimeoutIncrease;
+				setTimeout(function(){ajax(url, options)}, tempDelay);
+			} 
+			else {
 				callLog[url].counter = 0;
 				options[options.timeout ? 'timeoutCallback' : 'errorCallback'](resp, 0, xhr);
 				options._genericCallback(resp, null, xhr, 'timeout');
@@ -71,7 +75,8 @@ Refuel.static('ajax',
 			var method = options.method ? options.method : "GET";
 			var headers, timeout;
 			options.timeout = options.timeout || 60000;
-
+			//console.log('timeout',url,options.timeout);
+			
 			timeout = setTimeout(function(xhr, url, options){
 				return function timeoutHandler(){
 					killAjaxCall(xhr, url, options);
