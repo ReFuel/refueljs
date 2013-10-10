@@ -20,5 +20,5 @@ Refuel.config.modules = {
 	},
 	'scroller': {
 		className: 'ScrollerModule'
-	},
+	}
 };
