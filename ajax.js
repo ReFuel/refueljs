@@ -6,6 +6,7 @@ Refuel.static('ajax',
 			enabled: false
 		}
 		var config = {
+			'callerModule': this,
 		    mimeType: 'json',
 		    headers: {
 				'Content-Type': 'application/json',
@@ -109,14 +110,13 @@ Refuel.static('ajax',
 						try {
 							switch(options.mimeType) {
 								case 'json':
-									resp.responseJSON = JSON.parse(resp.responseText) || {};	
+									resp.responseJSON = JSON.parse(resp.responseText) || {};	
 								break;
 							}
 						}
 						catch (e) {
 							console.error("Parsing Error in responseText", resp);
-							type = 'error';							
-//throw "Parsing Error [responseText] in "+url;
+							type = 'error';
 						}
 					}
 

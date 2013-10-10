@@ -1,6 +1,16 @@
 (function() {
-	var config = window['Refuel'] ? Refuel.config : {};
+	var config = {
+		basePath: '/',
+		requireFilePath: 'lib/require.min.js',
+		libs: {
+			Path: 'lib/path.min.js',
+			Hammer: 'lib/hammer.min.js',
+			polyfills: 'lib/polyfills.min.js'
+		},
+		autoObserve: true
+	}
 	window.Refuel = window['Refuel'] || {};
+	Refuel.config = Refuel.config || config; //overwrite not merge
 	var classMap = {};
 	var defaultClassName = '_Refuel-default-start-class';
 	Refuel.classMap = classMap;
@@ -22,7 +32,7 @@
 	}
 
 	Refuel.isArray = function(target) {
-		return target.toString() === '[object Array]';
+		return Object.prototype.toString.call(target) === '[object Array]';
 	}
 	Refuel.isUndefined = function(target) {
 		return typeof(target) === 'undefined';

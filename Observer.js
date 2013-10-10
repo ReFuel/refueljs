@@ -41,12 +41,12 @@ Refuel.define('Observer',{require: ['ObservableArray'], inherits: 'Events'},
 			
 			//console.log('makeObservable(resolved):',name);
 			//Observe an Array
-	        if (Refuel.isArray(value)) {
+	        if (value && Refuel.isArray(value)) {
 				parent[propName] = Refuel.createInstance('ObservableArray', {'value': value});
 				makeObservable.call(this, name);
 			}
 			//Observe (an already) ObservableArray
-			else if (Refuel.refuelClass(value) == 'ObservableArray') {
+			else if (value && Refuel.refuelClass(value) == 'ObservableArray') {
 				parent[propName].subscribe('_oa_update', function(e) {
 					e.observer = _map[name];
 					this.notify('_oa_update', e);

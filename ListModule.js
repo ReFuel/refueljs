@@ -126,7 +126,6 @@ Refuel.define('ListModule',{inherits: 'AbstractModule', require:'ListItemModule'
 
         function addListItem(obj) {
             var rowStyle = getElementStyle.call(this);
-            this.elements['template'].removeAttribute('data-rf-template');
             var listItem = Refuel.newModule('ListItemModule', { 
                 parentRoot: config.root, 
                 template: this.elements['template'],
