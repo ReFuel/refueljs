@@ -17,14 +17,11 @@ Refuel.define('ListModule',{inherits: 'AbstractModule', require:'ListItemModule'
         this.init = function(myConfig) {
             config = Refuel.mix(config, myConfig);  
             delete config['data'];
-            this.selectedIndex = -1;
-
-            //XXX shouldnt auto-detect type?   
+            this.selectedIndex = -1;   
             this.dataSource.setConfig({defaultDataType: 'Array'});
-
             this.defineUpdateManager(oa_update.bind(this));
             if (config.root) this.template.setRoot(config.root);
-
+            this.template.parseTemplate();        
 
             if (this.dataSource) {
                 //console.log(config.dataLabel+' ('+Refuel.refuelClass(this)+') have dataSource and is waiting for data...');
@@ -32,8 +29,8 @@ Refuel.define('ListModule',{inherits: 'AbstractModule', require:'ListItemModule'
                     if (config.maxLength && e.data.length > config.maxLength) this.data = e.data.slice(0, config.maxLength);
                     //console.log(this.dataLabel,'got all data ',this.data,', now can draw()');
                     this.notify('loadComplete');
-                    this.draw();
                     set.call(this);
+                    this.draw();
                 }, this);
                 this.dataSource.init(config);    
             }

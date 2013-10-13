@@ -152,7 +152,6 @@ Refuel.define('ScrollerModule', {inherits: 'Events'},
 			startTime = Number( new Date() );
 			delta = 0;
 			e.stopPropagation();
-// 			e.preventDefault();
 		};
 		
 		function onTouchMove(e) {
@@ -176,7 +175,6 @@ Refuel.define('ScrollerModule', {inherits: 'Events'},
 			applyStyle(element, 'transform', 'translate3d(0,' + newY + 'px,0)');			
 			scrollBarMove(newY);
 			//block event here
-			//e.stopPropagation();
 			moveArray.push(newY);
 		};
 		
@@ -204,7 +202,6 @@ Refuel.define('ScrollerModule', {inherits: 'Events'},
 				
 				//check upper bound
 				if (newY > 0) {
-					//console.log('1');
 					applyStyle(element, 'transform', 'translate3d(0,' + (elong) + 'px,0)');
 					applyStyle(element, 'transition',  elong + 'ms linear');					
 					scrollBarEnd(elong);
@@ -214,7 +211,6 @@ Refuel.define('ScrollerModule', {inherits: 'Events'},
 					
 				}//check lower bound
 				else if ((Math.abs(newY) >= Math.abs(height))) {
-					//console.log('2');
 					var tvalue = 'translate3d(0,' + (-(height + elong)) + 'px,0)';
 					applyStyle(element, 'transform', tvalue);
 					applyStyle(element, 'transition',  elong + 'ms linear');	
@@ -224,7 +220,6 @@ Refuel.define('ScrollerModule', {inherits: 'Events'},
 					eventType = 'lowerBoundReached';
 				}
 				else {
-					//console.log('3');
 					moveTo(newY);
 					scrollBarEnd(newY);
 					eventType = 'movedTo';
@@ -232,15 +227,13 @@ Refuel.define('ScrollerModule', {inherits: 'Events'},
 			}
 			else {
 				if ((newY > 0) || (height < 0)) {
-					//console.log('4');
 					fixToUpperBound();
-					e.stopPropagation();
+					//e.stopPropagation();
 					return;
 				}
 				if ((Math.abs(newY) >= Math.abs(height))) {
-					//console.log('5');
 					fixToLowerBound(elementHeight);
-					e.stopPropagation();
+					//e.stopPropagation();
 					return;
 				}
 				if (scrollBar) scrollBar.style.display = "none";	
@@ -248,7 +241,7 @@ Refuel.define('ScrollerModule', {inherits: 'Events'},
 			oldDelta = 0;
 			//set the new starting point
 			index = newY;
-			e.stopPropagation();
+			//e.stopPropagation();
 			if (eventType) this.notify(eventType, {y: index});
 		};
 		
