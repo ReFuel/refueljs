@@ -238,18 +238,20 @@ Refuel.config.modules = {
 	Refuel.static = function(className, body) {
 		Refuel[className] = body();
 	}
-	
+	var userDefinedModules;
  	var head = document.querySelector('head');
- 	var script = head.querySelector('script[data-rf-startup]'); 
+ 	var script = head.querySelector('script[data-rf-startup]');
+ 	var userModulesElement = head.querySelector('script[data-rf-confmodules]');
  	var node = document.createElement('script');
+ 	if (userModulesElement) {
+	 	userDefinedModules = userModulesElement.getAttribute('data-rf-confmodules');
+ 	}
 	//var path = window.location.pathname;
 	if (script) {
 	 	var startupModule = script.getAttribute('data-rf-startup');
 	 	var startupPath = startupModule.split('/');
 	 	startupModule = startupPath[startupPath.length-1];
 		startupPath = startupPath.slice(0,startupPath.length-1).join('/') || '.';
-	 	//path = script.getAttribute('src').split('/');
-	 	//path = path.slice(0,path.length-1).join('/');
 	}
 
  	if (typeof define == 'undefined') {
@@ -285,7 +287,14 @@ Refuel.config.modules = {
       	for (var lib in Refuel.config.libs) {
       		if (!window[lib]) startupRequirements.push(Refuel.config.libs[lib]);
       	}
-      	if (!Refuel.config.modules) startupRequirements.push('config.modules');
+
+      	if(userDefinedModules) {
+      		startupRequirements.push(userDefinedModules);	
+      	} 
+      	else {
+      		if (!Refuel.config.modules) startupRequirements.push('config.modules');	
+      	}
+      	
       	require(startupRequirements, function() {
       		try {
 				Path.listen();
@@ -733,6 +742,7 @@ Refuel.define('AbstractModule', {require: ['Template', 'DataSource'], inherits: 
             data = data || this.data;
             //this.clearObservers();
             this.template.render(data);
+            this.notify('drawComplete');
         }
 
         /**
@@ -1832,7 +1842,7 @@ Refuel.define('GenericModule',{inherits: 'AbstractModule'},
                     //console.log(config.dataLabel, Refuel.refuelClass(this),'got all data (dataAvailable), now he can draw()');
                     this.notify('loadComplete');
                     this.draw();
-                    this.notify('drawComplete');
+                    //this.notify('drawComplete');
                 }, this);
                 this.dataSource.init(config);
             }
@@ -1874,7 +1884,7 @@ Refuel.define('ListModule',{inherits: 'AbstractModule', require:'ListItemModule'
                     this.notify('loadComplete');
                     this.draw();
                     set.call(this);
-                    this.notify('drawComplete');
+                    //this.notify('drawComplete');
                 }, this);
                 this.dataSource.init(config);    
             }
@@ -2041,7 +2051,7 @@ Refuel.define('ListItemModule', {inherits: 'AbstractModule'},
                     //console.log(Refuel.refuelClass(this),'got all data (dataAvailable), now he can draw()');
                     this.notify('loadComplete');
                     this.draw();
-                    this.notify('drawComplete');
+                    //this.notify('drawComplete');
                 }, this);
                 this.dataSource.init(config);    
             }
@@ -2059,6 +2069,7 @@ Refuel.define('ListItemModule', {inherits: 'AbstractModule'},
         this.draw = function() {
             if (!config.template) throw "No template found for ListItemModule";
             this.template.create(config.parentRoot, config.template, this.data);
+            this.notify('drawComplete');
         }
         this.select = function() {
             this.classList.add('selected');
@@ -2108,7 +2119,7 @@ Refuel.define('SaytModule', {inherits: 'GenericModule', require: ['ListModule']}
                 this.dataSource.subscribe('dataAvailable', function(data) {
                     this.notify('loadComplete');
                     this.draw();
-                    this.notify('drawComplete');
+                    //this.notify('drawComplete');
                 }, this);
                 this.dataSource.init(config);
             }
@@ -2199,6 +2210,7 @@ Refuel.define('SaytModule', {inherits: 'GenericModule', require: ['ListModule']}
 
             //theList.toggleClass('show', data.length);
             data.length ? this.show() : this.hide();
+            this.notify('drawComplete');
         }
 
         function handleTyping(e) {

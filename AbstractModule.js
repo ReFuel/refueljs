@@ -159,6 +159,7 @@ Refuel.define('AbstractModule', {require: ['Template', 'DataSource'], inherits: 
             data = data || this.data;
             //this.clearObservers();
             this.template.render(data);
+            this.notify('drawComplete');
         }
 
         /**

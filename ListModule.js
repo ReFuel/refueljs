@@ -34,7 +34,6 @@ Refuel.define('ListModule',{inherits: 'AbstractModule', require:'ListItemModule'
                     this.notify('loadComplete');
                     this.draw();
                     set.call(this);
-                    this.notify('drawComplete');
                 }, this);
                 this.dataSource.init(config);    
             }

@@ -179,18 +179,20 @@
 	Refuel.static = function(className, body) {
 		Refuel[className] = body();
 	}
-	
+	var userDefinedModules;
  	var head = document.querySelector('head');
- 	var script = head.querySelector('script[data-rf-startup]'); 
+ 	var script = head.querySelector('script[data-rf-startup]');
+ 	var userModulesElement = head.querySelector('script[data-rf-confmodules]');
  	var node = document.createElement('script');
+ 	if (userModulesElement) {
+	 	userDefinedModules = userModulesElement.getAttribute('data-rf-confmodules');
+ 	}
 	//var path = window.location.pathname;
 	if (script) {
 	 	var startupModule = script.getAttribute('data-rf-startup');
 	 	var startupPath = startupModule.split('/');
 	 	startupModule = startupPath[startupPath.length-1];
 		startupPath = startupPath.slice(0,startupPath.length-1).join('/') || '.';
-	 	//path = script.getAttribute('src').split('/');
-	 	//path = path.slice(0,path.length-1).join('/');
 	}
 
  	if (typeof define == 'undefined') {
@@ -226,7 +228,14 @@
       	for (var lib in Refuel.config.libs) {
       		if (!window[lib]) startupRequirements.push(Refuel.config.libs[lib]);
       	}
-      	if (!Refuel.config.modules) startupRequirements.push('config.modules');
+
+      	if(userDefinedModules) {
+      		startupRequirements.push(userDefinedModules);	
+      	} 
+      	else {
+      		if (!Refuel.config.modules) startupRequirements.push('config.modules');	
+      	}
+      	
       	require(startupRequirements, function() {
       		try {
 				Path.listen();

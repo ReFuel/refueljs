@@ -36,7 +36,6 @@ Refuel.define('SaytModule', {inherits: 'GenericModule', require: ['ListModule']}
                 this.dataSource.subscribe('dataAvailable', function(data) {
                     this.notify('loadComplete');
                     this.draw();
-                    this.notify('drawComplete');
                 }, this);
                 this.dataSource.init(config);
             }
@@ -127,6 +126,7 @@ Refuel.define('SaytModule', {inherits: 'GenericModule', require: ['ListModule']}
 
             //theList.toggleClass('show', data.length);
             data.length ? this.show() : this.hide();
+            this.notify('drawComplete');
         }
 
         function handleTyping(e) {

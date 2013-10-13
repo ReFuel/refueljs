@@ -21,7 +21,6 @@ Refuel.define('ListItemModule', {inherits: 'AbstractModule'},
                     //console.log(Refuel.refuelClass(this),'got all data (dataAvailable), now he can draw()');
                     this.notify('loadComplete');
                     this.draw();
-                    this.notify('drawComplete');
                 }, this);
                 this.dataSource.init(config);    
             }
@@ -39,6 +38,7 @@ Refuel.define('ListItemModule', {inherits: 'AbstractModule'},
         this.draw = function() {
             if (!config.template) throw "No template found for ListItemModule";
             this.template.create(config.parentRoot, config.template, this.data);
+            this.notify('drawComplete');
         }
         this.select = function() {
             this.classList.add('selected');
