@@ -180,7 +180,18 @@ Refuel.define('ScrollerModule', {inherits: 'Events'},
 		
 		function applyStyle(dom, name, value) {
 			var atr = Modernizr.prefixed(name);
+			
+			if (Modernizr.Detectizr.device.browser == 'firefox') {
+				name = cap(name)
+				atr = 'Moz'+name
+			}
+			
 			dom.style[atr] = value;
+			
+		}
+		function cap(string)
+		{
+		    return string.charAt(0).toUpperCase() + string.slice(1);
 		}
 
 		function onTouchEnd(e) {
